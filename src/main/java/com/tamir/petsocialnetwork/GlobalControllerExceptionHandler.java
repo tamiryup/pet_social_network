@@ -1,0 +1,56 @@
+package com.tamir.petsocialnetwork;
+
+import com.tamir.petsocialnetwork.exceptions.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.io.IOException;
+
+@ControllerAdvice
+public class GlobalControllerExceptionHandler {
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(UserCollisionException.class)
+    @ResponseBody
+    public ErrorMessage handleUserCollisionException(UserCollisionException e){
+        ErrorMessage error = new ErrorMessage("User Collision", e.getMessage());
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidUserException.class)
+    @ResponseBody
+    public ErrorMessage handleInvalidUserException(InvalidUserException e){
+        ErrorMessage error = new ErrorMessage("Invalid User", "The user does not exist");
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(S3Exception.class)
+    @ResponseBody
+    public ErrorMessage handleS3Exception(S3Exception e){
+        ErrorMessage error = new ErrorMessage("S3 Error", e.getMessage());
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(StreamException.class)
+    @ResponseBody
+    public ErrorMessage handleStreamException(StreamException e){
+        ErrorMessage error = new ErrorMessage("Stream Error", e.getMessage());
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ExceptionHandler(NoMoreActivitiesException.class)
+    @ResponseBody
+    public ErrorMessage handleNoMoreActivitiesException(NoMoreActivitiesException e){
+        ErrorMessage error = new ErrorMessage("No More Feed Activities",
+                "There are no more activities in this feed");
+        return error;
+    }
+
+}
