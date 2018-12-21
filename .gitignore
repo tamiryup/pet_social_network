@@ -27,3 +27,6 @@
 ### Others ###
 .DS_Store
 
+### Credentials ###
+MyAWSCredentials.java
+*.properties
