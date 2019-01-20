@@ -53,4 +53,20 @@ public class GlobalControllerExceptionHandler {
         return error;
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidAuthData.class)
+    @ResponseBody
+    public ErrorMessage handleInvalidAuthData(InvalidAuthData e){
+        ErrorMessage error = new ErrorMessage("Invalid Authentication Data", e.getMessage());
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidPassword.class)
+    @ResponseBody
+    public ErrorMessage handleInvalidPassowrd(InvalidPassword e){
+        ErrorMessage error = new ErrorMessage("Invalid Password", e.getMessage());
+        return error;
+    }
+
 }

@@ -68,8 +68,15 @@ public class SocialController {
     }
 
     @GetMapping("follow-masters")
+    @ResponseBody
     public List<FeedFollowDTO> getUserMasters(@PathVariable long id, @RequestParam int offset){
         return feedService.getUserMasters(id, offset);
+    }
+
+    @GetMapping("is-following")
+    @ResponseBody
+    public boolean isFollowing(@PathVariable long id, @RequestParam long masterId){
+        return followService.isFollowing(masterId, id);
     }
 
 }

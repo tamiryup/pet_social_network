@@ -9,4 +9,6 @@ public interface FollowRepository extends CrudRepository<Follow, FollowKey> {
     long countByMasterId(long masterId);
 
     long countBySlaveId(long slaveId);
+
+    boolean existsByMasterIdAndSlaveId(long masterId, long slaveId);
 }

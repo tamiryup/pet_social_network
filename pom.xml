@@ -5,7 +5,7 @@
 
 	<groupId>com.tamir</groupId>
 	<artifactId>pet-social-network</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>pet-social-network</name>
@@ -54,11 +54,18 @@
 			<version>2.6</version>
 		</dependency>
 
-		<!-- aws java sdk -->
+		<!-- aws S3 java sdk -->
 		<dependency>
 			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk</artifactId>
-			<version>1.11.163</version>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.11.447</version>
+		</dependency>
+
+		<!-- aws cognito -->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-cognitoidp</artifactId>
+			<version>1.11.447</version>
 		</dependency>
 
         <!-- stream dependency -->
@@ -87,6 +94,14 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>26.0-jre</version>
+		</dependency>
+
+		<!-- lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.2</version>
+			<scope>provided</scope>
 		</dependency>
 
 	</dependencies>

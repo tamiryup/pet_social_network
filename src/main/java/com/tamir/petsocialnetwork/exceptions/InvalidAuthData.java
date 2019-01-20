@@ -1,4 +1,8 @@
 package com.tamir.petsocialnetwork.exceptions;
 
-public class InvalidAuthData {
+public class InvalidAuthData extends RuntimeException {
+
+    public InvalidAuthData(String message){
+        super(message);
+    }
 }

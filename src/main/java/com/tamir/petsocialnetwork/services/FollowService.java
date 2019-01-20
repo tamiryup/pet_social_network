@@ -52,4 +52,8 @@ public class FollowService {
             throw new InvalidUserException();
         return followRepo.countBySlaveId(slaveId);
     }
+
+    public boolean isFollowing(long masterId, long slaveId){
+        return followRepo.existsByMasterIdAndSlaveId(masterId, slaveId);
+    }
 }

@@ -85,7 +85,12 @@ public class FeedService {
         List<User> users = userService.findAllById(ids);
         List<FeedFollowDTO> dtos = new ArrayList<>();
         for(User user : users){
-            dtos.add(new FeedFollowDTO(user.getProfileImageAddr(), user.getUsername()));
+
+            FeedFollowDTO dto = new FeedFollowDTO();
+            dto.setProfileImageAddr(user.getProfileImageAddr());
+            dto.setUsername(user.getUsername());
+            dto.setId(user.getId());
+            dtos.add(dto);
         }
         return dtos;
     }

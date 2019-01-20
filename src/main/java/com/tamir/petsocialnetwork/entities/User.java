@@ -1,6 +1,10 @@
 package com.tamir.petsocialnetwork.entities;
 
 import com.tamir.petsocialnetwork.CommonBeanConfig;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -8,6 +12,9 @@ import java.util.Date;
 @Entity
 @Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = "username"),
         @UniqueConstraint(columnNames = "email")})
+@NoArgsConstructor
+@Getter
+@ToString
 public class User {
 
     @Id
@@ -17,27 +24,20 @@ public class User {
 
     private String username;
     private String fullName;
+    @Setter
     private String profileImageAddr;
 
     @Column(columnDefinition = "TEXT")
+    @Setter
     private String description;
 
-    @Column(columnDefinition = "varchar(320)" )
+    @Column(columnDefinition = "varchar(320)")
     private String email;
 
-    private String hashedPassword;
     private Date birthDate;
 
-    /**
-     * default constructor for hibernate
-     */
-    public User() {
-
-    }
-
-    public User(String email, String hashedPassword, String username, String fullName, Date birthDate) {
+    public User(String email, String username, String fullName, Date birthDate) {
         this.email = email;
-        this.hashedPassword = hashedPassword;
         this.username = username;
         this.fullName = fullName;
         this.birthDate = birthDate;
@@ -45,57 +45,4 @@ public class User {
         this.description = CommonBeanConfig.getDefaultUserDescription();
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public String getProfileImageAddr() {
-        return profileImageAddr;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getHashedPassword() {
-        return hashedPassword;
-    }
-
-    public Date getBirthDate() {
-        return birthDate;
-    }
-
-    public void setProfileImageAddr(String addr){
-        this.profileImageAddr = addr;
-    }
-
-    public void setDescription(String description){
-        this.description = description;
-    }
-
-    public void nullPassword(){
-        this.hashedPassword=null;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", profileImageAddr='" + profileImageAddr + '\'' +
-                ", description='" + description + '\'' +
-                '}';
-    }
 }

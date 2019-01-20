@@ -27,7 +27,6 @@ public class UserInfoController {
         User user = userService.findById(id);
         if(user==null)
             throw new InvalidUserException();
-        user.nullPassword();
         return user;
     }
 
