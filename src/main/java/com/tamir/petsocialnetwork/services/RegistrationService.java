@@ -15,6 +15,9 @@ import com.tamir.petsocialnetwork.helpers.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 @Service
 public class RegistrationService {
 
@@ -40,7 +43,7 @@ public class RegistrationService {
         cognitoService.signUp(signupReq.getUserName(), signupReq.getPassword(), signupReq.getEmail(), user.getId());
     }
 
-    public AuthResultDTO signIn(String username, String password) {
+    public AuthResultDTO signIn(HttpServletResponse response, String username, String password) {
         User user;
         AuthenticationResultType authResult;
 
@@ -63,11 +66,38 @@ public class RegistrationService {
         AuthResultDTO authResultDTO = new AuthResultDTO();
         authResultDTO.setUserId(user.getId());
         authResultDTO.setUserName(user.getUsername());
-        authResultDTO.setIdToken(authResult.getIdToken());
-        authResultDTO.setAccessToken(authResult.getAccessToken());
-        authResultDTO.setRefreshToken(authResult.getRefreshToken());
+
+        setResponseCookies(response, authResult);
 
         return authResultDTO;
+    }
+
+    public void setResponseCookies(HttpServletResponse response, AuthenticationResultType authResult) {
+
+        //set id_token cookie
+        Cookie idTokenCookie = new Cookie("id_token", authResult.getIdToken());
+        idTokenCookie.setMaxAge(authResult.getExpiresIn() - 5*60);
+        idTokenCookie.setPath("/");
+        idTokenCookie.setHttpOnly(true);
+        //idTokenCookie.setSecure(true);
+
+        //set access_token cookie
+        Cookie accessTokenCookie = new Cookie("access_token", authResult.getAccessToken());
+        accessTokenCookie.setMaxAge(authResult.getExpiresIn() - 5*60);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setHttpOnly(true);
+        //accessTokenCookie.setSecure(true);
+
+        //set refresh_token cookie
+        Cookie refreshTokenCookie = new Cookie("refresh_token", authResult.getRefreshToken());
+        refreshTokenCookie.setMaxAge(60*60*24*365*10 - 5*60); //ten years - 5 minutes
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
+        //refreshTokenCookie.setSecure(true);
+
+        response.addCookie(idTokenCookie);
+        response.addCookie(accessTokenCookie);
+        response.addCookie(refreshTokenCookie);
     }
 
     private boolean isValidPassword(String password) {

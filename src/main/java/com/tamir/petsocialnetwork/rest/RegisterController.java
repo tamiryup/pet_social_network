@@ -7,6 +7,8 @@ import com.tamir.petsocialnetwork.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping("registration")
 public class RegisterController {
@@ -19,9 +21,9 @@ public class RegisterController {
 
     @PostMapping(value = "/signup", consumes = "application/json", produces = "application/json")
     @ResponseBody
-    public AuthResultDTO signupNewUser(@RequestBody SignupRequestDTO signupReq) {
+    public AuthResultDTO signupNewUser(HttpServletResponse response, @RequestBody SignupRequestDTO signupReq) {
         registrationService.signup(signupReq);
-        AuthResultDTO authResultDTO = registrationService.signIn(signupReq.getUserName(), signupReq.getPassword());
+        AuthResultDTO authResultDTO = registrationService.signIn(response, signupReq.getUserName(), signupReq.getPassword());
         return authResultDTO;
     }
 
@@ -39,8 +41,9 @@ public class RegisterController {
 
     @GetMapping(value = "/signin", produces = "application/json")
     @ResponseBody
-    public AuthResultDTO signinUser(@RequestParam String username, @RequestParam String password) {
-        AuthResultDTO authResultDTO = registrationService.signIn(username, password);
+    public AuthResultDTO signinUser(HttpServletResponse response,
+                                    @RequestParam String username, @RequestParam String password) {
+        AuthResultDTO authResultDTO = registrationService.signIn(response, username, password);
         return authResultDTO;
     }
 
