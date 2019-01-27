@@ -69,4 +69,19 @@ public class GlobalControllerExceptionHandler {
         return error;
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidToken.class)
+    @ResponseBody
+    public ErrorMessage handleInvalidToken(InvalidToken e) {
+        ErrorMessage error = new ErrorMessage("Invaid Token", e.getMessage());
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(UrlException.class)
+    @ResponseBody
+    public ErrorMessage handleUrlException(UrlException e) {
+        ErrorMessage error = new ErrorMessage("Malformed URL", e.getMessage());
+        return error;
+    }
 }
