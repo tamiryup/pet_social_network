@@ -74,6 +74,20 @@ public class RegistrationService {
 
     public void setResponseCookies(HttpServletResponse response, AuthenticationResultType authResult) {
 
+        setIdAndAccessCookies(response, authResult);
+
+        //set refresh_token cookie
+        Cookie refreshTokenCookie = new Cookie("refresh_token", authResult.getRefreshToken());
+        refreshTokenCookie.setMaxAge(60*60*24*365*10 - 5*60); //ten years - 5 minutes
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
+        //refreshTokenCookie.setSecure(true);
+
+        response.addCookie(refreshTokenCookie);
+    }
+
+    public void setIdAndAccessCookies(HttpServletResponse response, AuthenticationResultType authResult) {
+
         //set id_token cookie
         Cookie idTokenCookie = new Cookie("id_token", authResult.getIdToken());
         idTokenCookie.setMaxAge(authResult.getExpiresIn() - 5*60);
@@ -88,16 +102,8 @@ public class RegistrationService {
         accessTokenCookie.setHttpOnly(true);
         //accessTokenCookie.setSecure(true);
 
-        //set refresh_token cookie
-        Cookie refreshTokenCookie = new Cookie("refresh_token", authResult.getRefreshToken());
-        refreshTokenCookie.setMaxAge(60*60*24*365*10 - 5*60); //ten years - 5 minutes
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setHttpOnly(true);
-        //refreshTokenCookie.setSecure(true);
-
         response.addCookie(idTokenCookie);
         response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
     }
 
     private boolean isValidPassword(String password) {

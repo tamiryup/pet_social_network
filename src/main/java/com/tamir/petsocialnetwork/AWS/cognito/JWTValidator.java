@@ -30,27 +30,36 @@ public class JWTValidator {
     @Value("${ps.cognito.issuer}")
     private String issuer;
 
-    public void validateIdToken(String token) throws ParseException {
-        JWTClaimsSet claimsSet = validateToken(token);
-        String tokenUse = claimsSet.getStringClaim("token_use");
-        if(!tokenUse.equals("id")){
-            throw new InvalidToken("Wrong token use");
-        }
+    public JWTClaimsSet validateIdToken(String token) {
+        return validateSpecificToken(token, "id");
     }
 
-    public void validateAccessToken(String token) throws ParseException {
+    public JWTClaimsSet validateAccessToken(String token) {
+        return validateSpecificToken(token, "access");
+    }
+
+    private JWTClaimsSet validateSpecificToken(String token, String wantedTokenUse){
         JWTClaimsSet claimsSet = validateToken(token);
-        String tokenUse = claimsSet.getStringClaim("token_use");
-        if(!tokenUse.equals("access")) {
+        String tokenUse;
+
+        try {
+            tokenUse = claimsSet.getStringClaim("token_use");
+        } catch (ParseException e) {
+            throw new InvalidToken("Missing token_use field");
+        }
+
+        if(!tokenUse.equals(wantedTokenUse)){
             throw new InvalidToken("Wrong token use");
         }
+
+        return claimsSet;
     }
 
     public JWTClaimsSet validateToken(String token) {
         JWTClaimsSet claimsSet = verifySignature(token);
 
         //verify audience
-        if(!claimsSet.getAudience().equals(audience)) {
+        if(!claimsSet.getAudience().get(0).equals(audience)) {
             throw new InvalidToken("Wrong audience");
         }
 

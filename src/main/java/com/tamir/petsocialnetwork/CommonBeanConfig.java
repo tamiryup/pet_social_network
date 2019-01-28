@@ -1,7 +1,9 @@
 package com.tamir.petsocialnetwork;
 
 import com.tamir.petsocialnetwork.filters.AuthenticationFilter;
+import com.tamir.petsocialnetwork.services.AuthService;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +33,9 @@ public class CommonBeanConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Autowired
+    private AuthService authService;
+
     @Bean
     public CorsFilter corsFilter(){
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -48,7 +53,7 @@ public class CommonBeanConfig {
         FilterRegistrationBean<AuthenticationFilter> registrationBean =
                 new FilterRegistrationBean<>();
 
-        registrationBean.setFilter(new AuthenticationFilter());
+        registrationBean.setFilter(new AuthenticationFilter(authService));
         registrationBean.addUrlPatterns("/user-info/*");
         registrationBean.addUrlPatterns("/social/*");
         registrationBean.addUrlPatterns("/settings/*");
