@@ -88,7 +88,7 @@ public class AuthService {
 
                 try {
                     tryValidateIdToken(resultType.getIdToken(), reqUserId);
-                    registrationService.setIdAndAccessCookies(response, resultType);
+                    HttpHelper.setIdAndAccessCookies(response, resultType);
                 } catch (InvalidToken invalidToken) {
                     throw new NoAuthException();
                 }

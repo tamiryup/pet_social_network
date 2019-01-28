@@ -2,6 +2,7 @@ package com.tamir.petsocialnetwork.rest;
 
 import com.tamir.petsocialnetwork.dto.SignupRequestDTO;
 import com.tamir.petsocialnetwork.dto.AuthResultDTO;
+import com.tamir.petsocialnetwork.helpers.HttpHelper;
 import com.tamir.petsocialnetwork.services.RegistrationService;
 import com.tamir.petsocialnetwork.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,14 @@ public class RegisterController {
         return authResultDTO;
     }
 
+    @GetMapping(value = "/signin", produces = "application/json")
+    @ResponseBody
+    public AuthResultDTO signinUser(HttpServletResponse response,
+                                    @RequestParam String username, @RequestParam String password) {
+        AuthResultDTO authResultDTO = registrationService.signIn(response, username, password);
+        return authResultDTO;
+    }
+
     @GetMapping(value = "/check-username-exists")
     @ResponseBody
     public boolean checkUsernameExists(@RequestParam String username) {
@@ -39,13 +48,6 @@ public class RegisterController {
         return userService.existsByEmail(email);
     }
 
-    @GetMapping(value = "/signin", produces = "application/json")
-    @ResponseBody
-    public AuthResultDTO signinUser(HttpServletResponse response,
-                                    @RequestParam String username, @RequestParam String password) {
-        AuthResultDTO authResultDTO = registrationService.signIn(response, username, password);
-        return authResultDTO;
-    }
 
     //TODO: confirm signup endpoint - using the verification code sent to email
 
