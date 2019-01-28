@@ -84,4 +84,12 @@ public class GlobalControllerExceptionHandler {
         ErrorMessage error = new ErrorMessage("Malformed URL", e.getMessage());
         return error;
     }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(NoAuthException.class)
+    @ResponseBody
+    public ErrorMessage handleNoAuthException(NoAuthException e) {
+        ErrorMessage error = new ErrorMessage("Not Authorized", e.getMessage());
+        return error;
+    }
 }
