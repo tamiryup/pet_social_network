@@ -12,21 +12,15 @@ public class HttpHelper {
 
     public static String[] cookieNames = new String[]{"id_token", "access_token", "refresh_token"};
 
-    public static Map<String, Cookie> getCookieMapFromRequest(HttpServletRequest request) {
-        Map<String, Cookie> cookieMap = new HashMap<>();
-
-        Cookie[] cookieArr = request.getCookies();
-        for(Cookie cookie : cookieArr) {
-            cookieMap.put(cookie.getName(), cookie);
-        }
-
-        return cookieMap;
-    }
-
     public static Map<String, String> getCookieValueMapFromRequest(HttpServletRequest request) {
         Map<String, String> cookeValuesMap = new HashMap<>();
 
         Cookie[] cookieArr = request.getCookies();
+
+        if(cookieArr == null){
+            return cookeValuesMap;
+        }
+
         for(Cookie cookie : cookieArr) {
             cookeValuesMap.put(cookie.getName(), cookie.getValue());
         }
