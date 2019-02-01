@@ -1,6 +1,7 @@
 package com.tamir.petsocialnetwork.AWS.cognito;
 
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.RemoteKeySourceException;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -91,6 +92,8 @@ public class JWTValidator {
         SecurityContext ctx = null; // optional context parameter, not required here
         try {
             claimsSet = jwtProcessor.process(token, ctx);
+        }catch(RemoteKeySourceException e) {
+            throw new UrlException("connection timed out");
         } catch (Exception e) {
             throw new InvalidToken("Signature didn't pass");
         }
