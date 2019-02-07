@@ -4,6 +4,7 @@ import com.tamir.petsocialnetwork.filters.AuthenticationFilter;
 import com.tamir.petsocialnetwork.services.AuthService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +29,8 @@ public class CommonBeanConfig {
     private final static int readFollowersRequestLimit = 15;
 
     @Autowired
-    private AuthService authService;
+    @Qualifier("filterAuthService")
+    private AuthService filterAuthService;
 
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilter(){
@@ -49,7 +51,7 @@ public class CommonBeanConfig {
     @Bean
     public FilterRegistrationBean<AuthenticationFilter> authFilter(
             @Value("${ps.should-authenticate}") boolean shouldAuth) {
-        AuthenticationFilter authFilter = new AuthenticationFilter(authService);
+        AuthenticationFilter authFilter = new AuthenticationFilter(filterAuthService);
         FilterRegistrationBean<AuthenticationFilter> registrationBean =
                 new FilterRegistrationBean<>();
 

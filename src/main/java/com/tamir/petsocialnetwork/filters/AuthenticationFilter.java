@@ -1,15 +1,12 @@
 package com.tamir.petsocialnetwork.filters;
 
-import com.tamir.petsocialnetwork.helpers.HttpHelper;
 import com.tamir.petsocialnetwork.services.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 
 @Component
 public class AuthenticationFilter implements Filter {
@@ -18,6 +15,10 @@ public class AuthenticationFilter implements Filter {
 
     public AuthenticationFilter(AuthService authService) {
         this.authService = authService;
+    }
+
+    public AuthenticationFilter() {
+
     }
 
     @Override

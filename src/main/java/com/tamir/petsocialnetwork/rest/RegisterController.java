@@ -1,13 +1,16 @@
 package com.tamir.petsocialnetwork.rest;
 
-import com.tamir.petsocialnetwork.dto.SignupRequestDTO;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.tamir.petsocialnetwork.dto.AuthResultDTO;
-import com.tamir.petsocialnetwork.helpers.HttpHelper;
+import com.tamir.petsocialnetwork.dto.SignupRequestDTO;
+import com.tamir.petsocialnetwork.services.AuthService;
 import com.tamir.petsocialnetwork.services.RegistrationService;
 import com.tamir.petsocialnetwork.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
@@ -19,6 +22,10 @@ public class RegisterController {
 
     @Autowired
     RegistrationService registrationService;
+
+    @Autowired
+    @Qualifier("defaultAuthService")
+    AuthService authService;
 
     @PostMapping(value = "/signup", consumes = "application/json", produces = "application/json")
     @ResponseBody
@@ -34,6 +41,18 @@ public class RegisterController {
                                     @RequestParam String username, @RequestParam String password) {
         AuthResultDTO authResultDTO = registrationService.signIn(response, username, password);
         return authResultDTO;
+    }
+
+    @GetMapping(value = "/auto-login")
+    @ResponseBody
+    public AuthResultDTO autoLogin(HttpServletRequest request, HttpServletResponse response) {
+        JWTClaimsSet claimsSet = authService.authenticateRequest(request, response);
+
+        AuthResultDTO authRes = new AuthResultDTO(
+                Long.parseLong((String) claimsSet.getClaim("custom:id")),
+                (String) claimsSet.getClaim("cognito:username"));
+
+        return authRes;
     }
 
     @GetMapping(value = "/check-username-exists")
