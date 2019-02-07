@@ -10,11 +10,8 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import com.sun.javafx.tools.packager.PackagerException;
 import com.tamir.petsocialnetwork.exceptions.InvalidToken;
 import com.tamir.petsocialnetwork.exceptions.UrlException;
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -28,16 +26,11 @@ public class CommonBeanConfig {
     @Getter
     private final static int readFollowersRequestLimit = 15;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     @Autowired
     private AuthService authService;
 
     @Bean
-    public CorsFilter corsFilter(){
+    public FilterRegistrationBean<CorsFilter> corsFilter(){
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
@@ -45,18 +38,25 @@ public class CommonBeanConfig {
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
+
+        CorsFilter corsFilter = new CorsFilter(source);
+        FilterRegistrationBean<CorsFilter> registrationBean =
+                new FilterRegistrationBean<>(corsFilter);
+        return registrationBean;
     }
 
     @Bean
     public FilterRegistrationBean<AuthenticationFilter> authFilter() {
+        AuthenticationFilter authFilter = new AuthenticationFilter(authService);
         FilterRegistrationBean<AuthenticationFilter> registrationBean =
                 new FilterRegistrationBean<>();
 
-        registrationBean.setFilter(new AuthenticationFilter(authService));
+        registrationBean.setFilter(authFilter);
         registrationBean.addUrlPatterns("/user-info/*");
         registrationBean.addUrlPatterns("/social/*");
         registrationBean.addUrlPatterns("/settings/*");
+
+        //registrationBean.setEnabled(false);
 
         return registrationBean;
     }
