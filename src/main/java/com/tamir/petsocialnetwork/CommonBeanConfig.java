@@ -4,6 +4,7 @@ import com.tamir.petsocialnetwork.filters.AuthenticationFilter;
 import com.tamir.petsocialnetwork.services.AuthService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,7 +47,8 @@ public class CommonBeanConfig {
     }
 
     @Bean
-    public FilterRegistrationBean<AuthenticationFilter> authFilter() {
+    public FilterRegistrationBean<AuthenticationFilter> authFilter(
+            @Value("${ps.should-authenticate}") boolean shouldAuth) {
         AuthenticationFilter authFilter = new AuthenticationFilter(authService);
         FilterRegistrationBean<AuthenticationFilter> registrationBean =
                 new FilterRegistrationBean<>();
@@ -56,7 +58,7 @@ public class CommonBeanConfig {
         registrationBean.addUrlPatterns("/social/*");
         registrationBean.addUrlPatterns("/settings/*");
 
-        //registrationBean.setEnabled(false);
+        registrationBean.setEnabled(shouldAuth);
 
         return registrationBean;
     }
