@@ -8,6 +8,8 @@ import com.tamir.petsocialnetwork.AWS.cognito.JWTValidator;
 import com.tamir.petsocialnetwork.exceptions.InvalidToken;
 import com.tamir.petsocialnetwork.exceptions.NoAuthException;
 import com.tamir.petsocialnetwork.helpers.HttpHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +18,8 @@ import java.util.Map;
 
 
 public abstract class AuthService {
+
+    final private static Logger LOGGER = LoggerFactory.getLogger(AuthService.class);
 
     @Autowired
     private CognitoService cognitoService;
@@ -54,6 +58,7 @@ public abstract class AuthService {
         } else if (cookieValueMap.containsKey("refresh_token")) {
             return tryPerfromRefresh(cookieValueMap, request, response);
         } else {
+            LOGGER.error("auth cookies aren't present in request");
             throw new NoAuthException();
         }
 
@@ -86,6 +91,7 @@ public abstract class AuthService {
                     HttpHelper.setIdAndAccessCookies(response, resultType);
                     return claimsSet;
                 } catch (InvalidToken invalidToken) {
+                    LOGGER.error("problems with refresh token");
                     throw new NoAuthException();
                 }
 

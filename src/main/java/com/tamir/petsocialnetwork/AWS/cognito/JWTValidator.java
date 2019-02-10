@@ -12,6 +12,8 @@ import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.tamir.petsocialnetwork.exceptions.InvalidToken;
 import com.tamir.petsocialnetwork.exceptions.UrlException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +23,8 @@ import java.text.ParseException;
 
 @Component
 public class JWTValidator {
+
+    final private static Logger LOGGER = LoggerFactory.getLogger(JWTValidator.class);
 
     @Value("${ps.cognito.client-id}")
     private String audience;
@@ -36,7 +40,7 @@ public class JWTValidator {
         return validateSpecificToken(token, "access");
     }
 
-    private JWTClaimsSet validateSpecificToken(String token, String wantedTokenUse){
+    private JWTClaimsSet validateSpecificToken(String token, String wantedTokenUse) {
         JWTClaimsSet claimsSet = validateToken(token);
         String tokenUse;
 
@@ -46,7 +50,7 @@ public class JWTValidator {
             throw new InvalidToken("Missing token_use field");
         }
 
-        if(!tokenUse.equals(wantedTokenUse)){
+        if (!tokenUse.equals(wantedTokenUse)) {
             throw new InvalidToken("Wrong token use");
         }
 
@@ -57,12 +61,12 @@ public class JWTValidator {
         JWTClaimsSet claimsSet = verifySignature(token);
 
         //verify audience
-        if(!claimsSet.getAudience().get(0).equals(audience)) {
+        if (!claimsSet.getAudience().get(0).equals(audience)) {
             throw new InvalidToken("Wrong audience");
         }
 
         //verify issuer
-        if(!claimsSet.getIssuer().equals(issuer)) {
+        if (!claimsSet.getIssuer().equals(issuer)) {
             throw new InvalidToken("Wrong issuer");
         }
 
@@ -76,7 +80,7 @@ public class JWTValidator {
 
         try {
             keySource = new RemoteJWKSet(
-                    new URL("https://cognito-idp.us-east-1.amazonaws.com/us-east-1_aJXHzmpO6/.well-known/jwks.json"));
+                    new URL(issuer + "/.well-known/jwks.json"));
         } catch (MalformedURLException e) {
             throw new UrlException(e.getMessage());
         }
@@ -89,9 +93,10 @@ public class JWTValidator {
         SecurityContext ctx = null; // optional context parameter, not required here
         try {
             claimsSet = jwtProcessor.process(token, ctx);
-        }catch(RemoteKeySourceException e) {
+        } catch (RemoteKeySourceException e) {
             throw new UrlException("connection timed out");
         } catch (Exception e) {
+            LOGGER.error("Could not validate token");
             throw new InvalidToken("Signature didn't pass");
         }
         return claimsSet;
