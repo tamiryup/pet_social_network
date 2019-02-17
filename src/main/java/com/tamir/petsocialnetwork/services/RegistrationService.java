@@ -28,6 +28,9 @@ public class RegistrationService {
     @Autowired
     UserService userService;
 
+    @Autowired
+    CsrfService csrfService;
+
     public void signup(SignupRequestDTO signupReq) {
 
         if (userService.existsByEmail(signupReq.getEmail()))
@@ -69,6 +72,7 @@ public class RegistrationService {
         authResultDTO.setUserName(user.getUsername());
 
         HttpHelper.setResponseCookies(response, authResult);
+        csrfService.setCsrfCookie(response);
 
         return authResultDTO;
     }

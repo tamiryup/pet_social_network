@@ -92,4 +92,12 @@ public class GlobalControllerExceptionHandler {
         ErrorMessage error = new ErrorMessage("Not Authorized", e.getMessage());
         return error;
     }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(CsrfException.class)
+    @ResponseBody
+    public ErrorMessage handleCsrfException(CsrfException e) {
+        ErrorMessage error = new ErrorMessage("Csrf Exception", e.getMessage());
+        return error;
+    }
 }

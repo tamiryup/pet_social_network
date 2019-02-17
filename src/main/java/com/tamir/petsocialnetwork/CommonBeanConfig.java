@@ -1,7 +1,9 @@
 package com.tamir.petsocialnetwork;
 
 import com.tamir.petsocialnetwork.filters.AuthenticationFilter;
+import com.tamir.petsocialnetwork.filters.CsrfFilter;
 import com.tamir.petsocialnetwork.services.AuthService;
+import com.tamir.petsocialnetwork.services.CsrfService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,6 +34,9 @@ public class CommonBeanConfig {
     @Qualifier("filterAuthService")
     private AuthService filterAuthService;
 
+    @Autowired
+    private CsrfService csrfService;
+
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilter(){
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -61,6 +66,23 @@ public class CommonBeanConfig {
         registrationBean.addUrlPatterns("/settings/*");
 
         registrationBean.setEnabled(shouldAuth);
+
+        return registrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean<CsrfFilter> csrfFilter(
+            @Value("${ps.should-csrf}") boolean shouldCsrf) {
+        CsrfFilter csrfFilter = new CsrfFilter(csrfService);
+        FilterRegistrationBean<CsrfFilter> registrationBean =
+                new FilterRegistrationBean<>();
+
+        registrationBean.setFilter(csrfFilter);
+        registrationBean.addUrlPatterns("/user-info/*");
+        registrationBean.addUrlPatterns("/social/*");
+        registrationBean.addUrlPatterns("/settings/*");
+
+        registrationBean.setEnabled(shouldCsrf);
 
         return registrationBean;
     }

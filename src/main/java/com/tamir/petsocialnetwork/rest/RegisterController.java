@@ -4,6 +4,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.tamir.petsocialnetwork.dto.AuthResultDTO;
 import com.tamir.petsocialnetwork.dto.SignupRequestDTO;
 import com.tamir.petsocialnetwork.services.AuthService;
+import com.tamir.petsocialnetwork.services.CsrfService;
 import com.tamir.petsocialnetwork.services.RegistrationService;
 import com.tamir.petsocialnetwork.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class RegisterController {
 
     @Autowired
     RegistrationService registrationService;
+
+    @Autowired
+    CsrfService csrfService;
 
     @Autowired
     @Qualifier("defaultAuthService")
@@ -47,6 +51,7 @@ public class RegisterController {
     @ResponseBody
     public AuthResultDTO autoLogin(HttpServletRequest request, HttpServletResponse response) {
         JWTClaimsSet claimsSet = authService.authenticateRequest(request, response);
+        csrfService.setCsrfCookie(response);
 
         AuthResultDTO authRes = new AuthResultDTO(
                 Long.parseLong((String) claimsSet.getClaim("custom:id")),

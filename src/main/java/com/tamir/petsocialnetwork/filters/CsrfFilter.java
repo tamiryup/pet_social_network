@@ -1,6 +1,6 @@
 package com.tamir.petsocialnetwork.filters;
 
-import com.tamir.petsocialnetwork.services.AuthService;
+import com.tamir.petsocialnetwork.services.CsrfService;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,19 +8,18 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
 @NoArgsConstructor
-public class AuthenticationFilter implements Filter {
+public class CsrfFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsrfFilter.class);
 
-    private AuthService authService;
+    private CsrfService csrfService;
 
-    public AuthenticationFilter(AuthService authService) {
-        this.authService = authService;
+    public CsrfFilter(CsrfService csrfService) {
+        this.csrfService = csrfService;
     }
 
     @Override
@@ -31,11 +30,12 @@ public class AuthenticationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-        LOGGER.info("validating jwt tokens");
-        authService.authenticateRequest(request, response);
+        if(request.getMethod().equals("POST")) {
+            LOGGER.info("validating csrf");
+            csrfService.validateCsrf(request);
+        }
 
         filterChain.doFilter(servletRequest, servletResponse);
     }
@@ -44,5 +44,4 @@ public class AuthenticationFilter implements Filter {
     public void destroy() {
 
     }
-
 }
