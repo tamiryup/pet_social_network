@@ -20,7 +20,7 @@ public class UserSettingsController {
     UserService userService;
 
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/update-profile-image")
+    @PostMapping("/update-profile-image")
     @ResponseBody
     public String updateProfileImage(@PathVariable("id") long id, @RequestParam("image") MultipartFile image)
             throws IOException {
@@ -29,7 +29,7 @@ public class UserSettingsController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/update-description")
+    @PostMapping("/update-description")
     public void updateDescription(@PathVariable long id, @RequestParam("description") String description) {
         userService.updateDescriptionById(id, description);
     }

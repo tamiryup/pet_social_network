@@ -35,13 +35,13 @@ public class SocialController {
         return post.getId();
     }
 
-    @PutMapping("follow")
+    @PostMapping("follow")
     @ResponseBody
     public void followUser(@PathVariable("id") long slaveId, @RequestParam long masterId) {
         followService.follow(masterId, slaveId);
     }
 
-    @PutMapping("unfollow")
+    @PostMapping("unfollow")
     @ResponseBody
     public void unfollowUser(@PathVariable("id") long slaveId, @RequestParam long masterId) {
         followService.unfollow(masterId, slaveId);
