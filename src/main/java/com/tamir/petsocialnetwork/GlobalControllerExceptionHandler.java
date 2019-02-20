@@ -100,4 +100,12 @@ public class GlobalControllerExceptionHandler {
         ErrorMessage error = new ErrorMessage("Csrf Exception", e.getMessage());
         return error;
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(CognitoException.class)
+    @ResponseBody
+    public ErrorMessage handleCognitoException(CognitoException e) {
+        ErrorMessage error = new ErrorMessage("Cognito Exception", e.getMessage());
+        return error;
+    }
 }

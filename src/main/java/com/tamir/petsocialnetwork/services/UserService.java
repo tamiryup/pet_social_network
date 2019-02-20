@@ -56,6 +56,10 @@ public class UserService {
         return userRepo.save(user);
     }
 
+    public void delete(User user) {
+        userRepo.delete(user);
+    }
+
     public User findById(long id){
         Optional<User> user = userRepo.findById(id);
         if(!user.isPresent()){

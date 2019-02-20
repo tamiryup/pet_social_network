@@ -7,10 +7,7 @@ import com.tamir.petsocialnetwork.AWS.cognito.CognitoService;
 import com.tamir.petsocialnetwork.dto.SignupRequestDTO;
 import com.tamir.petsocialnetwork.dto.AuthResultDTO;
 import com.tamir.petsocialnetwork.entities.User;
-import com.tamir.petsocialnetwork.exceptions.InvalidAuthData;
-import com.tamir.petsocialnetwork.exceptions.InvalidPassword;
-import com.tamir.petsocialnetwork.exceptions.InvalidUserException;
-import com.tamir.petsocialnetwork.exceptions.UserCollisionException;
+import com.tamir.petsocialnetwork.exceptions.*;
 import com.tamir.petsocialnetwork.helpers.HttpHelper;
 import com.tamir.petsocialnetwork.helpers.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +41,13 @@ public class RegistrationService {
                 signupReq.getFullName(), signupReq.getBirthDate());
         user = userService.create(user);
 
-        cognitoService.signUp(signupReq.getUserName(), signupReq.getPassword(), signupReq.getEmail(), user.getId());
+        try {
+            cognitoService.signUp(signupReq.getUserName(), signupReq.getPassword(), signupReq.getEmail(), user.getId());
+        } catch (Exception e) {
+            userService.delete(user);
+            throw new CognitoException(e.getMessage());
+        }
+
     }
 
     public AuthResultDTO signIn(HttpServletResponse response, String username, String password) {
