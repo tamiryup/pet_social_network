@@ -6,6 +6,7 @@ import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
 import com.amazonaws.services.cognitoidp.model.*;
 import com.tamir.petsocialnetwork.AWS.MyAWSCredentials;
+import com.tamir.petsocialnetwork.exceptions.CognitoException;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +59,7 @@ public class CognitoService {
 
         SignUpResult result = cognitoProvider.signUp(signUpRequest);
         logger.info("cognito signup result: " + result);
-        AdminConfirmSignUpResult confirmResult = adminConfirmSignup(username);
-        logger.info("cognito confirm result: " + confirmResult);
+        //user is auto-confirmed using the lambda function
     }
 
     private AdminConfirmSignUpResult adminConfirmSignup(String username){
