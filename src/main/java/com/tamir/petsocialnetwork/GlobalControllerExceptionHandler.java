@@ -108,4 +108,12 @@ public class GlobalControllerExceptionHandler {
         ErrorMessage error = new ErrorMessage("Cognito Exception", e.getMessage());
         return error;
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidCode.class)
+    @ResponseBody
+    public ErrorMessage handleInvalidCode(InvalidCode e) {
+        ErrorMessage error = new ErrorMessage("Invalid Confirmation Code", e.getMessage());
+        return error;
+    }
 }

@@ -48,13 +48,13 @@ public class CognitoService {
                 .build();
     }
 
-    public void signUp(String username, String password, String email, long customId){
+    public void signUp(String username, String password, String email, long customId) {
         SignUpRequest signUpRequest = new SignUpRequest();
         signUpRequest.setClientId(cogAppClientId);
         signUpRequest.setUsername(username);
         signUpRequest.setPassword(password);
 
-        List<AttributeType> attributes = fillAttributeTypes(email, ""+customId);
+        List<AttributeType> attributes = fillAttributeTypes(email, "" + customId);
         signUpRequest.setUserAttributes(attributes);
 
         SignUpResult result = cognitoProvider.signUp(signUpRequest);
@@ -62,7 +62,7 @@ public class CognitoService {
         //user is auto-confirmed using the lambda function
     }
 
-    private AdminConfirmSignUpResult adminConfirmSignup(String username){
+    private AdminConfirmSignUpResult adminConfirmSignup(String username) {
 
         AdminConfirmSignUpRequest confirmSignUpRequest = new AdminConfirmSignUpRequest();
         confirmSignUpRequest.setUsername(username);
@@ -73,7 +73,7 @@ public class CognitoService {
 
     }
 
-    private ConfirmSignUpResult confirmSignup(String username, String confirmationCode){
+    private ConfirmSignUpResult confirmSignup(String username, String confirmationCode) {
 
         ConfirmSignUpRequest confirmationRequest = new ConfirmSignUpRequest();
         confirmationRequest.setUsername(username);
@@ -86,7 +86,7 @@ public class CognitoService {
     }
 
 
-    private List<AttributeType> fillAttributeTypes(String email, String customId){
+    private List<AttributeType> fillAttributeTypes(String email, String customId) {
         List<AttributeType> attributes = new ArrayList<>();
 
         AttributeType attributeTypeEmail = new AttributeType();
@@ -103,7 +103,7 @@ public class CognitoService {
     }
 
 
-    public AuthenticationResultType performAuth(String username, String password){
+    public AuthenticationResultType performAuth(String username, String password) {
 
         AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest();
         authRequest.setAuthFlow(AuthFlowType.ADMIN_NO_SRP_AUTH);
@@ -119,7 +119,7 @@ public class CognitoService {
 
     }
 
-    public AuthenticationResultType performRefresh(String refreshToken){
+    public AuthenticationResultType performRefresh(String refreshToken) {
 
         AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest();
         authRequest.setAuthFlow(AuthFlowType.REFRESH_TOKEN_AUTH);
@@ -131,6 +131,29 @@ public class CognitoService {
         AuthenticationResultType result = authChallenge.getAuthenticationResult();
 
         return result;
+    }
+
+    public ForgotPasswordResult forgotPassword(String username) {
+        ForgotPasswordResult forgotPasswordRes;
+        ForgotPasswordRequest forgotPasswordReq = new ForgotPasswordRequest()
+                .withClientId(cogAppClientId)
+                .withUsername(username);
+
+        forgotPasswordRes = cognitoProvider.forgotPassword(forgotPasswordReq);
+        return forgotPasswordRes;
+    }
+
+    public ConfirmForgotPasswordResult confirmForgotPassword(String username, String newPassword,
+                                                             String confirmationCode) {
+        ConfirmForgotPasswordResult confForgotPasswordRes;
+        ConfirmForgotPasswordRequest confirmForgotPasswordReq = new ConfirmForgotPasswordRequest()
+                .withClientId(cogAppClientId)
+                .withConfirmationCode(confirmationCode)
+                .withUsername(username)
+                .withPassword(newPassword);
+
+        confForgotPasswordRes = cognitoProvider.confirmForgotPassword(confirmForgotPasswordReq);
+        return confForgotPasswordRes;
     }
 
 }

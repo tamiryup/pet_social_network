@@ -6,4 +6,8 @@ public class InvalidPassword extends RuntimeException {
         super(message);
     }
 
+    public InvalidPassword() {
+        this("password doesn't match criteria");
+    }
+
 }

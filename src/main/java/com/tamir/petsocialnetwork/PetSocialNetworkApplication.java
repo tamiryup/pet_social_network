@@ -1,5 +1,6 @@
 package com.tamir.petsocialnetwork;
 
+import com.tamir.petsocialnetwork.AWS.cognito.CognitoService;
 import com.tamir.petsocialnetwork.AWS.s3.S3Service;
 import com.tamir.petsocialnetwork.entities.User;
 import com.tamir.petsocialnetwork.repositories.FollowRepository;
@@ -28,6 +29,9 @@ public class PetSocialNetworkApplication implements CommandLineRunner {
 
 	@Value("${ps.cognito.issuer}")
 	private String issuer;
+
+	@Autowired
+    private CognitoService cognitoService;
 
 	@Override
 	public void run(String... args) throws Exception {

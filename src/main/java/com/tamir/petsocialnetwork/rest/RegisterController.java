@@ -9,6 +9,7 @@ import com.tamir.petsocialnetwork.services.RegistrationService;
 import com.tamir.petsocialnetwork.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,6 +59,18 @@ public class RegisterController {
                 (String) claimsSet.getClaim("cognito:username"));
 
         return authRes;
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/reset-password")
+    public void resetPassword(@RequestParam String username) {
+        registrationService.resetPassword(username);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/set-new-password")
+    public void setNewPassword(@RequestParam String username, @RequestParam String newPassowrd, @RequestParam String code) {
+        registrationService.setNewPassword(username, newPassowrd, code);
     }
 
     @GetMapping(value = "/check-username-exists")

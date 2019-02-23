@@ -11,4 +11,11 @@ public class StringHelper {
         return mat.matches();
     }
 
+    public static boolean isValidPassword(String password) {
+        if (password.length() >= 6) {
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -1,8 +1,6 @@
 package com.tamir.petsocialnetwork.services;
 
-import com.amazonaws.services.cognitoidp.model.AuthenticationResultType;
-import com.amazonaws.services.cognitoidp.model.NotAuthorizedException;
-import com.amazonaws.services.cognitoidp.model.UserNotFoundException;
+import com.amazonaws.services.cognitoidp.model.*;
 import com.tamir.petsocialnetwork.AWS.cognito.CognitoService;
 import com.tamir.petsocialnetwork.dto.SignupRequestDTO;
 import com.tamir.petsocialnetwork.dto.AuthResultDTO;
@@ -34,8 +32,8 @@ public class RegistrationService {
             throw new UserCollisionException("email already exists");
         if (userService.existsByUsername(signupReq.getUserName()))
             throw new UserCollisionException("username already exists");
-        if (!isValidPassword(signupReq.getPassword()))
-            throw new InvalidPassword("password doesn't match criteria");
+        if (!StringHelper.isValidPassword(signupReq.getPassword()))
+            throw new InvalidPassword();
 
         User user = new User(signupReq.getEmail(), signupReq.getUserName(),
                 signupReq.getFullName(), signupReq.getBirthDate());
@@ -80,10 +78,38 @@ public class RegistrationService {
         return authResultDTO;
     }
 
-    private boolean isValidPassword(String password) {
-        if (password.length() >= 6) {
-            return true;
+    public ForgotPasswordResult resetPassword(String username) {
+        ForgotPasswordResult forgotPasswordRes;
+
+        try {
+            forgotPasswordRes = cognitoService.forgotPassword(username);
+        } catch (UserNotFoundException e) {
+            throw new InvalidUserException();
+        } catch (Exception e) {
+            throw new CognitoException(e.getMessage());
         }
-        return false;
+
+        return forgotPasswordRes;
+    }
+
+    public ConfirmForgotPasswordResult setNewPassword(String username, String newPassword, String confirmationCode) {
+        if(!StringHelper.isValidPassword(newPassword))
+            throw new InvalidPassword();
+
+        ConfirmForgotPasswordResult confForgotPasswordRes;
+
+        try {
+            confForgotPasswordRes = cognitoService.confirmForgotPassword(username, newPassword, confirmationCode);
+        } catch (UserNotFoundException e) {
+            throw new InvalidUserException();
+        } catch (InvalidPasswordException e) {
+            throw new InvalidPassword();
+        } catch (CodeMismatchException | ExpiredCodeException e) {
+            throw new InvalidCode(e.getMessage());
+        } catch (Exception e) {
+            throw new CognitoException(e.getMessage());
+        }
+
+        return confForgotPasswordRes;
     }
 }
