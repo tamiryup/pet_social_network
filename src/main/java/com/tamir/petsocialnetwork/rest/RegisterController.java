@@ -72,7 +72,4 @@ public class RegisterController {
         return userService.existsByEmail(email);
     }
 
-
-    //TODO: confirm signup endpoint - using the verification code sent to email
-
 }
