@@ -61,6 +61,12 @@ public class RegisterController {
         return authRes;
     }
 
+    @GetMapping("/logout")
+    @ResponseBody
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        registrationService.logout(request, response);
+    }
+
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/reset-password")
     public void resetPassword(@RequestParam String username) {

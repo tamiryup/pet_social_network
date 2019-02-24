@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @Service
 public class RegistrationService {
@@ -76,6 +78,18 @@ public class RegistrationService {
         csrfService.setCsrfCookie(response);
 
         return authResultDTO;
+    }
+
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        Map<String, String> cookieMap = HttpHelper.getCookieValueMapFromRequest(request);
+
+        for(String cookieName : cookieMap.keySet()) {
+            Cookie cookie = new Cookie(cookieName, "");
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+
+            response.addCookie(cookie);
+        }
     }
 
     public ForgotPasswordResult resetPassword(String username) {
