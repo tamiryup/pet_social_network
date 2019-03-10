@@ -2,6 +2,7 @@ package com.tamir.petsocialnetwork.rest;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.tamir.petsocialnetwork.dto.AuthResultDTO;
+import com.tamir.petsocialnetwork.dto.NewPassowrdDTO;
 import com.tamir.petsocialnetwork.dto.SignupRequestDTO;
 import com.tamir.petsocialnetwork.services.AuthService;
 import com.tamir.petsocialnetwork.services.CsrfService;
@@ -68,15 +69,16 @@ public class RegisterController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/reset-password")
+    @GetMapping("/reset-password")
     public void resetPassword(@RequestParam String username) {
         registrationService.resetPassword(username);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/set-new-password")
-    public void setNewPassword(@RequestParam String username, @RequestParam String newPassowrd, @RequestParam String code) {
-        registrationService.setNewPassword(username, newPassowrd, code);
+    public void setNewPassword(@RequestBody NewPassowrdDTO newPasswordReq) {
+        registrationService.setNewPassword(newPasswordReq.getUsername(),
+                newPasswordReq.getNewPassword(), newPasswordReq.getCode());
     }
 
     @GetMapping(value = "/check-username-exists")
