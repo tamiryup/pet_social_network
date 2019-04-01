@@ -43,7 +43,6 @@ public class StreamService {
         return activity;
     }
 
-    //TODO: add proper exception handling to this function
     public void uploadActivity(long userId, long postId) {
         try {
             Feed feed = streamClient.newFeed("user", "" + userId);

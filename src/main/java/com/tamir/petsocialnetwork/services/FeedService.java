@@ -29,8 +29,8 @@ public class FeedService {
     @Autowired
     UserService userService;
 
-    public List<TimelineFeedPostDTO> getTimelineFeed(long userId, int offset){
-        if(!userService.existsById(userId))
+    public List<TimelineFeedPostDTO> getTimelineFeed(long userId, int offset) {
+        if (!userService.existsById(userId))
             throw new InvalidUserException();
 
         List<PostActivity> streamFeed = streamService.getStreamTimelineFeed(userId, offset);
@@ -40,51 +40,51 @@ public class FeedService {
         List<User> users = userService.findAllById(actors);
 
         List<TimelineFeedPostDTO> feedPostDTOS = new ArrayList<>();
-        if(posts.size() != users.size())
+        if (posts.size() != users.size())
             return feedPostDTOS;
 
-        for(int i=0; i<posts.size(); i++){
+        for (int i = 0; i < posts.size(); i++) {
             User user = users.get(i);
             Post post = posts.get(i);
             TimelineFeedPostDTO dto = new TimelineFeedPostDTO(user.getProfileImageAddr(), user.getUsername(),
-                    post.getImageAddr(), post.getDescription());
+                    post.getImageAddr(), post.getDescription(), post.getLink());
             feedPostDTOS.add(dto);
         }
 
         return feedPostDTOS;
     }
 
-    public List<UserFeedPostDTO> getUserFeed(long userId, int offset){
-        if(!userService.existsById(userId))
+    public List<UserFeedPostDTO> getUserFeed(long userId, int offset) {
+        if (!userService.existsById(userId))
             throw new InvalidUserException();
         List<PostActivity> streamFeed = streamService.getStreamUserFeed(userId, offset);
         List<Long> objects = StreamHelper.extractObjectsFromActivities(streamFeed);
         Iterable<Post> posts = postService.findAllById(objects);
         List<UserFeedPostDTO> feedPostDTOS = new ArrayList<>();
-        for(Post post: posts){
-            feedPostDTOS.add(new UserFeedPostDTO(post.getImageAddr(), post.getDescription()));
+        for (Post post : posts) {
+            feedPostDTOS.add(new UserFeedPostDTO(post.getImageAddr(), post.getDescription(), post.getLink()));
         }
         return feedPostDTOS;
     }
 
-    public List<FeedFollowDTO> getUserSlaves(long userId, int offset){
-        if(!userService.existsById(userId))
+    public List<FeedFollowDTO> getUserSlaves(long userId, int offset) {
+        if (!userService.existsById(userId))
             throw new InvalidUserException();
         List<Long> ids = streamService.getUserFollowers(userId, offset);
         return getFeedFollowDTOsFromIds(ids);
     }
 
-    public List<FeedFollowDTO> getUserMasters(long userId, int offset){
-        if(!userService.existsById(userId))
+    public List<FeedFollowDTO> getUserMasters(long userId, int offset) {
+        if (!userService.existsById(userId))
             throw new InvalidUserException();
         List<Long> ids = streamService.getUserFollowing(userId, offset);
         return getFeedFollowDTOsFromIds(ids);
     }
 
-    private List<FeedFollowDTO> getFeedFollowDTOsFromIds(List<Long> ids){
+    private List<FeedFollowDTO> getFeedFollowDTOsFromIds(List<Long> ids) {
         List<User> users = userService.findAllById(ids);
         List<FeedFollowDTO> dtos = new ArrayList<>();
-        for(User user : users){
+        for (User user : users) {
 
             FeedFollowDTO dto = new FeedFollowDTO();
             dto.setProfileImageAddr(user.getProfileImageAddr());
