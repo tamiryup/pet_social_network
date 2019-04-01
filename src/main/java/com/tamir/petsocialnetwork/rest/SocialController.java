@@ -2,6 +2,7 @@ package com.tamir.petsocialnetwork.rest;
 
 import com.tamir.petsocialnetwork.dto.FeedFollowDTO;
 import com.tamir.petsocialnetwork.dto.TimelineFeedPostDTO;
+import com.tamir.petsocialnetwork.dto.UploadItemDTO;
 import com.tamir.petsocialnetwork.dto.UserFeedPostDTO;
 import com.tamir.petsocialnetwork.entities.Post;
 import com.tamir.petsocialnetwork.services.FeedService;
@@ -32,6 +33,13 @@ public class SocialController {
     public long uploadPost(@PathVariable long id, @RequestParam MultipartFile image,
                            @RequestParam String description) throws IOException {
         Post post = postService.uploadPost(id, image, description);
+        return post.getId();
+    }
+
+    @PostMapping("upload-item")
+    @ResponseBody
+    public long uploadItem(@PathVariable long id ,@RequestBody UploadItemDTO item) throws IOException {
+        Post post = postService.uploadItemPost(id, item.getImageUrl(), item.getLink(), item.getExtension());
         return post.getId();
     }
 

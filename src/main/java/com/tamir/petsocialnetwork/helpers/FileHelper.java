@@ -2,8 +2,11 @@ package com.tamir.petsocialnetwork.helpers;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 public class FileHelper {
 
@@ -15,5 +18,12 @@ public class FileHelper {
 
     public static String getMultipartFileExtension(MultipartFile multipartFile){
         return MimeTypes.getDefaultExt(multipartFile.getContentType());
+    }
+
+    public static InputStream urlToInputStream(String url) throws IOException {
+        BufferedInputStream in = new BufferedInputStream(
+                new URL(url).openStream());
+
+        return in;
     }
 }

@@ -1,5 +1,8 @@
 package com.tamir.petsocialnetwork.entities;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
 @Entity
@@ -13,6 +16,8 @@ public class Post {
 
     private long userId;
     private String imageAddr;
+    @Getter @Setter
+    private String link;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -25,6 +30,11 @@ public class Post {
         this.userId = userId;
         this.imageAddr = imageAddr;
         this.description = description;
+    }
+
+    public Post(long userId, String imageAddr, String description, String link){
+        this(userId, imageAddr, description);
+        this.link = link;
     }
 
     public long getId() {
@@ -41,6 +51,10 @@ public class Post {
 
     public String getDescription() {
         return description;
+    }
+
+    public String getLink() {
+        return link;
     }
 
     @Override

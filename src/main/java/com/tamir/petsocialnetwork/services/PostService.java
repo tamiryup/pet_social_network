@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,15 +51,27 @@ public class PostService {
         return posts;
     }
 
-    public Post uploadPost(long id, MultipartFile image, String description) throws IOException {
-        if(!userService.existsById(id))
+    public Post uploadPost(long userId, MultipartFile image, String description) throws IOException {
+        if(!userService.existsById(userId))
             throw new InvalidUserException();
         ImageType imageType = ImageType.PostImage;
         String extension = FileHelper.getMultipartFileExtension(image);
         String imageAddr = s3Service.uploadImage(imageType, image, extension);
-        Post post = new Post(id, imageAddr, description);
+        Post post = new Post(userId, imageAddr, description);
         post = create(post);
-        streamService.uploadActivity(id, post.getId());
+        streamService.uploadActivity(userId, post.getId());
+        return post;
+    }
+
+    public Post uploadItemPost(long userId, String imageUrl, String link, String extension) throws IOException {
+        if(!userService.existsById(userId))
+            throw new InvalidUserException();
+        ImageType imageType = ImageType.PostImage;
+        InputStream imageInputStream = FileHelper.urlToInputStream(imageUrl);
+        String imageAddr = s3Service.uploadImage(imageType, imageInputStream, extension);
+        Post post = new Post(userId, imageAddr, "", link);
+        post = create(post);
+        streamService.uploadActivity(userId, post.getId());
         return post;
     }
 

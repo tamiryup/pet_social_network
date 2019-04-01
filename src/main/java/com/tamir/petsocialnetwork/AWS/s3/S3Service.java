@@ -69,13 +69,17 @@ public class S3Service {
 
     public String uploadImage(ImageType imageType, MultipartFile multipartFile, String fileExtension)
             throws IOException {
+        return uploadImage(imageType, multipartFile.getInputStream(), fileExtension);
+    }
+
+    public String uploadImage(ImageType imageType, InputStream inputStream, String fileExtension) throws IOException {
         String key = generateKey(imageType, fileExtension);
         ObjectMetadata metadata = new ObjectMetadata();
-        byte[] bytes = IOUtils.toByteArray(multipartFile.getInputStream());
+        byte[] bytes = IOUtils.toByteArray(inputStream);
         metadata.setContentLength(bytes.length);
 
         try {
-            s3Client.putObject(bucketName, key, multipartFile.getInputStream(), metadata);
+            s3Client.putObject(bucketName, key, new ByteArrayInputStream(bytes), metadata);
         } catch (SdkClientException e) {
             throw new S3Exception(e.getMessage());
         }

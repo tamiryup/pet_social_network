@@ -3,6 +3,7 @@ package com.tamir.petsocialnetwork;
 import com.tamir.petsocialnetwork.AWS.cognito.CognitoService;
 import com.tamir.petsocialnetwork.AWS.s3.S3Service;
 import com.tamir.petsocialnetwork.entities.User;
+import com.tamir.petsocialnetwork.enums.ImageType;
 import com.tamir.petsocialnetwork.repositories.FollowRepository;
 import com.tamir.petsocialnetwork.repositories.UserRepository;
 import com.tamir.petsocialnetwork.stream.StreamService;
@@ -14,6 +15,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.io.BufferedInputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +34,7 @@ public class PetSocialNetworkApplication implements CommandLineRunner {
 	private String issuer;
 
 	@Autowired
-    private CognitoService cognitoService;
+    private S3Service s3Service;
 
 	@Override
 	public void run(String... args) throws Exception {

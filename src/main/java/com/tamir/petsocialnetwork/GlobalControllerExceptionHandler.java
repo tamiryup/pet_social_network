@@ -101,7 +101,7 @@ public class GlobalControllerExceptionHandler {
         return error;
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(CognitoException.class)
     @ResponseBody
     public ErrorMessage handleCognitoException(CognitoException e) {
