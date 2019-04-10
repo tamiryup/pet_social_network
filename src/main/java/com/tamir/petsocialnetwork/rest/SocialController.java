@@ -38,8 +38,8 @@ public class SocialController {
 
     @PostMapping("upload-item")
     @ResponseBody
-    public long uploadItem(@PathVariable long id ,@RequestBody UploadItemDTO item) throws IOException {
-        Post post = postService.uploadItemPost(id, item.getImageUrl(), item.getLink(), item.getExtension());
+    public long uploadItem(@RequestBody UploadItemDTO item) throws IOException {
+        Post post = postService.uploadItemPost(item.getUserId(), item.getImageUrl(), item.getLink(), item.getExtension());
         return post.getId();
     }
 
