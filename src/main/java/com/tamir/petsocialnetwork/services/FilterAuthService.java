@@ -26,7 +26,7 @@ public class FilterAuthService extends AuthService {
      * @return the id token claimSet (if successful)
      */
     protected JWTClaimsSet tryValidateIdToken(String idToken, HttpServletRequest request) {
-        String reqUserId = HttpHelper.getPathPartByIndex(request, 2);
+        String reqUserId = HttpHelper.getPathPartByIndex(request, 3);
         JWTClaimsSet claimsSet = jwtValidator.validateIdToken(idToken);
         if (!((String) claimsSet.getClaim("custom:id")).equals(reqUserId)) {
             throw new NoAuthException("id requested and id in token didn't match");
