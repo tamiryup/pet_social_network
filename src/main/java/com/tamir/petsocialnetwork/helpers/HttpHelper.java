@@ -62,6 +62,15 @@ public class HttpHelper {
         response.addCookie(accessTokenCookie);
     }
 
+    public static void setUserIdCookie(HttpServletResponse response, long userId) {
+        Cookie userIdCookie = new Cookie("user_id", userId+"");
+        userIdCookie.setMaxAge(60*60*24*365*10 - 5*60); //ten years - 5 minutes
+        userIdCookie.setPath("/");
+        userIdCookie.setHttpOnly(false);
+
+        response.addCookie(userIdCookie);
+    }
+
     public static String[] getPathParts(HttpServletRequest request) {
         String pathInfo = request.getRequestURI();
         String[] pathParts = pathInfo.split("/");

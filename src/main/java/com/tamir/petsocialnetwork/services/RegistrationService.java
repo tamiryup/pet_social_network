@@ -75,6 +75,7 @@ public class RegistrationService {
         authResultDTO.setUserName(user.getUsername());
 
         HttpHelper.setResponseCookies(response, authResult);
+        HttpHelper.setUserIdCookie(response, user.getId());
         csrfService.setCsrfCookie(response);
 
         return authResultDTO;
