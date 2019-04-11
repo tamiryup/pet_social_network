@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter @Setter
 public class UploadItemDTO {
 
-    private long userId;
     private String imageUrl;
     private String link;
     private String extension;
