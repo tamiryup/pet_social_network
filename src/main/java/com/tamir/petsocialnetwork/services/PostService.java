@@ -81,7 +81,7 @@ public class PostService {
         ImageType imageType = ImageType.PostImage;
         InputStream imageInputStream = FileHelper.urlToInputStream(item.getImageAddr());
         String imageAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
-        Post post = new Post(userId, item.getImageAddr(), item.getDescription(), item.getLink(),
+        Post post = new Post(userId, imageAddr, item.getDescription(), item.getLink(),
                 item.getPrice(), item.getWebsite(), item.getDesigner(), item.getProductId());
         post = create(post);
         streamService.uploadActivity(userId, post.getId());
