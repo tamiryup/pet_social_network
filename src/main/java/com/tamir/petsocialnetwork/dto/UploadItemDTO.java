@@ -10,8 +10,13 @@ import lombok.Setter;
 @Getter @Setter
 public class UploadItemDTO {
 
-    private String imageUrl;
+    private String imageAddr;
     private String link;
-    private String extension;
+    private String description;
+    private String price;
+    private String website;
+    private String designer;
+    private String imgExtension;
+    private String productId;
 
 }

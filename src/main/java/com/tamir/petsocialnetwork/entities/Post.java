@@ -16,11 +16,25 @@ public class Post {
 
     private long userId;
     private String imageAddr;
+
     @Getter @Setter
+    @Column(columnDefinition = "varchar(max)")
     private String link;
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Getter @Setter
+    private String price;
+
+    @Getter @Setter
+    private String website;
+
+    @Getter @Setter
+    private String designer;
+
+    @Getter @Setter
+    private String productId;
 
     public Post() {
 
@@ -32,9 +46,14 @@ public class Post {
         this.description = description;
     }
 
-    public Post(long userId, String imageAddr, String description, String link){
+    public Post(long userId, String imageAddr, String description, String link, String price,
+                String website, String designer, String productId){
         this(userId, imageAddr, description);
         this.link = link;
+        this.price = price;
+        this.website = website;
+        this.designer = designer;
+        this.productId = productId;
     }
 
     public long getId() {

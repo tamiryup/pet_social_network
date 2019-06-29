@@ -6,17 +6,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter @Setter
-public class TimelineFeedPostDTO {
+public class TimelineFeedPostDTO extends UserFeedPostDTO {
 
     private String userProfileImageAddr;
 
     private String userName;
 
-    private String postImageAddr;
 
-    private String description;
-
-    private String link;
+    public TimelineFeedPostDTO(long postId, String postImageAddr, String description,
+                               String link, String website, String userProfileImageAddr, String userName) {
+        super(postId, postImageAddr, description, link, website);
+        this.userProfileImageAddr = userProfileImageAddr;
+        this.userName = userName;
+    }
 }
