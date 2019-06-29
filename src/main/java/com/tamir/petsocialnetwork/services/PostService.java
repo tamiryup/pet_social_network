@@ -3,9 +3,11 @@ package com.tamir.petsocialnetwork.services;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.tamir.petsocialnetwork.AWS.s3.S3Service;
+import com.tamir.petsocialnetwork.dto.UploadItemDTO;
 import com.tamir.petsocialnetwork.entities.Post;
 import com.tamir.petsocialnetwork.entities.User;
 import com.tamir.petsocialnetwork.enums.ImageType;
+import com.tamir.petsocialnetwork.exceptions.InvalidPostException;
 import com.tamir.petsocialnetwork.exceptions.InvalidUserException;
 import com.tamir.petsocialnetwork.helpers.FileHelper;
 import com.tamir.petsocialnetwork.repositories.PostRepository;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -38,6 +41,15 @@ public class PostService {
 
     public Post create(Post post){
         return postRepo.save(post);
+    }
+
+    public Post findById(long id) {
+        Optional<Post> optPost = postRepo.findById(id);
+        if(!optPost.isPresent()) {
+            throw new InvalidPostException();
+        }
+
+        return optPost.get();
     }
 
     public List<Post> findAllById(Iterable<Long> ids){
@@ -63,13 +75,14 @@ public class PostService {
         return post;
     }
 
-    public Post uploadItemPost(long userId, String imageUrl, String link, String extension) throws IOException {
+    public Post uploadItemPost(long userId, UploadItemDTO item) throws IOException {
         if(!userService.existsById(userId))
             throw new InvalidUserException();
         ImageType imageType = ImageType.PostImage;
-        InputStream imageInputStream = FileHelper.urlToInputStream(imageUrl);
-        String imageAddr = s3Service.uploadImage(imageType, imageInputStream, extension);
-        Post post = new Post(userId, imageAddr, "", link);
+        InputStream imageInputStream = FileHelper.urlToInputStream(item.getImageAddr());
+        String imageAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
+        Post post = new Post(userId, item.getImageAddr(), item.getDescription(), item.getLink(),
+                item.getPrice(), item.getWebsite(), item.getDesigner(), item.getProductId());
         post = create(post);
         streamService.uploadActivity(userId, post.getId());
         return post;

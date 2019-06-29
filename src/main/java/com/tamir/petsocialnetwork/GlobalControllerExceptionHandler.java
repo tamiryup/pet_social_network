@@ -28,6 +28,14 @@ public class GlobalControllerExceptionHandler {
         return error;
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidPostException.class)
+    @ResponseBody
+    public ErrorMessage handleInvalidPostException(InvalidPostException e) {
+        ErrorMessage error = new ErrorMessage("Invalid Post", "The post does not exist");
+        return error;
+    }
+
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(S3Exception.class)
     @ResponseBody

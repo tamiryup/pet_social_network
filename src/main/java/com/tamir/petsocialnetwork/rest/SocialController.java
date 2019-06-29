@@ -39,7 +39,7 @@ public class SocialController {
     @PostMapping("upload-item")
     @ResponseBody
     public long uploadItem(@PathVariable long id, @RequestBody UploadItemDTO item) throws IOException {
-        Post post = postService.uploadItemPost(id, item.getImageUrl(), item.getLink(), item.getExtension());
+        Post post = postService.uploadItemPost(id, item);
         return post.getId();
     }
 
@@ -85,6 +85,12 @@ public class SocialController {
     @ResponseBody
     public boolean isFollowing(@PathVariable long id, @RequestParam long masterId){
         return followService.isFollowing(masterId, id);
+    }
+
+    @GetMapping("post-info")
+    @ResponseBody
+    public Post getPostInfo(@RequestParam long postId) {
+        return postService.findById(postId);
     }
 
 }
