@@ -14,9 +14,9 @@ public class TimelineFeedPostDTO extends UserFeedPostDTO {
     private String userName;
 
 
-    public TimelineFeedPostDTO(long postId, String postImageAddr, String description,
+    public TimelineFeedPostDTO(long postId, long userId, String postImageAddr, String description,
                                String link, String website, String userProfileImageAddr, String userName) {
-        super(postId, postImageAddr, description, link, website);
+        super(postId, userId, postImageAddr, description, link, website);
         this.userProfileImageAddr = userProfileImageAddr;
         this.userName = userName;
     }

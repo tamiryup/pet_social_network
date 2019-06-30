@@ -11,6 +11,8 @@ public class UserFeedPostDTO {
 
     private long postId;
 
+    private long userId;
+
     private String postImageAddr;
 
     private String description;
@@ -19,8 +21,9 @@ public class UserFeedPostDTO {
 
     private String website;
 
-    public UserFeedPostDTO(long postId, String postImageAddr, String description, String link, String website) {
+    public UserFeedPostDTO(long postId, long userId, String postImageAddr, String description, String link, String website) {
         this.postId = postId;
+        this.userId = userId;
         this.postImageAddr = postImageAddr;
         this.description = description;
         this.link = link;
