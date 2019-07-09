@@ -92,13 +92,13 @@ public class PostService {
         InputStream imageInputStream = FileHelper.urlToInputStream(item.getImageAddr());
         String imageAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
 
+        //extract thumbnails of item
         List<String> thumbnailAddrs = scrapingService.getThumbnailImages(item.getWebsite(), item.getLink());
         for(int i=0; i<thumbnailAddrs.size() && i<2; i++) {
             imageInputStream = FileHelper.urlToInputStream(thumbnailAddrs.get(i));
             imageAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
             thumbnails.add(imageAddr);
         }
-
         String thumbnail1 = (thumbnails.size() > 0) ? thumbnails.get(0) : null;
         String thumbnail2 = (thumbnails.size() > 1) ? thumbnails.get(1) : null;
 

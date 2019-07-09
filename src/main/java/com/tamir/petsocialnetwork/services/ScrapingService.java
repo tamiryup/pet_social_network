@@ -4,6 +4,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -16,7 +18,13 @@ public class ScrapingService {
 
     @PostConstruct
     public void init() {
+        System.setProperty("webdriver.chrome.driver", "/Users/tamir/Downloads/chromedriver");
+    }
 
+    private WebDriver getDriver(String productPageLink) {
+        WebDriver driver = new ChromeDriver();
+        driver.get(productPageLink);
+        return driver;
     }
 
     public List<String> getThumbnailImages(String website, String productPageLink) {
@@ -24,20 +32,18 @@ public class ScrapingService {
 
         try {
 
-            Document document = Jsoup.connect(productPageLink).get();
-
             switch (website) {
                 case "www.asos.com":
-                    links = asosThumbnails(document);
+                    links = asosThumbnails(productPageLink);
                     break;
                 case "www.net-a-porter.com":
-                    links = netAPorterThumbnails(document);
+                    links = netAPorterThumbnails(productPageLink);
                     break;
                 case "www.adikastyle.com":
-                    links = adikaThumbnails(document);
+                    links = adikaThumbnails(productPageLink);
                     break;
                 case "www.terminalx.com":
-                    links = terminalXThumbnails();
+                    links = terminalXThumbnails(productPageLink);
                     break;
             }
 
@@ -49,8 +55,9 @@ public class ScrapingService {
     }
 
     //TODO: replace addresses with the addresses of better image qualities
-    private List<String> asosThumbnails(Document document) {
+    private List<String> asosThumbnails(String productPageLink) throws IOException{
         List<String> links;
+        Document document = Jsoup.connect(productPageLink).get();
         Element elem = document.selectFirst(".thumbnails");
         Elements imageElements = elem.getElementsByTag("img");
         links = imageElements.eachAttr("src");
@@ -58,8 +65,9 @@ public class ScrapingService {
         return links;
     }
 
-    private List<String> netAPorterThumbnails(Document document) {
+    private List<String> netAPorterThumbnails(String productPageLink) throws IOException {
         List<String> links;
+        Document document = Jsoup.connect(productPageLink).get();
         Element elem = document.selectFirst(".thumbnail-wrapper");
         Elements imageElements = elem.getElementsByTag("img");
         links = imageElements.eachAttr("src");
@@ -72,25 +80,31 @@ public class ScrapingService {
         return links;
     }
 
-    private List<String> adikaThumbnails(Document document) {
+    private List<String> adikaThumbnails(String productPageLink) {
         List<String> links;
-        Elements elements = document.select("li.image-shade");
+        WebDriver driver = getDriver(productPageLink);
+        Document document = Jsoup.parse(driver.getPageSource());
+
         Element elem = document.selectFirst(".more-views-thumbs");
         Elements imageElements = elem.getElementsByTag("a");
         links = imageElements.eachAttr("href");
+        links.remove(0);
+
+        driver.close();
         return links;
     }
 
     //TODO: replace addresses with the addresses of better image qualities
-    private List<String> terminalXThumbnails() {
-        List<String> links = new ArrayList<>();
-//        List<WebElement> imageContainerElems = driver.findElements(By.cssSelector(".fotorama__thumb"));
-//
-//        for (WebElement ele : imageContainerElems) {
-//            WebElement imgSrc = ele.findElement(By.tagName("img"));
-//            links.add(imgSrc.getAttribute("src"));
-//        }
+    private List<String> terminalXThumbnails(String productPageLink) {
+        List<String> links;
+        WebDriver driver = getDriver(productPageLink);
+        Document document = Jsoup.parse(driver.getPageSource());
 
+        Elements elements = document.select(".fotorama__thumb img");
+        links = elements.eachAttr("src");
+        links.remove(0);
+
+        driver.close();
         return links;
     }
 
