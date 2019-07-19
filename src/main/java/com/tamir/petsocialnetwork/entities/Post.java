@@ -19,7 +19,7 @@ public class Post {
     private String imageAddr;
 
     @Getter @Setter
-    @Column(columnDefinition = "varchar(max)")
+    @Column(columnDefinition = "varchar(1000)")
     private String link;
 
     @Column(columnDefinition = "TEXT")

@@ -1,5 +1,7 @@
 package com.tamir.petsocialnetwork.services;
 
+import com.tamir.petsocialnetwork.dto.UploadItemDTO;
+import com.tamir.petsocialnetwork.enums.Currency;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,7 +20,7 @@ public class ScrapingService {
 
     @PostConstruct
     public void init() {
-        System.setProperty("webdriver.chrome.driver", "/Users/tamir/Downloads/chromedriver");
+//        System.setProperty("webdriver.chrome.driver", "/Users/tamir/Downloads/chromedriver");
     }
 
     private WebDriver getDriver(String productPageLink) {
@@ -26,6 +28,11 @@ public class ScrapingService {
         driver.get(productPageLink);
         return driver;
     }
+
+    public UploadItemDTO extractItem(String website,String productPageLink) {
+        return new UploadItemDTO();
+    }
+
 
     public List<String> getThumbnailImages(String website, String productPageLink) {
         List<String> links = new ArrayList<>();

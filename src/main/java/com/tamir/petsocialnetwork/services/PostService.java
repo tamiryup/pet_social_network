@@ -86,16 +86,15 @@ public class PostService {
         if (!userService.existsById(userId))
             throw new InvalidUserException();
 
-        List<String> thumbnails = new ArrayList<>();
+        List<String> thumbnails = item.getThumbnails();
 
         ImageType imageType = ImageType.PostImage;
         InputStream imageInputStream = FileHelper.urlToInputStream(item.getImageAddr());
         String imageAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
 
         //extract thumbnails of item
-        List<String> thumbnailAddrs = scrapingService.getThumbnailImages(item.getWebsite(), item.getLink());
-        for(int i=0; i<thumbnailAddrs.size() && i<2; i++) {
-            imageInputStream = FileHelper.urlToInputStream(thumbnailAddrs.get(i));
+        for(int i=0; i<thumbnails.size() && i<2; i++) {
+            imageInputStream = FileHelper.urlToInputStream(thumbnails.get(i));
             imageAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
             thumbnails.add(imageAddr);
         }
@@ -108,6 +107,11 @@ public class PostService {
         post = create(post);
         streamService.uploadActivity(userId, post.getId());
         return post;
+    }
+
+    public Post uploadLink(long userId, String website, String link) throws IOException {
+        UploadItemDTO item = scrapingService.extractItem(website, link);
+        return uploadItemPost(userId, item);
     }
 
     public long getNumPostsByUserId(long userId) {

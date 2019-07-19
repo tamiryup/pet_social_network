@@ -43,6 +43,14 @@ public class SocialController {
         return post.getId();
     }
 
+    @PostMapping("upload-link")
+    @ResponseBody
+    public long uploadLink(@PathVariable long id, @RequestParam String website,
+                           @RequestParam String link) throws IOException {
+        Post post = postService.uploadLink(id, website, link);
+        return post.getId();
+    }
+
     @PostMapping("follow")
     @ResponseBody
     public void followUser(@PathVariable("id") long slaveId, @RequestParam long masterId) {
