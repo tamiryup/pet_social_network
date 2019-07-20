@@ -20,7 +20,7 @@ public class ScrapingService {
 
     @PostConstruct
     public void init() {
-        WebDriverManager.chromedriver().setup();
+        System.setProperty("webdriver.chrome.driver", "BrowserDrivers/chromedriver");
     }
 
     private WebDriver getDriver(String productPageLink) {
