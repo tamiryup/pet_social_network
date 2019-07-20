@@ -86,24 +86,25 @@ public class PostService {
         if (!userService.existsById(userId))
             throw new InvalidUserException();
 
-        List<String> thumbnails = item.getThumbnails();
+        List<String> thumbnails = scrapingService.getThumbnailImages(item.getWebsite(),
+                item.getLink());
 
         ImageType imageType = ImageType.PostImage;
         InputStream imageInputStream = FileHelper.urlToInputStream(item.getImageAddr());
         String imageAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
 
         //extract thumbnails of item
-        for(int i=0; i<thumbnails.size() && i<2; i++) {
+        List<String> thumbnailAddresses = new ArrayList<>();
+        for(int i=0; i<thumbnails.size() && i<1; i++) {
             imageInputStream = FileHelper.urlToInputStream(thumbnails.get(i));
-            imageAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
-            thumbnails.add(imageAddr);
+            String thumbnailAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
+            thumbnailAddresses.add(thumbnailAddr);
         }
-        String thumbnail1 = (thumbnails.size() > 0) ? thumbnails.get(0) : null;
-        String thumbnail2 = (thumbnails.size() > 1) ? thumbnails.get(1) : null;
+        String thumbnail1 = (thumbnails.size() > 0) ? thumbnailAddresses.get(0) : null;
 
         Post post = new Post(userId, imageAddr, item.getDescription(), item.getLink(),
                 item.getPrice(), item.getWebsite(), item.getDesigner(), item.getProductId(),
-                thumbnail1, thumbnail2);
+                thumbnail1);
         post = create(post);
         streamService.uploadActivity(userId, post.getId());
         return post;

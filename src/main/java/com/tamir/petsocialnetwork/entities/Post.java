@@ -40,9 +40,6 @@ public class Post {
     @Getter @Setter
     private String thumbnail1;
 
-    @Getter @Setter
-    private String thumbnail2;
-
     public Post() {
 
     }
@@ -54,7 +51,7 @@ public class Post {
     }
 
     public Post(long userId, String imageAddr, String description, String link, String price,
-                String website, String designer, String productId, String thumbnail1, String thumbnail2){
+                String website, String designer, String productId, String thumbnail1){
         this(userId, imageAddr, description);
         this.link = link;
         this.price = price;
@@ -62,7 +59,6 @@ public class Post {
         this.designer = designer;
         this.productId = productId;
         this.thumbnail1 = thumbnail1;
-        this.thumbnail2 = thumbnail2;
     }
 
     public long getId() {
