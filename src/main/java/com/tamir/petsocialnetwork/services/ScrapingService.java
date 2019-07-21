@@ -1,7 +1,6 @@
 package com.tamir.petsocialnetwork.services;
 
 import com.tamir.petsocialnetwork.dto.UploadItemDTO;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,7 +10,10 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,9 @@ public class ScrapingService {
 
     @PostConstruct
     public void init() {
-        System.setProperty("webdriver.chrome.driver", "BrowserDrivers/chromedriver");
+        URL chromeDriverResource = getClass().getClassLoader().getResource("chromedriver");
+        File chromedriver = new File(chromeDriverResource.getFile());
+        System.setProperty("webdriver.chrome.driver", chromedriver.getPath());
     }
 
     private WebDriver getDriver(String productPageLink) {
