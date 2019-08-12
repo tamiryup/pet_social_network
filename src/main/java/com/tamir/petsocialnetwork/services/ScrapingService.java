@@ -7,12 +7,17 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,15 +25,31 @@ import java.util.List;
 @Service
 public class ScrapingService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScrapingService.class);
+
+    @Value("${ps.chrome.driver}")
+    private String chromedriverPath;
+
+    @Value("${ps.chrome.binary}")
+    private String chromeBinary;
+
     @PostConstruct
-    public void init() {
-        URL chromeDriverResource = getClass().getClassLoader().getResource("chromedriver");
-        File chromedriver = new File(chromeDriverResource.getFile());
-        System.setProperty("webdriver.chrome.driver", chromedriver.getPath());
+    public void init() throws IOException{
+        System.setProperty("webdriver.chrome.driver", chromedriverPath);
     }
 
     private WebDriver getDriver(String productPageLink) {
-        WebDriver driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+
+        options.setBinary(chromeBinary);
+        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
+                "--user-data-dir=/tmp/user-data", "--hide-scrollbars", "--enable-logging",
+                "--log-level=0", "--v=99", "--single-process", "--data-path=/tmp/data-path",
+                "--ignore-certificate-errors", "--homedir=/tmp", "--disk-cache-dir=/tmp/cache-dir",
+                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
+                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+
+        WebDriver driver = new ChromeDriver(options);
         driver.get(productPageLink);
         return driver;
     }
@@ -49,9 +70,6 @@ public class ScrapingService {
                     break;
                 case "www.net-a-porter.com":
                     links = netAPorterThumbnails(productPageLink);
-                    break;
-                case "www.adikastyle.com":
-                    links = adikaThumbnails(productPageLink);
                     break;
                 case "www.terminalx.com":
                     links = terminalXThumbnails(productPageLink);
@@ -88,20 +106,6 @@ public class ScrapingService {
             links.set(i, "https:" + links.get(i));
         }
 
-        return links;
-    }
-
-    private List<String> adikaThumbnails(String productPageLink) {
-        List<String> links;
-        WebDriver driver = getDriver(productPageLink);
-        Document document = Jsoup.parse(driver.getPageSource());
-
-        Element elem = document.selectFirst(".more-views-thumbs");
-        Elements imageElements = elem.getElementsByTag("a");
-        links = imageElements.eachAttr("href");
-        links.remove(0);
-
-        driver.close();
         return links;
     }
 
