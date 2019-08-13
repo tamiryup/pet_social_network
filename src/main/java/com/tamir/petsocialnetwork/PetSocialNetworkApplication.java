@@ -34,9 +34,5 @@ public class PetSocialNetworkApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
-//		List<String> links = scrapingService.getThumbnailImages("www.asos.com",
-//				"https://www.asos.com/aratta/aratta-maxi-kimono-in-linen-with-premium-floral-embroidery/prd/12354837?clr=faded-peach&colourWayId=16392061&SearchQuery=&cid=15198");
-//		System.out.println(links);
-		UploadItemDTO item  = scrapingService.extractItem("asos", "productpage");
 	}
 }

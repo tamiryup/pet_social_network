@@ -1,12 +1,12 @@
 package com.tamir.petsocialnetwork.enums;
 
-public enum Currency {
 
-    USD(),
-    ILS(),
-    GBP();
 
-    private Currency() {
+    public enum Currency {
+
+        USD,
+        ILS,
+        GBP
 
     }
-}
+
