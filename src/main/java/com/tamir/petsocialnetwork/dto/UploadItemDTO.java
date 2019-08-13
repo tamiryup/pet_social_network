@@ -1,19 +1,13 @@
 package com.tamir.petsocialnetwork.dto;
 
 import com.tamir.petsocialnetwork.enums.Currency;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.ArrayList;
+import lombok.*;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter
-
-
+@ToString
 public class UploadItemDTO {
 
     private String imageAddr;
@@ -26,6 +20,6 @@ public class UploadItemDTO {
     private String imgExtension;
     private String productId;
     private List<String> thumbnails;
-    private ArrayList<String> itemClassification;
+    private List<String> itemClassification;
 
 }
