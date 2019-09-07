@@ -1,13 +1,20 @@
 package com.tamir.petsocialnetwork.entities;
 
+import com.tamir.petsocialnetwork.enums.Currency;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "posts")
+@Getter
+@ToString
+@NoArgsConstructor
 public class Post {
 
     @Id
@@ -16,36 +23,32 @@ public class Post {
     private long id;
 
     private long userId;
+
+    private long storeId;
+
     private String imageAddr;
 
-    @Getter @Setter
     @Column(columnDefinition = "varchar(1000)")
     private String link;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Getter @Setter
     private String price;
 
-    @Getter @Setter
-    private String website;
+    private Currency currency;
 
-    @Getter @Setter
     private String designer;
 
-    @Getter @Setter
     private String productId;
 
-    @Getter @Setter
-    private String thumbnail1;
+    private String thumbnail;
 
-    @Getter @Setter
-    private String thumbnail2;
+    private String category;
 
-    public Post() {
+    private String productType;
 
-    }
+    private Date uploadDate;
 
     public Post(long userId, String imageAddr, String description) {
         this.userId = userId;
@@ -53,45 +56,19 @@ public class Post {
         this.description = description;
     }
 
-    public Post(long userId, String imageAddr, String description, String link, String price,
-                String website, String designer, String productId, String thumbnail1, String thumbnail2){
+    public Post(long userId, long storeId, String imageAddr, String description, String link, String price,
+                Currency currency, String designer, String productId, String thumbnail,
+                String category, String productType){
         this(userId, imageAddr, description);
+        this.storeId = storeId;
         this.link = link;
         this.price = price;
-        this.website = website;
+        this.currency = currency;
         this.designer = designer;
         this.productId = productId;
-        this.thumbnail1 = thumbnail1;
-        this.thumbnail2 = thumbnail2;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-
-    public String getImageAddr() {
-        return imageAddr;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getLink() {
-        return link;
-    }
-
-    @Override
-    public String toString() {
-        return "Post{" +
-                "id=" + id +
-                ", userId=" + userId +
-                ", imageAddr='" + imageAddr + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+        this.thumbnail = thumbnail;
+        this.category = category;
+        this.productType = productType;
+        this.uploadDate = new Date();
     }
 }

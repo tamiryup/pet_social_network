@@ -46,8 +46,9 @@ public class FeedService {
         for (int i = 0; i < posts.size(); i++) {
             User user = users.get(i);
             Post post = posts.get(i);
+            //TODO: fix hard coded website
             TimelineFeedPostDTO dto = new TimelineFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                    post.getDescription(), post.getLink(), post.getWebsite(), user.getProfileImageAddr(), user.getUsername());
+                    post.getDescription(), post.getLink(), "asos.com", user.getProfileImageAddr(), user.getUsername());
             feedPostDTOS.add(dto);
         }
 
@@ -62,8 +63,9 @@ public class FeedService {
         Iterable<Post> posts = postService.findAllById(objects);
         List<UserFeedPostDTO> feedPostDTOS = new ArrayList<>();
         for (Post post : posts) {
+            //TODO: fix hard coded website
             feedPostDTOS.add(new UserFeedPostDTO(post.getId(),post.getUserId(), post.getImageAddr(),
-                    post.getDescription(), post.getLink(), post.getWebsite()));
+                    post.getDescription(), post.getLink(), "asos.com"));
         }
         return feedPostDTOS;
     }

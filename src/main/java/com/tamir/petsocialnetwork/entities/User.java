@@ -36,6 +36,8 @@ public class User {
 
     private Date birthDate;
 
+    private Date registerDate;
+
     public User(String email, String username, String fullName, Date birthDate) {
         this.email = email;
         this.username = username;
@@ -43,6 +45,7 @@ public class User {
         this.birthDate = birthDate;
         this.profileImageAddr = CommonBeanConfig.getDefaultProfileImageAddr();
         this.description = CommonBeanConfig.getDefaultUserDescription();
+        this.registerDate = new Date();
     }
 
 }

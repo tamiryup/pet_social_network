@@ -38,7 +38,7 @@ public class S3Service {
     private String bucketName;
 
     public S3Service() {
-        this.bucketName = "petsocial-bucket";
+        this.bucketName = "followear-bucket";
     }
 
     @PostConstruct

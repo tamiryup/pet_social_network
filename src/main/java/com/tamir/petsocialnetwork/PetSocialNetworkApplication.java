@@ -11,6 +11,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.Date;
 import java.util.List;
 
 @SpringBootApplication
@@ -34,8 +35,5 @@ public class PetSocialNetworkApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
-//		UploadItemDTO output = scrapingService.extractItem("shopbop",
-//                "https://www.shopbop.com/drama-jean-mother/vp/v=1/1518623454.htm?folderID=13377&fm=other-shopbysize-viewall&os=false&colorId=15F90");
-//		System.out.println(output);
 	}
 }

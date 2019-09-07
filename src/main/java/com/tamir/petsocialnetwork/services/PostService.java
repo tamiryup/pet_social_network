@@ -6,6 +6,7 @@ import com.tamir.petsocialnetwork.AWS.s3.S3Service;
 import com.tamir.petsocialnetwork.dto.UploadItemDTO;
 import com.tamir.petsocialnetwork.entities.Post;
 import com.tamir.petsocialnetwork.entities.User;
+import com.tamir.petsocialnetwork.enums.Currency;
 import com.tamir.petsocialnetwork.enums.ImageType;
 import com.tamir.petsocialnetwork.exceptions.InvalidPostException;
 import com.tamir.petsocialnetwork.exceptions.InvalidUserException;
@@ -98,12 +99,11 @@ public class PostService {
             imageAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
             thumbnails.add(imageAddr);
         }
-        String thumbnail1 = (thumbnails.size() > 0) ? thumbnails.get(0) : null;
-        String thumbnail2 = (thumbnails.size() > 1) ? thumbnails.get(1) : null;
+        String thumbnail = (thumbnails.size() > 0) ? thumbnails.get(0) : null;
 
-        Post post = new Post(userId, imageAddr, item.getDescription(), item.getLink(),
-                item.getPrice(), item.getWebsite(), item.getDesigner(), item.getProductId(),
-                thumbnail1, thumbnail2);
+        Post post = new Post(userId, 0, imageAddr, item.getDescription(), item.getLink(),
+                item.getPrice(), Currency.ILS, item.getDesigner(), item.getProductId(),
+                thumbnail, null, null); //temp null values, ILS and storeId=0 also temp values
         post = create(post);
         streamService.uploadActivity(userId, post.getId());
         return post;
