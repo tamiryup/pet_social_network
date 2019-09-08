@@ -2,7 +2,10 @@ package com.tamir.petsocialnetwork;
 
 import com.tamir.petsocialnetwork.AWS.s3.S3Service;
 import com.tamir.petsocialnetwork.dto.UploadItemDTO;
+import com.tamir.petsocialnetwork.entities.Store;
+import com.tamir.petsocialnetwork.repositories.StoreRepository;
 import com.tamir.petsocialnetwork.services.ScrapingService;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +30,10 @@ public class PetSocialNetworkApplication implements CommandLineRunner {
 	private String issuer;
 
 	@Autowired
-    private S3Service s3Service;
+	ScrapingService scrapingService;
 
 	@Autowired
-	ScrapingService scrapingService;
+    StoreRepository storeRepo;
 
 	@Override
 	public void run(String... args) throws Exception {
