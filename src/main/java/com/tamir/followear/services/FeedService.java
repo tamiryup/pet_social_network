@@ -1,0 +1,100 @@
+package com.tamir.followear.services;
+
+import com.tamir.followear.dto.FeedFollowDTO;
+import com.tamir.followear.dto.TimelineFeedPostDTO;
+import com.tamir.followear.dto.UserFeedPostDTO;
+import com.tamir.followear.entities.Post;
+import com.tamir.followear.entities.User;
+import com.tamir.followear.exceptions.InvalidUserException;
+import com.tamir.followear.helpers.StreamHelper;
+import com.tamir.followear.stream.PostActivity;
+import com.tamir.followear.stream.StreamService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@Transactional
+public class FeedService {
+
+    @Autowired
+    StreamService streamService;
+
+    @Autowired
+    PostService postService;
+
+    @Autowired
+    UserService userService;
+
+    public List<TimelineFeedPostDTO> getTimelineFeed(long userId, int offset) {
+        if (!userService.existsById(userId))
+            throw new InvalidUserException();
+
+        List<PostActivity> streamFeed = streamService.getStreamTimelineFeed(userId, offset);
+        List<Long> objects = StreamHelper.extractObjectsFromActivities(streamFeed);
+        List<Long> actors = StreamHelper.extractActorsFromActivites(streamFeed);
+        List<Post> posts = postService.findAllById(objects);
+        List<User> users = userService.findAllById(actors);
+
+        List<TimelineFeedPostDTO> feedPostDTOS = new ArrayList<>();
+        if (posts.size() != users.size())
+            return feedPostDTOS;
+
+        for (int i = 0; i < posts.size(); i++) {
+            User user = users.get(i);
+            Post post = posts.get(i);
+            //TODO: fix hard coded website
+            TimelineFeedPostDTO dto = new TimelineFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
+                    post.getDescription(), post.getLink(), "asos.com", user.getProfileImageAddr(), user.getUsername());
+            feedPostDTOS.add(dto);
+        }
+
+        return feedPostDTOS;
+    }
+
+    public List<UserFeedPostDTO> getUserFeed(long userId, int offset) {
+        if (!userService.existsById(userId))
+            throw new InvalidUserException();
+        List<PostActivity> streamFeed = streamService.getStreamUserFeed(userId, offset);
+        List<Long> objects = StreamHelper.extractObjectsFromActivities(streamFeed);
+        Iterable<Post> posts = postService.findAllById(objects);
+        List<UserFeedPostDTO> feedPostDTOS = new ArrayList<>();
+        for (Post post : posts) {
+            //TODO: fix hard coded website
+            feedPostDTOS.add(new UserFeedPostDTO(post.getId(),post.getUserId(), post.getImageAddr(),
+                    post.getDescription(), post.getLink(), "asos.com"));
+        }
+        return feedPostDTOS;
+    }
+
+    public List<FeedFollowDTO> getUserSlaves(long userId, int offset) {
+        if (!userService.existsById(userId))
+            throw new InvalidUserException();
+        List<Long> ids = streamService.getUserFollowers(userId, offset);
+        return getFeedFollowDTOsFromIds(ids);
+    }
+
+    public List<FeedFollowDTO> getUserMasters(long userId, int offset) {
+        if (!userService.existsById(userId))
+            throw new InvalidUserException();
+        List<Long> ids = streamService.getUserFollowing(userId, offset);
+        return getFeedFollowDTOsFromIds(ids);
+    }
+
+    private List<FeedFollowDTO> getFeedFollowDTOsFromIds(List<Long> ids) {
+        List<User> users = userService.findAllById(ids);
+        List<FeedFollowDTO> dtos = new ArrayList<>();
+        for (User user : users) {
+
+            FeedFollowDTO dto = new FeedFollowDTO();
+            dto.setProfileImageAddr(user.getProfileImageAddr());
+            dto.setUsername(user.getUsername());
+            dto.setId(user.getId());
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+}

@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.tamir</groupId>
-    <artifactId>pet-social-network</artifactId>
+    <artifactId>followear</artifactId>
     <version>0.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>pet-social-network</name>
-    <description>Demo project for Spring Boot</description>
+    <name>followear</name>
+    <description>Social shopping site for fashion</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
