@@ -15,6 +15,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,10 +36,11 @@ public class S3Service {
 
     private AmazonS3 s3Client;
 
+    @Value("${ps.s3.bucket-name}")
     private String bucketName;
 
     public S3Service() {
-        this.bucketName = "followear-bucket";
+
     }
 
     @PostConstruct
