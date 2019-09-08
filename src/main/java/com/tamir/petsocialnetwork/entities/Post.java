@@ -50,10 +50,13 @@ public class Post {
 
     private Date uploadDate;
 
+    private long numViews;
+
     public Post(long userId, String imageAddr, String description) {
         this.userId = userId;
         this.imageAddr = imageAddr;
         this.description = description;
+        this.numViews = 0;
     }
 
     public Post(long userId, long storeId, String imageAddr, String description, String link, String price,
