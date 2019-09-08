@@ -3,6 +3,7 @@ package com.tamir.petsocialnetwork.services;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.tamir.petsocialnetwork.AWS.s3.S3Service;
+import com.tamir.petsocialnetwork.CommonBeanConfig;
 import com.tamir.petsocialnetwork.entities.User;
 import com.tamir.petsocialnetwork.enums.ImageType;
 import com.tamir.petsocialnetwork.exceptions.InvalidUserException;
@@ -97,7 +98,9 @@ public class UserService {
         String extension = FileHelper.getMultipartFileExtension(image);
         String addr = s3Service.uploadImage(imageType, image, extension);
         String lastAddr = updateProfilePictureAddrById(id, addr);
-        s3Service.deleteByKey(lastAddr);
+        if(!lastAddr.equals(CommonBeanConfig.getDefaultProfileImageAddr())) {
+            s3Service.deleteByKey(lastAddr);
+        }
         return addr;
     }
 
