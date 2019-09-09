@@ -39,7 +39,7 @@ public class CognitoService {
         cognitoProvider = AWSCognitoIdentityProviderClientBuilder
                 .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(myAWSCreds.getCredentials()))
-                .withRegion(Regions.US_EAST_1)
+                .withRegion(Regions.EU_WEST_1)
                 .build();
     }
 
@@ -54,7 +54,7 @@ public class CognitoService {
 
         SignUpResult result = cognitoProvider.signUp(signUpRequest);
         logger.info("cognito signup result: " + result);
-        //user is auto-confirmed using the lambda function
+        //user is auto-confirmed using the lambda function (email is auto verified)
     }
 
     private AdminConfirmSignUpResult adminConfirmSignup(String username) {
