@@ -15,11 +15,12 @@ public class UploadItemDTO {
     private String description;
     private String price;
     private Currency currency;
-    private String website;
+    private long storeId;
     private String designer;
     private String imgExtension;
     private String productId;
     private List<String> thumbnails;
-    private List<String> itemClassification;
+    private String category;
+    private String productType;
 
 }

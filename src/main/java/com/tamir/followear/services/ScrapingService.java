@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.*;
+
 import com.tamir.followear.enums.Currency;
 
 @Service
@@ -34,7 +35,7 @@ public class ScrapingService {
     private String chromeBinary;
 
     @PostConstruct
-    public void init() throws IOException{
+    public void init() throws IOException {
         System.setProperty("webdriver.chrome.driver", chromedriverPath);
     }
 
@@ -89,19 +90,19 @@ public class ScrapingService {
         return itemDTO;
     }
 
-    public List<String> getThumbnailImages(String website, String productPageLink) {
+    public List<String> getThumbnailImages(long storeId, String productPageLink) {
         List<String> links = new ArrayList<>();
 
         try {
 
-            switch (website) {
-                case "www.asos.com":
+            switch ((int) storeId) {
+                case 1:
                     links = asosThumbnails(productPageLink);
                     break;
-                case "www.net-a-porter.com":
+                case 2:
                     links = netAPorterThumbnails(productPageLink);
                     break;
-                case "www.terminalx.com":
+                case 3:
                     links = terminalXThumbnails(productPageLink);
                     break;
             }
@@ -114,7 +115,7 @@ public class ScrapingService {
     }
 
     //TODO: replace addresses with the addresses of better image qualities
-    private List<String> asosThumbnails(String productPageLink) throws IOException{
+    private List<String> asosThumbnails(String productPageLink) throws IOException {
         List<String> links;
         Document document = Jsoup.connect(productPageLink).get();
         Element elem = document.selectFirst(".thumbnails");
@@ -298,8 +299,9 @@ public class ScrapingService {
         Map<String, List<String>> dict = InitilizeItemsEnglishDict();
         List<String> itemTags = itemClassification(description, dict);
 
-        return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, website, designer, imgExtension, productID, links, itemTags);
+//        return new UploadItemDTO(imageAddr, productPageLink, description,
+//                price, currency, website, designer, imgExtension, productID, links, itemTags);
+        return new UploadItemDTO();
     }
 
     private UploadItemDTO netaporterDTO(String website, String productPageLink) {
@@ -338,9 +340,9 @@ public class ScrapingService {
         Map<String, List<String>> dict = InitilizeItemsEnglishDict();
         List<String> itemTags = itemClassification(description, dict);
 
-        return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, website, designer, imgExtension, productID, links, itemTags);
-
+//        return new UploadItemDTO(imageAddr, productPageLink, description,
+//                price, currency, website, designer, imgExtension, productID, links, itemTags);
+        return new UploadItemDTO();
     }
 
 
@@ -389,8 +391,9 @@ public class ScrapingService {
         Map<String, List<String>> dict = InitilizeItemsHebrewDict();
         List<String> itemTags = itemClassification(description, dict);
 
-        return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, website, designer, imgExtension, productID, links, itemTags);
+//        return new UploadItemDTO(imageAddr, productPageLink, description,
+//                price, currency, website, designer, imgExtension, productID, links, itemTags);
+        return new UploadItemDTO();
     }
 
 
@@ -429,8 +432,9 @@ public class ScrapingService {
         Map<String, List<String>> dict = InitilizeItemsHebrewDict();
         List<String> itemTags = itemClassification(description, dict);
 
-        return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, website, designer, imgExtension, productID, links, itemTags);
+//        return new UploadItemDTO(imageAddr, productPageLink, description,
+//                price, currency, website, designer, imgExtension, productID, links, itemTags);
+        return new UploadItemDTO();
     }
 
 
@@ -475,8 +479,9 @@ public class ScrapingService {
         Map<String, List<String>> dict = InitilizeItemsEnglishDict();
         List<String> itemTags = itemClassification(description, dict);
 
-        return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, website, designer, imgExtension, productID, links, itemTags);
+//        return new UploadItemDTO(imageAddr, productPageLink, description,
+//                price, currency, website, designer, imgExtension, productID, links, itemTags);
+        return new UploadItemDTO();
     }
 
     private UploadItemDTO sheinDTO(String website, String productPageLink) {
@@ -519,8 +524,9 @@ public class ScrapingService {
         Map<String, List<String>> dict = InitilizeItemsEnglishDict();
         List<String> itemTags = itemClassification(description, dict);
 
-        return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, website, designer, imgExtension, productID, links, itemTags);
+//        return new UploadItemDTO(imageAddr, productPageLink, description,
+//                price, currency, website, designer, imgExtension, productID, links, itemTags);
+        return new UploadItemDTO();
     }
 
 
@@ -550,9 +556,9 @@ public class ScrapingService {
         Map<String, List<String>> dict = InitilizeItemsHebrewDict();
         List<String> itemTags = itemClassification(description, dict);
 
-        return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, website, designer, imgExtension, productID, links, itemTags);
-
+//        return new UploadItemDTO(imageAddr, productPageLink, description,
+//                price, currency, website, designer, imgExtension, productID, links, itemTags);
+        return new UploadItemDTO();
     }
 
     private UploadItemDTO hmDTO(String website, String productPageLink) {
@@ -583,8 +589,9 @@ public class ScrapingService {
         Map<String, List<String>> dict = InitilizeItemsEnglishDict();
         List<String> itemTags = itemClassification(description, dict);
 
-        return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, website, designer, imgExtension, productID, links, itemTags);
+//        return new UploadItemDTO(imageAddr, productPageLink, description,
+//                price, currency, website, designer, imgExtension, productID, links, itemTags);
+        return new UploadItemDTO();
     }
 
 
@@ -612,8 +619,9 @@ public class ScrapingService {
         Map<String, List<String>> dict = InitilizeItemsEnglishDict();
         List<String> itemTags = itemClassification(description, dict);
 
-        return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, website, designer, imgExtension, productID, links, itemTags);
+//        return new UploadItemDTO(imageAddr, productPageLink, description,
+//                price, currency, website, designer, imgExtension, productID, links, itemTags);
+        return new UploadItemDTO();
     }
 
 }
