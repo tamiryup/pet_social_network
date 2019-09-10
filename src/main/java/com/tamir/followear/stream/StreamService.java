@@ -1,6 +1,7 @@
 package com.tamir.followear.stream;
 
 import com.tamir.followear.CommonBeanConfig;
+import com.tamir.followear.entities.Post;
 import com.tamir.followear.exceptions.NoMoreActivitiesException;
 import com.tamir.followear.exceptions.StreamException;
 import com.tamir.followear.helpers.StreamHelper;
@@ -33,21 +34,21 @@ public class StreamService {
         this.streamClient = streamClientProvider.getClient();
     }
 
-    private PostActivity createPostActivity(long userId, long postId) {
+    private PostActivity createPostActivity(Post post) {
         PostActivity activity = new PostActivity();
-        activity.setActor("" + userId);
+        activity.setActor("" + post.getUserId());
         activity.setVerb("post");
-        activity.setObject("" + postId);
-        activity.setForeignId("" + postId);
-        activity.setTime(new Date());
+        activity.setObject("" + post.getId());
+        activity.setForeignId("" + post.getId());
+        activity.setTime(post.getUploadDate());
         return activity;
     }
 
-    public void uploadActivity(long userId, long postId) {
+    public void uploadActivity(Post post) {
         try {
-            Feed feed = streamClient.newFeed("user", "" + userId);
+            Feed feed = streamClient.newFeed("user", "" + post.getUserId());
             FlatActivityServiceImpl<PostActivity> activityService = feed.newFlatActivityService(PostActivity.class);
-            PostActivity activity = createPostActivity(userId, postId);
+            PostActivity activity = createPostActivity(post);
             PostActivity response = activityService.addActivity(activity);
             System.out.println(response);
         } catch (InvalidFeedNameException e) {

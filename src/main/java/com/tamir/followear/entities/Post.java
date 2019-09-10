@@ -55,6 +55,7 @@ public class Post {
         this.imageAddr = imageAddr;
         this.description = description;
         this.numViews = 0;
+        this.uploadDate = new Date();
     }
 
     public Post(long userId, long storeId, String imageAddr, String description, String link, String price,
@@ -70,6 +71,5 @@ public class Post {
         this.thumbnail = thumbnail;
         this.category = category;
         this.productType = productType;
-        this.uploadDate = new Date();
     }
 }

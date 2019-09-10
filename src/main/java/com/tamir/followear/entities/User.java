@@ -36,7 +36,7 @@ public class User {
 
     private Date birthDate;
 
-    private Date registerDate;
+    private Date registerDate; //LocalTime in localhost, UTC in beanstalk env
 
     public User(String email, String username, String fullName, Date birthDate) {
         this.email = email;

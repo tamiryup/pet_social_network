@@ -79,7 +79,7 @@ public class PostService {
         String imageAddr = s3Service.uploadImage(imageType, image, extension);
         Post post = new Post(userId, imageAddr, description);
         post = create(post);
-        streamService.uploadActivity(userId, post.getId());
+        streamService.uploadActivity(post);
         return post;
     }
 
@@ -87,7 +87,7 @@ public class PostService {
         if (!userService.existsById(userId))
             throw new InvalidUserException();
 
-        List<String> thumbnails = scrapingService.getThumbnailImages(item.getWebsite(),
+        List<String> thumbnails = scrapingService.getThumbnailImages(item.getStoreId(),
                 item.getLink());
 
         ImageType imageType = ImageType.PostImage;
@@ -103,11 +103,11 @@ public class PostService {
         }
         String thumbnail = (thumbnails.size() > 0) ? thumbnails.get(0) : null;
 
-        Post post = new Post(userId, 0, imageAddr, item.getDescription(), item.getLink(),
+        Post post = new Post(userId, item.getStoreId(), imageAddr, item.getDescription(), item.getLink(),
                 item.getPrice(), Currency.ILS, item.getDesigner(), item.getProductId(),
-                thumbnail, null, null); //temp null values, ILS and storeId=0 also temp values
+                thumbnail, item.getCategory(), item.getProductType());
         post = create(post);
-        streamService.uploadActivity(userId, post.getId());
+        streamService.uploadActivity(post);
         return post;
     }
 
