@@ -6,6 +6,8 @@ import com.tamir.followear.enums.ProductType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -36,8 +38,8 @@ public class Post {
 
     private String price;
 
-    @Enumerated
-    @Column(columnDefinition = "smallint")
+    @Enumerated(EnumType.STRING)
+    @Column(length = 8)
     private Currency currency;
 
     private String designer;
@@ -46,15 +48,19 @@ public class Post {
 
     private String thumbnail;
 
-    @Enumerated
-    @Column(columnDefinition = "smallint")
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50)
     private Category category;
 
-    @Enumerated
-    @Column(columnDefinition = "smallint")
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50)
     private ProductType productType;
 
-    private Date uploadDate;
+    @CreationTimestamp
+    private Date createDate;
+
+    @UpdateTimestamp
+    private Date updateDate;
 
     private long numViews;
 
@@ -63,7 +69,6 @@ public class Post {
         this.imageAddr = imageAddr;
         this.description = description;
         this.numViews = 0;
-        this.uploadDate = new Date();
     }
 
     public Post(long userId, long storeId, String imageAddr, String description, String link, String price,

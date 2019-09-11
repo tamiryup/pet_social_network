@@ -1,11 +1,13 @@
 package com.tamir.followear.entities;
 
 import com.tamir.followear.jpaKeys.FollowKey;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
+import java.util.Date;
 
 @Entity
 @Table(name = "follows")
@@ -17,6 +19,9 @@ public class Follow {
 
     @Id
     private long slaveId;
+
+    @CreationTimestamp
+    private Date createDate;
 
     public Follow(){
 

@@ -48,7 +48,7 @@ public class PostService {
     ScrapingService scrapingService;
 
     public Post create(Post post) {
-        return postRepo.save(post);
+        return postRepo.saveAndFlush(post);
     }
 
     public Post findById(long id) {
@@ -79,7 +79,14 @@ public class PostService {
         String imageAddr = s3Service.uploadImage(imageType, image, extension);
         Post post = new Post(userId, imageAddr, description);
         post = create(post);
-        streamService.uploadActivity(post);
+
+        try {
+            streamService.uploadActivity(post);
+        } catch (Exception e) {
+            postRepo.delete(post);
+            throw e;
+        }
+
         return post;
     }
 
@@ -107,7 +114,14 @@ public class PostService {
                 item.getPrice(), Currency.ILS, item.getDesigner(), item.getProductId(),
                 thumbnail, item.getCategory(), item.getProductType());
         post = create(post);
-        streamService.uploadActivity(post);
+
+        try {
+            streamService.uploadActivity(post);
+        } catch (Exception e) {
+            postRepo.delete(post);
+            throw e;
+        }
+
         return post;
     }
 

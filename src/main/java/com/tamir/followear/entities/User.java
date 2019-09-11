@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -36,7 +38,11 @@ public class User {
 
     private Date birthDate;
 
-    private Date registerDate; //LocalTime in localhost, UTC in beanstalk env
+    @CreationTimestamp
+    private Date createDate; //LocalTime in localhost, UTC in beanstalk env
+
+    @UpdateTimestamp
+    private Date updateDate;
 
     public User(String email, String username, String fullName, Date birthDate) {
         this.email = email;
@@ -45,7 +51,6 @@ public class User {
         this.birthDate = birthDate;
         this.profileImageAddr = CommonBeanConfig.getDefaultProfileImageAddr();
         this.description = CommonBeanConfig.getDefaultUserDescription();
-        this.registerDate = new Date();
     }
 
 }

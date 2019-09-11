@@ -40,7 +40,7 @@ public class StreamService {
         activity.setVerb("post");
         activity.setObject("" + post.getId());
         activity.setForeignId("" + post.getId());
-        activity.setTime(post.getUploadDate());
+        activity.setTime(post.getCreateDate());
         return activity;
     }
 
