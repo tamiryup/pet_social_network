@@ -1,6 +1,8 @@
 package com.tamir.followear.entities;
 
+import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
+import com.tamir.followear.enums.ProductType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -34,6 +36,8 @@ public class Post {
 
     private String price;
 
+    @Enumerated
+    @Column(columnDefinition = "smallint")
     private Currency currency;
 
     private String designer;
@@ -42,9 +46,13 @@ public class Post {
 
     private String thumbnail;
 
-    private String category;
+    @Enumerated
+    @Column(columnDefinition = "smallint")
+    private Category category;
 
-    private String productType;
+    @Enumerated
+    @Column(columnDefinition = "smallint")
+    private ProductType productType;
 
     private Date uploadDate;
 
@@ -60,7 +68,7 @@ public class Post {
 
     public Post(long userId, long storeId, String imageAddr, String description, String link, String price,
                 Currency currency, String designer, String productId, String thumbnail,
-                String category, String productType){
+                Category category, ProductType productType){
         this(userId, imageAddr, description);
         this.storeId = storeId;
         this.link = link;

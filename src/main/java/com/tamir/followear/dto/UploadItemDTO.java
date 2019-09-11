@@ -1,6 +1,8 @@
 package com.tamir.followear.dto;
 
+import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
+import com.tamir.followear.enums.ProductType;
 import lombok.*;
 import java.util.List;
 
@@ -20,7 +22,7 @@ public class UploadItemDTO {
     private String imgExtension;
     private String productId;
     private List<String> thumbnails;
-    private String category;
-    private String productType;
+    private Category category;
+    private ProductType productType;
 
 }

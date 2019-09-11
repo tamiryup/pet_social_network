@@ -101,7 +101,7 @@ public class PostService {
             String thumbnailAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
             thumbnailAddresses.add(thumbnailAddr);
         }
-        String thumbnail = (thumbnails.size() > 0) ? thumbnails.get(0) : null;
+        String thumbnail = (thumbnailAddresses.size() > 0) ? thumbnailAddresses.get(0) : null;
 
         Post post = new Post(userId, item.getStoreId(), imageAddr, item.getDescription(), item.getLink(),
                 item.getPrice(), Currency.ILS, item.getDesigner(), item.getProductId(),

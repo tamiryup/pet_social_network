@@ -1,6 +1,8 @@
 package com.tamir.followear;
 
+import com.tamir.followear.entities.Post;
 import com.tamir.followear.repositories.StoreRepository;
+import com.tamir.followear.services.PostService;
 import com.tamir.followear.services.ScrapingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +25,7 @@ public class FollowearApplication implements CommandLineRunner {
 	private String issuer;
 
 	@Autowired
-	ScrapingService scrapingService;
-
-	@Autowired
-    StoreRepository storeRepo;
+	private PostService postService;
 
 	@Override
 	public void run(String... args) throws Exception {
