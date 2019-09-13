@@ -6,25 +6,18 @@ import lombok.Setter;
 
 @NoArgsConstructor
 @Getter @Setter
-public class UserFeedPostDTO {
-
-    private long postId;
-
-    private long userId;
-
-    private String postImageAddr;
-
-    private String description;
+public class UserFeedPostDTO extends FeedPostDTO {
 
     private String link;
 
-    private String website;
+    private String price; //already formatted ('$33')
 
-    public UserFeedPostDTO(long postId, long userId, String postImageAddr, String description, String link, String website) {
-        this.postId = postId;
-        this.userId = userId;
-        this.postImageAddr = postImageAddr;
-        this.description = description;
+    private String website; // already formatted ('asos.com')
+
+    public UserFeedPostDTO(long postId, long userId, String postImageAddr,
+                           String description, String link, String price, String website) {
+        super(postId, userId, postImageAddr, description);
+        this.price = price;
         this.link = link;
         this.website = website;
     }

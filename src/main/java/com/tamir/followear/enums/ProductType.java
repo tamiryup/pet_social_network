@@ -2,6 +2,7 @@ package com.tamir.followear.enums;
 
 public enum ProductType {
 
+    Default, //the default product type fits the whole category
     Tops,
     DressesOrSkirts,
     Pants,
@@ -9,4 +10,5 @@ public enum ProductType {
     JacketsOrCoats,
     Swimwear,
     Lingerie
+
 }

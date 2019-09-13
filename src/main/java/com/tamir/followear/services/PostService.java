@@ -60,6 +60,14 @@ public class PostService {
         return optPost.get();
     }
 
+    /**
+     * finds all posts with ids from the list of ids (plus duplicates)
+     *
+     * @param ids A list of post ids to find in the database
+     * @return A list of posts with the ids specified including duplicates
+     * in case there is a duplicate id. The list returns the posts in the same order
+     * as the ids received.
+     */
     public List<Post> findAllById(Iterable<Long> ids) {
         List<Post> postList = Lists.newArrayList(postRepo.findAllById(ids));
         List<Post> posts = new ArrayList<>();
@@ -94,8 +102,11 @@ public class PostService {
         if (!userService.existsById(userId))
             throw new InvalidUserException();
 
-        List<String> thumbnails = scrapingService.getThumbnailImages(item.getStoreId(),
-                item.getLink());
+        List<String> thumbnails = item.getThumbnails();
+        if (thumbnails == null || thumbnails.size() == 0) {
+            thumbnails = scrapingService.getThumbnailImages(item.getStoreId(),
+                    item.getLink());
+        }
 
         ImageType imageType = ImageType.PostImage;
         InputStream imageInputStream = FileHelper.urlToInputStream(item.getImageAddr());
@@ -103,7 +114,7 @@ public class PostService {
 
         //extract thumbnails of item
         List<String> thumbnailAddresses = new ArrayList<>();
-        for(int i=0; i<thumbnails.size() && i<1; i++) {
+        for (int i = 0; i < thumbnails.size() && i < 1; i++) {
             imageInputStream = FileHelper.urlToInputStream(thumbnails.get(i));
             String thumbnailAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
             thumbnailAddresses.add(thumbnailAddr);

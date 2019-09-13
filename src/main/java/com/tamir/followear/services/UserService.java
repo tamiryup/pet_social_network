@@ -17,7 +17,9 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -69,6 +71,14 @@ public class UserService {
         return user.get();
     }
 
+    /**
+     * finds all users with ids from the list of ids (plus duplicates)
+     *
+     * @param ids A list of user ids to find in the database
+     * @return A list of users with the ids specified including duplicates
+     * in case there is a duplicate id. The list returns the users in the same order
+     * as the ids received.
+     */
     public List<User> findAllById(List<Long> ids){
         List<User> userList = Lists.newArrayList(userRepo.findAllById(ids));
         List<User> userListPlusDuplicates = new ArrayList<>();
@@ -78,6 +88,22 @@ public class UserService {
                 userListPlusDuplicates.add(userById);
         }
         return userListPlusDuplicates;
+    }
+
+    /**
+     * Maps the user ids received to User objects
+     *
+     * @param ids User ids to map
+     * @return A map which maps all ids received into the corresponding User object
+     * (each id from the list appears in the map only once)
+     */
+    public Map<Long, User> makeMapFromIds(List<Long> ids) {
+        List<User> userList = Lists.newArrayList(userRepo.findAllById(ids));
+
+        Map<Long, User> userMap = userList.stream()
+                .collect(Collectors.toMap(user -> user.getId(), user -> user));
+
+        return userMap;
     }
 
     public String updateProfilePictureAddrById(long id, String profilePictureAddr){

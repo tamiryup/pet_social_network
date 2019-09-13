@@ -1,24 +1,32 @@
 package com.tamir.followear.services;
 
-import com.tamir.followear.dto.FeedFollowDTO;
-import com.tamir.followear.dto.TimelineFeedPostDTO;
-import com.tamir.followear.dto.UserFeedPostDTO;
+import com.tamir.followear.CommonBeanConfig;
+import com.tamir.followear.dto.*;
 import com.tamir.followear.entities.Post;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.exceptions.InvalidUserException;
+import com.tamir.followear.exceptions.NoMoreActivitiesException;
 import com.tamir.followear.helpers.StreamHelper;
 import com.tamir.followear.stream.PostActivity;
 import com.tamir.followear.stream.StreamService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class FeedService {
+
+    private final Logger logger = LoggerFactory.getLogger(FeedService.class);
 
     @Autowired
     StreamService streamService;
@@ -29,45 +37,164 @@ public class FeedService {
     @Autowired
     UserService userService;
 
-    public List<TimelineFeedPostDTO> getTimelineFeed(long userId, int offset) {
-        if (!userService.existsById(userId))
+    public FeedResultDTO getTimelineFeed(long userId, int offset, Optional<FilteringDTO> filters) {
+        if (!userService.existsById(userId)) {
             throw new InvalidUserException();
-
-        List<PostActivity> streamFeed = streamService.getStreamTimelineFeed(userId, offset);
-        List<Long> objects = StreamHelper.extractObjectsFromActivities(streamFeed);
-        List<Long> actors = StreamHelper.extractActorsFromActivites(streamFeed);
-        List<Post> posts = postService.findAllById(objects);
-        List<User> users = userService.findAllById(actors);
-
-        List<TimelineFeedPostDTO> feedPostDTOS = new ArrayList<>();
-        if (posts.size() != users.size())
-            return feedPostDTOS;
-
-        for (int i = 0; i < posts.size(); i++) {
-            User user = users.get(i);
-            Post post = posts.get(i);
-            //TODO: fix hard coded website
-            TimelineFeedPostDTO dto = new TimelineFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                    post.getDescription(), post.getLink(), "asos.com", user.getProfileImageAddr(), user.getUsername());
-            feedPostDTOS.add(dto);
         }
 
-        return feedPostDTOS;
+        List<PostActivity> streamFeed;
+        int numFeedRequests = 0;
+        List<UserFeedPostDTO> feedPostDTOS = new ArrayList<>();
+        int streamFeedRequestLimit = filters.isPresent() ?
+                CommonBeanConfig.getMaxStreamActivitiesPerFeedRequest() : CommonBeanConfig.getNumPostsPerFeedRequest();
+
+        while (numFeedRequests < CommonBeanConfig.getStreamFeedRequestsLimit()
+                && feedPostDTOS.size() < CommonBeanConfig.getNumPostsPerFeedRequest()) {
+
+            try {
+                streamFeed = streamService.getStreamTimelineFeed(userId, offset, streamFeedRequestLimit);
+            } catch (NoMoreActivitiesException e) { // catch no more activities when filtering
+                if (feedPostDTOS.size() == 0) {
+                    throw e;
+                }
+                break; // return the feed result since there are no more activities
+            }
+
+            List<Long> objects = StreamHelper.extractObjectsFromActivities(streamFeed);
+            List<Post> posts = postService.findAllById(objects);
+            posts = filterPosts(posts, filters);
+
+            List<Long> actors = posts.stream().map(Post::getUserId).collect(Collectors.toList());
+            Map<Long, User> userMap = userService.makeMapFromIds(actors);
+
+            for(Post post : posts) {
+                User user = userMap.get(post.getUserId());
+
+                if(user == null) {
+                    logger.error("Post's userId does not exist in database");
+                    continue;
+                }
+
+                //TODO: fix hard coded website and price
+                feedPostDTOS.add(new TimelineFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
+                        post.getDescription(), post.getLink(), "asos.com", "33$",
+                        user.getProfileImageAddr(), user.getUsername()));
+            }
+
+            offset += streamFeed.size();
+            numFeedRequests++;
+
+            if(!filters.isPresent()) {
+                break;
+            }
+
+        }
+
+        return new FeedResultDTO(feedPostDTOS, offset);
     }
 
-    public List<UserFeedPostDTO> getUserFeed(long userId, int offset) {
-        if (!userService.existsById(userId))
+    public FeedResultDTO getUserFeed(long userId, int offset, Optional<FilteringDTO> filters) {
+        if (!userService.existsById(userId)) {
             throw new InvalidUserException();
-        List<PostActivity> streamFeed = streamService.getStreamUserFeed(userId, offset);
-        List<Long> objects = StreamHelper.extractObjectsFromActivities(streamFeed);
-        Iterable<Post> posts = postService.findAllById(objects);
-        List<UserFeedPostDTO> feedPostDTOS = new ArrayList<>();
-        for (Post post : posts) {
-            //TODO: fix hard coded website
-            feedPostDTOS.add(new UserFeedPostDTO(post.getId(),post.getUserId(), post.getImageAddr(),
-                    post.getDescription(), post.getLink(), "asos.com"));
         }
-        return feedPostDTOS;
+
+        List<PostActivity> streamFeed;
+        int numFeedRequests = 0;
+        List<UserFeedPostDTO> feedPostDTOS = new ArrayList<>();
+        int streamFeedRequestLimit = filters.isPresent() ?
+                CommonBeanConfig.getMaxStreamActivitiesPerFeedRequest() : CommonBeanConfig.getNumPostsPerFeedRequest();
+
+        while (numFeedRequests < CommonBeanConfig.getStreamFeedRequestsLimit()
+                && feedPostDTOS.size() < CommonBeanConfig.getNumPostsPerFeedRequest()) {
+
+            try {
+                streamFeed = streamService.getStreamUserFeed(userId, offset, streamFeedRequestLimit);
+            } catch (NoMoreActivitiesException e) { // catch no more activities when filtering
+                if(feedPostDTOS.size() == 0){
+                    throw e;
+                }
+                break; // return the feed result since there are no more activities
+            }
+            List<Long> objects = StreamHelper.extractObjectsFromActivities(streamFeed);
+            List<Post> posts = postService.findAllById(objects);
+            posts = filterPosts(posts, filters);
+
+            for(Post post : posts) {
+                //TODO: fix hard coded website and price
+                feedPostDTOS.add(new UserFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
+                        post.getDescription(), post.getLink(), "33$", "asos.com"));
+            }
+
+            offset += streamFeed.size(); //increment the offset for the next request
+            numFeedRequests++;
+
+            if(!filters.isPresent()) {
+                break;
+            }
+        }
+
+        return new FeedResultDTO(feedPostDTOS, offset);
+    }
+
+    private List<Post> filterPosts(List<Post> posts, Optional<FilteringDTO> filters) {
+        if(!filters.isPresent()) {
+            return posts;
+        }
+
+        List<Post> filteredPosts = posts.stream()
+                .filter(post -> filterPost(post, filters.get()))
+                .collect(Collectors.toList());
+
+        return filteredPosts;
+    }
+
+    /**
+     * checks if the post passes the filters
+     *
+     * @param post The post to filter
+     * @param filters The filtering rules
+     * @return true - iff the post fits the filters
+     */
+    private boolean filterPost(Post post, FilteringDTO filters) {
+
+        //check category
+        if(filters.getCategory() != null && post.getCategory() != filters.getCategory()) {
+            return false;
+        }
+
+        //check product type
+        if(!CollectionUtils.isEmpty(filters.getProductTypes())
+                && !filters.getProductTypes().contains(post.getProductType())) {
+            return false;
+        }
+
+        //check designer
+        if(!CollectionUtils.isEmpty(filters.getDesigners())
+                && !filters.getDesigners().contains(post.getDesigner())) {
+            return false;
+        }
+
+        //check stores
+        if(!CollectionUtils.isEmpty(filters.getStores())
+                && !filters.getStores().contains(post.getStoreId())) {
+            return false;
+        }
+
+        //TODO: change price into ILS (right now prices come in all currencies)
+
+        double price = Double.valueOf(post.getPrice());
+
+        //check min price
+        if(filters.getMinPrice() != 0 &&  price < filters.getMinPrice()) {
+            return false;
+        }
+
+        //check max price
+        if(filters.getMaxPrice() != 0 && price > filters.getMaxPrice()){
+            return false;
+        }
+
+        return true;
     }
 
     public List<FeedFollowDTO> getUserSlaves(long userId, int offset) {

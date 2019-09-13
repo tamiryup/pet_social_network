@@ -86,13 +86,11 @@ public class StreamService {
         }
     }
 
-    public List<PostActivity> getStreamTimelineFeed(long userId, int offset) {
-        int limit = CommonBeanConfig.getNumPostsPerFeedRequest();
+    public List<PostActivity> getStreamTimelineFeed(long userId, int offset, int limit){
         return getFeedActivities(userId, offset, limit, "timeline");
     }
 
-    public List<PostActivity> getStreamUserFeed(long userId, int offset) {
-        int limit = CommonBeanConfig.getNumPostsPerFeedRequest();
+    public List<PostActivity> getStreamUserFeed(long userId, int offset, int limit) {
         return getFeedActivities(userId, offset, limit, "user");
     }
 

@@ -1,9 +1,6 @@
 package com.tamir.followear.rest;
 
-import com.tamir.followear.dto.FeedFollowDTO;
-import com.tamir.followear.dto.TimelineFeedPostDTO;
-import com.tamir.followear.dto.UploadItemDTO;
-import com.tamir.followear.dto.UserFeedPostDTO;
+import com.tamir.followear.dto.*;
 import com.tamir.followear.entities.Post;
 import com.tamir.followear.services.FeedService;
 import com.tamir.followear.services.FollowService;
@@ -14,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("social/{id}")
@@ -65,16 +63,18 @@ public class SocialController {
 
     @GetMapping("timeline-feed")
     @ResponseBody
-    public List<TimelineFeedPostDTO> getTimelineFeed(@PathVariable long id, @RequestParam int offset){
-        List<TimelineFeedPostDTO> feedPostDTOS = feedService.getTimelineFeed(id, offset);
-        return feedPostDTOS;
+    public FeedResultDTO getTimelineFeed(@PathVariable long id, @RequestParam int offset,
+                                         @RequestBody Optional<FilteringDTO> filters){
+        FeedResultDTO feedResult= feedService.getTimelineFeed(id, offset, filters);
+        return feedResult;
     }
 
     @GetMapping("user-feed")
     @ResponseBody
-    public List<UserFeedPostDTO> getUserFeed(@PathVariable long id, @RequestParam int offset){
-        List<UserFeedPostDTO> feedPostDTOS = feedService.getUserFeed(id, offset);
-        return feedPostDTOS;
+    public FeedResultDTO getUserFeed(@PathVariable long id, @RequestParam int offset,
+                                             @RequestBody Optional<FilteringDTO> filters){
+        FeedResultDTO feedResult = feedService.getUserFeed(id, offset, filters);
+        return feedResult;
     }
 
     @GetMapping("follow-slaves")

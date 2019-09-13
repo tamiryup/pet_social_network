@@ -22,6 +22,12 @@ public class CommonBeanConfig {
     private final static int numPostsPerFeedRequest = 40;
 
     @Getter
+    private final static int streamFeedRequestsLimit = 10;
+
+    @Getter
+    private final static int maxStreamActivitiesPerFeedRequest = 100;
+
+    @Getter
     private final static String defaultProfileImageAddr = "images/profile-images/default.jpg";
 
     @Getter
