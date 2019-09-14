@@ -3,6 +3,7 @@ package com.tamir.followear.services;
 import com.tamir.followear.CommonBeanConfig;
 import com.tamir.followear.dto.*;
 import com.tamir.followear.entities.Post;
+import com.tamir.followear.entities.Store;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.exceptions.NoMoreActivitiesException;
@@ -37,6 +38,9 @@ public class FeedService {
     @Autowired
     UserService userService;
 
+    @Autowired
+    StoreService storeService;
+
     public FeedResultDTO getTimelineFeed(long userId, int offset, Optional<FilteringDTO> filters) {
         if (!userService.existsById(userId)) {
             throw new InvalidUserException();
@@ -67,17 +71,21 @@ public class FeedService {
             List<Long> actors = posts.stream().map(Post::getUserId).collect(Collectors.toList());
             Map<Long, User> userMap = userService.makeMapFromIds(actors);
 
+            List<Long> storesIds = posts.stream().map(Post::getStoreId).collect(Collectors.toList());
+            Map<Long, Store> storeMap = storeService.makeMapFromIds(storesIds);
+
             for(Post post : posts) {
                 User user = userMap.get(post.getUserId());
+                Store store = storeMap.get(post.getStoreId());
 
                 if(user == null) {
                     logger.error("Post's userId does not exist in database");
                     continue;
                 }
 
-                //TODO: fix hard coded website and price
+                String price = post.getCurrency().getSign() + post.getPrice();
                 feedPostDTOS.add(new TimelineFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                        post.getDescription(), post.getLink(), "asos.com", "33$",
+                        post.getDescription(), post.getLink(), price, store.getWebsite(),
                         user.getProfileImageAddr(), user.getUsername()));
             }
 
@@ -119,10 +127,14 @@ public class FeedService {
             List<Post> posts = postService.findAllById(objects);
             posts = filterPosts(posts, filters);
 
+            List<Long> storesIds = posts.stream().map(Post::getStoreId).collect(Collectors.toList());
+            Map<Long, Store> storeMap = storeService.makeMapFromIds(storesIds);
+
             for(Post post : posts) {
-                //TODO: fix hard coded website and price
+                Store store = storeMap.get(post.getStoreId());
+                String price = post.getCurrency().getSign() + post.getPrice();
                 feedPostDTOS.add(new UserFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                        post.getDescription(), post.getLink(), "33$", "asos.com"));
+                        post.getDescription(), post.getLink(), price, store.getWebsite()));
             }
 
             offset += streamFeed.size(); //increment the offset for the next request

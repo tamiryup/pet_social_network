@@ -1,17 +1,14 @@
 package com.tamir.followear;
 
-import com.google.common.collect.Lists;
 import com.tamir.followear.dto.UploadItemDTO;
-import com.tamir.followear.entities.Post;
-import com.tamir.followear.entities.User;
+import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
-import com.tamir.followear.repositories.PostRepository;
 import com.tamir.followear.repositories.StoreRepository;
-import com.tamir.followear.repositories.UserRepository;
 import com.tamir.followear.services.PostService;
-import com.tamir.followear.services.ScrapingService;
+import com.tamir.followear.services.StoreService;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +16,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Date;
 
 @SpringBootApplication
 public class FollowearApplication implements CommandLineRunner {
@@ -38,10 +33,13 @@ public class FollowearApplication implements CommandLineRunner {
 	private String issuer;
 
 	@Autowired
-	private PostService postService;
+    PostService postService;
 
 	@Autowired
-    private UserRepository userRepo;
+    StoreService storeService;
+
+	@Autowired
+    StoreRepository storeRepo;
 
 	@Override
 	public void run(String... args) throws Exception {

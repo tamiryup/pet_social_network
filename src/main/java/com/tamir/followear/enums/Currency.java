@@ -1,12 +1,17 @@
 package com.tamir.followear.enums;
 
+import lombok.Getter;
+
 public enum Currency {
 
-    USD(),
-    ILS(),
-    GBP();
+    USD("$"),
+    ILS("₪"),
+    GBP("£");
 
-    Currency() {
+    @Getter
+    private String sign;
 
+    Currency(String sign) {
+        this.sign = sign;
     }
 }
