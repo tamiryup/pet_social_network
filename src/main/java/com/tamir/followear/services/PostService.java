@@ -3,8 +3,10 @@ package com.tamir.followear.services;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.tamir.followear.AWS.s3.S3Service;
+import com.tamir.followear.dto.PostInfoDTO;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Post;
+import com.tamir.followear.entities.Store;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ImageType;
@@ -37,6 +39,9 @@ public class PostService {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    StoreService storeService;
 
     @Autowired
     S3Service s3Service;
@@ -146,5 +151,18 @@ public class PostService {
         if (user == null)
             throw new InvalidUserException();
         return postRepo.countByUserId(userId);
+    }
+
+    public PostInfoDTO getPostInfo(long postId) {
+        Post post = findById(postId);
+        User user = userService.findById(post.getUserId());
+        Store store = storeService.findById(post.getStoreId());
+
+        PostInfoDTO postInfo = new PostInfoDTO(post.getId(), post.getUserId(), post.getStoreId(),
+                user.getProfileImageAddr(), user.getUsername(), post.getImageAddr(), post.getDescription(),
+                post.getFormattedPrice(), store.getLogoAddr(), store.getName(), store.getWebsite(),
+                post.getThumbnail(), post.getNumViews());
+
+        return postInfo;
     }
 }

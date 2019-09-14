@@ -85,4 +85,8 @@ public class Post {
         this.category = category;
         this.productType = productType;
     }
+
+    public String getFormattedPrice() {
+        return this.currency.getSign() + this.price;
+    }
 }

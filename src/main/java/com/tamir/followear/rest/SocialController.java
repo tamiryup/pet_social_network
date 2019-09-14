@@ -97,8 +97,8 @@ public class SocialController {
 
     @GetMapping("post-info")
     @ResponseBody
-    public Post getPostInfo(@RequestParam long postId) {
-        return postService.findById(postId);
+    public PostInfoDTO getPostInfo(@RequestParam long postId) {
+        return postService.getPostInfo(postId);
     }
 
 }

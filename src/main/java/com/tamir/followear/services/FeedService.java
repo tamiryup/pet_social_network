@@ -83,9 +83,8 @@ public class FeedService {
                     continue;
                 }
 
-                String price = post.getCurrency().getSign() + post.getPrice();
                 feedPostDTOS.add(new TimelineFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                        post.getDescription(), post.getLink(), price, store.getWebsite(),
+                        post.getDescription(), post.getLink(), post.getFormattedPrice(), store.getWebsite(),
                         user.getProfileImageAddr(), user.getUsername()));
             }
 
@@ -132,9 +131,8 @@ public class FeedService {
 
             for(Post post : posts) {
                 Store store = storeMap.get(post.getStoreId());
-                String price = post.getCurrency().getSign() + post.getPrice();
                 feedPostDTOS.add(new UserFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                        post.getDescription(), post.getLink(), price, store.getWebsite()));
+                        post.getDescription(), post.getLink(), post.getFormattedPrice(), store.getWebsite()));
             }
 
             offset += streamFeed.size(); //increment the offset for the next request
