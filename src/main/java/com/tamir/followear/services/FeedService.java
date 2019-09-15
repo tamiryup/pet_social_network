@@ -5,6 +5,7 @@ import com.tamir.followear.dto.*;
 import com.tamir.followear.entities.Post;
 import com.tamir.followear.entities.Store;
 import com.tamir.followear.entities.User;
+import com.tamir.followear.enums.Currency;
 import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.exceptions.NoMoreActivitiesException;
 import com.tamir.followear.helpers.StreamHelper;
@@ -40,6 +41,9 @@ public class FeedService {
 
     @Autowired
     StoreService storeService;
+
+    @Autowired
+    CurrencyConverterService currencyConverter;
 
     public FeedResultDTO getTimelineFeed(long userId, int offset, Optional<FilteringDTO> filters) {
         if (!userService.existsById(userId)) {
@@ -190,17 +194,17 @@ public class FeedService {
             return false;
         }
 
-        //TODO: change price into ILS (right now prices come in all currencies)
-
         double price = Double.valueOf(post.getPrice());
+        double priceInILS = post.getCurrency() == Currency.ILS ?
+                price : currencyConverter.convert(post.getCurrency(), Currency.ILS, price);
 
         //check min price
-        if(filters.getMinPrice() != 0 &&  price < filters.getMinPrice()) {
+        if(filters.getMinPrice() != 0 &&  priceInILS < filters.getMinPrice()) {
             return false;
         }
 
         //check max price
-        if(filters.getMaxPrice() != 0 && price > filters.getMaxPrice()){
+        if(filters.getMaxPrice() != 0 && priceInILS > filters.getMaxPrice()){
             return false;
         }
 
