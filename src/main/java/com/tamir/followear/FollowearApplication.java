@@ -1,14 +1,16 @@
 package com.tamir.followear;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tamir.followear.dto.UploadItemDTO;
-import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
-import com.tamir.followear.repositories.StoreRepository;
+import com.tamir.followear.services.CurrencyConverterService;
 import com.tamir.followear.services.PostService;
-import com.tamir.followear.services.StoreService;
-import org.checkerframework.checker.units.qual.A;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +20,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class FollowearApplication implements CommandLineRunner {
@@ -36,10 +39,7 @@ public class FollowearApplication implements CommandLineRunner {
     PostService postService;
 
 	@Autowired
-    StoreService storeService;
-
-	@Autowired
-    StoreRepository storeRepo;
+    CurrencyConverterService currConverter;
 
 	@Override
 	public void run(String... args) throws Exception {

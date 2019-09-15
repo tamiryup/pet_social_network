@@ -122,4 +122,12 @@ public class GlobalControllerExceptionHandler {
         ErrorMessage error = new ErrorMessage("Invalid Confirmation Code", e.getMessage());
         return error;
     }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(ExchangeRateException.class)
+    @ResponseBody
+    public ErrorMessage handleExchangeRateException(ExchangeRateException e) {
+        ErrorMessage error = new ErrorMessage("Exchange Rate Exception", e.getMessage());
+        return error;
+    }
 }
