@@ -1,11 +1,9 @@
 package com.tamir.followear.services;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import com.tamir.followear.OkHttpClientProvider;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.exceptions.ExchangeRateException;
