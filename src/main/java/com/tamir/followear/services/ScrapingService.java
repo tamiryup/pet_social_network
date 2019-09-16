@@ -59,31 +59,28 @@ public class ScrapingService {
         UploadItemDTO itemDTO = new UploadItemDTO();
 
         switch (website) {
-            case "asos":
+            case "asos.com":
                 itemDTO = asosDTO(website, productPageLink);
                 break;
-            case "net-a-porter":
+            case "net-a-porter.com":
                 itemDTO = netaporterDTO(website, productPageLink);
                 break;
-            case "adikastyle":
-                itemDTO = adikaDTO(website, productPageLink);
-                break;
-            case "terminalx":
+            case "terminalx.com":
                 itemDTO = terminalxDTO(website, productPageLink);
                 break;
-            case "farfetch":
+            case "farfetch.com":
                 itemDTO = farfetchDTO(website, productPageLink);
                 break;
-            case "shein":
+            case "shein.com":
                 itemDTO = sheinDTO(website, productPageLink);
                 break;
-            case "zara":
+            case "zara.com":
                 itemDTO = zaraDTO(website, productPageLink);
                 break;
-            case "hm":
+            case "hm.com":
                 itemDTO = hmDTO(website, productPageLink);
                 break;
-            case "shopbop":
+            case "shopbop.com":
                 itemDTO = shopBopDTO(website, productPageLink);
                 break;
         }
