@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Parameter;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -21,7 +23,15 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_gen")
-    @SequenceGenerator(name = "user_gen", sequenceName = "user_seq")
+    @GenericGenerator(
+            name = "user_gen",
+            strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+            parameters = {
+                    @Parameter(name = "sequence_name", value = "user_seq"),
+                    @Parameter(name = "initial_value", value = "1"),
+                    @Parameter(name = "increment_size", value = "1")
+            }
+    )
     private long id;
 
     private String username;

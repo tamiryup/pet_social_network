@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Parameter;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -21,7 +23,15 @@ public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_gen")
-    @SequenceGenerator(name = "post_gen", sequenceName = "post_seq")
+    @GenericGenerator(
+            name = "post_gen",
+            strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
+            parameters = {
+                    @Parameter(name = "sequence_name", value = "post_seq"),
+                    @Parameter(name = "initial_value", value = "1"),
+                    @Parameter(name = "increment_size", value = "1")
+            }
+    )
     private long id;
 
     private long userId;
