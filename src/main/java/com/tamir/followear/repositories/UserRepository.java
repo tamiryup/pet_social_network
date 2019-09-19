@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 
 public interface UserRepository extends CrudRepository<User, Long> {
@@ -28,4 +29,10 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Modifying
     @Query("UPDATE User user SET user.profileImageAddr = :addr WHERE user.id = :id")
     void updateProfileImageAddrById(@Param("id") long id, @Param("addr") String addr);
+
+    @Transactional
+    @Query(value = "SELECT * FROM users u WHERE u.username ILIKE CONCAT(:q, '%')" +
+            " or u.full_name ILIKE CONCAT(:q, '%') or u.full_name ILIKE CONCAT('% ', :q, '%')",
+    nativeQuery = true)
+    List<User> searchByQuery(@Param("q") String query);
 }

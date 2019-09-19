@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.tamir.followear.AWS.s3.S3Service;
 import com.tamir.followear.CommonBeanConfig;
+import com.tamir.followear.dto.SearchDTO;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.enums.ImageType;
 import com.tamir.followear.exceptions.InvalidUserException;
@@ -134,6 +135,19 @@ public class UserService {
         if(!existsById(id))
             throw new InvalidUserException();
         userRepo.updateDescriptionById(id, description);
+    }
+
+    public List<SearchDTO> searchAutocomplete(String query) {
+        List<SearchDTO> results = new ArrayList<>();
+
+        List<User> users = userRepo.searchByQuery(query);
+        for(User user : users) {
+            SearchDTO dto =
+                    new SearchDTO(user.getId(), user.getUsername(), user.getFullName(), user.getProfileImageAddr());
+            results.add(dto);
+        }
+
+        return results;
     }
 
 }
