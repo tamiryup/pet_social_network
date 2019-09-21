@@ -10,9 +10,9 @@ import lombok.Setter;
 @Getter @Setter
 public class FeedFollowDTO {
 
+    private long id;
+    private String username;
+    private String fullName;
     private String profileImageAddr;
 
-    private String username;
-
-    private long id;
 }
