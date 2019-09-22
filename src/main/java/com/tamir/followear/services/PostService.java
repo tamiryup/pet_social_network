@@ -3,6 +3,7 @@ package com.tamir.followear.services;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.tamir.followear.AWS.s3.S3Service;
+import com.tamir.followear.dto.MoreFromDTO;
 import com.tamir.followear.dto.PostInfoDTO;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Post;
@@ -25,6 +26,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -164,5 +166,25 @@ public class PostService {
                 post.getThumbnail(), post.getNumViews());
 
         return postInfo;
+    }
+
+    /**
+     * Given a specific user, return 3 more posts from that user.
+     *
+     * @param userId
+     * @param currPostId the 3 posts returned must NOT include this post
+     * @return 3 random posts from the user chosen randomly from the user's last 14 posts
+     */
+    public List<MoreFromDTO> getMorePostsFromUser(long userId, long currPostId) {
+        List<Post> last14 = postRepo.lastPostsByUser(userId, 14, currPostId);
+        Collections.shuffle(last14);
+
+        List<MoreFromDTO> moreFromList = new ArrayList<>();
+        for(int i=0; i<last14.size() && i<3; i++) {
+            Post post = last14.get(i);
+            moreFromList.add(new MoreFromDTO(post.getId(), post.getImageAddr()));
+        }
+
+        return moreFromList;
     }
 }

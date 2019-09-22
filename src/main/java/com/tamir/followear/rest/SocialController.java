@@ -101,4 +101,10 @@ public class SocialController {
         return postService.getPostInfo(postId);
     }
 
+    @GetMapping("more-from")
+    @ResponseBody
+    public List<MoreFromDTO> moreFrom(@RequestParam long masterUserId, @RequestParam long currPostId) {
+        return postService.getMorePostsFromUser(masterUserId, currPostId);
+    }
+
 }
