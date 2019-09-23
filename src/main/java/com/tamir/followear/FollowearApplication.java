@@ -9,6 +9,7 @@ import com.tamir.followear.repositories.FollowRepository;
 import com.tamir.followear.repositories.PostRepository;
 import com.tamir.followear.repositories.UserRepository;
 import com.tamir.followear.services.CurrencyConverterService;
+import com.tamir.followear.services.ExploreService;
 import com.tamir.followear.services.FollowService;
 import com.tamir.followear.services.PostService;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class FollowearApplication implements CommandLineRunner {
@@ -36,7 +38,7 @@ public class FollowearApplication implements CommandLineRunner {
     PostService postService;
 
 	@Autowired
-    FollowService followService;
+    ExploreService exploreService;
 
 	@Override
 	public void run(String... args) throws Exception {
