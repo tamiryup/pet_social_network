@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -54,5 +57,25 @@ public class FollowService {
 
     public boolean isFollowing(long masterId, long slaveId){
         return followRepo.existsByMasterIdAndSlaveId(masterId, slaveId);
+    }
+
+    /**
+     * Returns a list of the most popular users
+     * (popularity is measured by number of followers)
+     * The list is in descending order - 0: most popular user, 1: second most popular user, etc.
+     *
+     * @param limit The limit on the list's size (the list's size might be less than the limit)
+     * @return A list of userIds
+     */
+    public List<Long> mostPopularUsersIds(int limit) {
+
+        List<Long> ids = new ArrayList<>();
+        List<Object[]> popularUsersData = followRepo.getPopularUsers(limit);
+        for(Object[] userData : popularUsersData) {
+            long id = ((BigInteger)userData[0]).longValue();
+            ids.add(id);
+        }
+
+        return ids;
     }
 }
