@@ -18,8 +18,32 @@ public interface FollowRepository extends CrudRepository<Follow, FollowKey> {
     boolean existsByMasterIdAndSlaveId(long masterId, long slaveId);
 
     @Transactional
-    @Query(value = "SELECT master_id, COUNT(master_id) as num_followers\n" +
+    @Query(value =
+            "SELECT master_id, COUNT(master_id) as num_followers\n" +
             "FROM follows GROUP BY master_id ORDER BY num_followers DESC LIMIT :limit",
     nativeQuery = true)
     List<Object[]> getPopularUsers(@Param("limit") int limit);
+
+    /**
+     * Selects relevant users for a specific user.
+     * A relevant user is a user which is followed by someone I'm following,
+     * but is not followed by me.
+     *
+     * @param userId The user
+     * @param limit
+     * @return A list of relevant users (ids) and their relevancy
+     *          (relevancy - how many people I'm following follow this "relevant user")
+     */
+    @Transactional
+    @Query(value =
+            "SELECT  m.master_id as relevant_id, COUNT(m.master_id) as relevancy\n" +
+            "FROM follows s\n" +
+            "INNER JOIN follows m on s.master_id = m.slave_id\n" +
+            "WHERE s.slave_id = :userId AND m.master_id != :userId\n" +
+            "AND m.master_id NOT IN (SELECT master_id FROM follows WHERE slave_id = :userId)\n" +
+            "GROUP BY relevant_id\n" +
+            "ORDER BY relevancy DESC\n" +
+            "LIMIT :limit",
+    nativeQuery = true)
+    List<Object[]> getRelevantSuggestionsForUser(@Param("userId") long userId, @Param("limit") int limit);
 }

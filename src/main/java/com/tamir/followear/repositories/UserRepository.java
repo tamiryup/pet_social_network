@@ -31,7 +31,8 @@ public interface UserRepository extends CrudRepository<User, Long> {
     void updateProfileImageAddrById(@Param("id") long id, @Param("addr") String addr);
 
     @Transactional
-    @Query(value = "SELECT * FROM users u WHERE u.username ILIKE CONCAT(:q, '%')" +
+    @Query(value =
+            "SELECT * FROM users u WHERE u.username ILIKE CONCAT(:q, '%')" +
             " or u.full_name ILIKE CONCAT(:q, '%') or u.full_name ILIKE CONCAT('% ', :q, '%') LIMIT 10",
     nativeQuery = true)
     List<User> searchByQuery(@Param("q") String query);

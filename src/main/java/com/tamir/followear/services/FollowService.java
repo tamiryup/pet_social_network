@@ -26,8 +26,8 @@ public class FollowService {
     @Autowired
     StreamService streamService;
 
-    public Follow follow(long masterId, long slaveId){
-        if(!userService.existsById(slaveId) || !userService.existsById(masterId))
+    public Follow follow(long masterId, long slaveId) {
+        if (!userService.existsById(slaveId) || !userService.existsById(masterId))
             throw new InvalidUserException();
         streamService.follow(masterId, slaveId);
         Follow follow = new Follow(masterId, slaveId);
@@ -35,27 +35,27 @@ public class FollowService {
         return follow;
     }
 
-    public void unfollow(long masterId, long slaveId){
-        if(!userService.existsById(slaveId) || !userService.existsById(masterId))
+    public void unfollow(long masterId, long slaveId) {
+        if (!userService.existsById(slaveId) || !userService.existsById(masterId))
             throw new InvalidUserException();
         streamService.unfollow(masterId, slaveId);
         FollowKey key = new FollowKey(masterId, slaveId);
         followRepo.deleteById(key);
     }
 
-    public long getNumFollowers(long masterId){
-        if(!userService.existsById(masterId))
+    public long getNumFollowers(long masterId) {
+        if (!userService.existsById(masterId))
             throw new InvalidUserException();
         return followRepo.countByMasterId(masterId);
     }
 
-    public long getNumFollowing(long slaveId){
-        if(!userService.existsById(slaveId))
+    public long getNumFollowing(long slaveId) {
+        if (!userService.existsById(slaveId))
             throw new InvalidUserException();
         return followRepo.countBySlaveId(slaveId);
     }
 
-    public boolean isFollowing(long masterId, long slaveId){
+    public boolean isFollowing(long masterId, long slaveId) {
         return followRepo.existsByMasterIdAndSlaveId(masterId, slaveId);
     }
 
@@ -71,9 +71,37 @@ public class FollowService {
 
         List<Long> ids = new ArrayList<>();
         List<Object[]> popularUsersData = followRepo.getPopularUsers(limit);
-        for(Object[] userData : popularUsersData) {
-            long id = ((BigInteger)userData[0]).longValue();
+        for (Object[] userData : popularUsersData) {
+            long id = ((BigInteger) userData[0]).longValue();
             ids.add(id);
+        }
+
+        return ids;
+    }
+
+    /**
+     * Returns relevant users for specific user.
+     * see {@link FollowRepository#getRelevantSuggestionsForUser(long, int)}
+     * In addition to the explanation at the link, a relevant user must be followed by
+     * at least 8% of the people I'm following. when that 8% must be larger than 2
+     *
+     * @param userId
+     * @param limit
+     * @return A list of relevant users ids
+     */
+    public List<Long> relevantSuggestionsForUser(long userId, int limit) {
+        double numFollowing = getNumFollowing(userId); //type double to evaluate the threshold expression
+        long relevancyThreshold = Math.max((long) ((numFollowing * 8) / 100), 2);
+
+        List<Long> ids = new ArrayList<>();
+        List<Object[]> relevantUseresData = followRepo.getRelevantSuggestionsForUser(userId, limit);
+
+        for (Object[] userData : relevantUseresData) {
+            long id = ((BigInteger) userData[0]).longValue();
+            long relevancy = ((BigInteger) userData[1]).longValue();
+            if(relevancy >= relevancyThreshold) {
+                ids.add(id);
+            }
         }
 
         return ids;
