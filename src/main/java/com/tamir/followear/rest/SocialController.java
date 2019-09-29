@@ -2,6 +2,7 @@ package com.tamir.followear.rest;
 
 import com.tamir.followear.dto.*;
 import com.tamir.followear.entities.Post;
+import com.tamir.followear.services.ExploreService;
 import com.tamir.followear.services.FeedService;
 import com.tamir.followear.services.FollowService;
 import com.tamir.followear.services.PostService;
@@ -25,6 +26,9 @@ public class SocialController {
 
     @Autowired
     FeedService feedService;
+
+    @Autowired
+    ExploreService exploreService;
 
     @PostMapping("upload")
     @ResponseBody
@@ -103,8 +107,14 @@ public class SocialController {
 
     @GetMapping("more-from")
     @ResponseBody
-    public List<MoreFromDTO> moreFrom(@RequestParam long masterUserId, @RequestParam long currPostId) {
+    public List<BasicPostDTO> moreFrom(@RequestParam long masterUserId, @RequestParam long currPostId) {
         return postService.getMorePostsFromUser(masterUserId, currPostId);
+    }
+
+    @GetMapping("discover-people")
+    @ResponseBody
+    public List<DiscoverPeopleDTO> getDiscoverPeople(@PathVariable long id) {
+        return exploreService.getDiscoverPeople(id);
     }
 
 }

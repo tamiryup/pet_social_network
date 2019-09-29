@@ -5,12 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter @Setter
-public class MoreFromDTO {
+public class BasicPostDTO {
 
     private long postId;
     private String postImageAddr;
-
 }

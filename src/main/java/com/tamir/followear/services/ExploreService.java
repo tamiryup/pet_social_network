@@ -4,15 +4,16 @@ import com.google.common.base.Suppliers;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.tamir.followear.dto.BasicPostDTO;
+import com.tamir.followear.dto.DiscoverPeopleDTO;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.helpers.CollectionsHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -20,10 +21,13 @@ import java.util.function.Supplier;
 public class ExploreService {
 
     @Autowired
-    FollowService followService;
+    private FollowService followService;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
+
+    @Autowired
+    private PostService postService;
 
     private final int mostPopularUsersLimit = 50;
 
@@ -83,6 +87,22 @@ public class ExploreService {
         List<User> exploreUsers = userService.findAllById(exploreUsersIds);
 
         return exploreUsers;
+    }
+
+    public List<DiscoverPeopleDTO> getDiscoverPeople(long userId) {
+        List<DiscoverPeopleDTO> discoverPeopleFeed = new ArrayList<>();
+
+        List<User> exploreUsers = getExploreUsers(userId);
+        for(User user : exploreUsers) {
+            List<BasicPostDTO> items =
+                    postService.getMorePostsFromUser(user.getId(), 0); // 0 to not exclude any post
+            long numFollowers = followService.getNumFollowers(user.getId());
+            DiscoverPeopleDTO person = new DiscoverPeopleDTO(user.getId(), user.getProfileImageAddr(),
+                    user.getUsername(), user.getFullName(), numFollowers, items);
+            discoverPeopleFeed.add(person);
+        }
+
+        return discoverPeopleFeed;
     }
 
 
