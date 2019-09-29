@@ -20,13 +20,13 @@ import java.util.Map;
 public class RegistrationService {
 
     @Autowired
-    CognitoService cognitoService;
+    private CognitoService cognitoService;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    CsrfService csrfService;
+    private CsrfService csrfService;
 
     public void signup(SignupRequestDTO signupReq) {
 

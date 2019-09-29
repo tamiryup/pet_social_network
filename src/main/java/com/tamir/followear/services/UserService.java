@@ -27,10 +27,10 @@ import java.util.stream.Collectors;
 public class UserService {
 
     @Autowired
-    UserRepository userRepo;
+    private UserRepository userRepo;
 
     @Autowired
-    S3Service s3Service;
+    private S3Service s3Service;
 
     public boolean existsByEmail(String email) {
         return userRepo.existsByEmail(email);

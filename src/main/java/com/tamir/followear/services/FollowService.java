@@ -19,13 +19,13 @@ import java.util.stream.Collectors;
 public class FollowService {
 
     @Autowired
-    FollowRepository followRepo;
+    private FollowRepository followRepo;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    StreamService streamService;
+    private StreamService streamService;
 
     public Follow follow(long masterId, long slaveId) {
         if (!userService.existsById(slaveId) || !userService.existsById(masterId))

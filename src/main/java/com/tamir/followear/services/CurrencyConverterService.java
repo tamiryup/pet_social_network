@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class CurrencyConverterService {
 
     @Autowired
-    OkHttpClientProvider okHttpClientProvider;
+    private OkHttpClientProvider okHttpClientProvider;
 
     /**
      * key format:

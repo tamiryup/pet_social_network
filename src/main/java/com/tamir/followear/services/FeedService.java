@@ -31,19 +31,19 @@ public class FeedService {
     private final Logger logger = LoggerFactory.getLogger(FeedService.class);
 
     @Autowired
-    StreamService streamService;
+    private StreamService streamService;
 
     @Autowired
-    PostService postService;
+    private PostService postService;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    StoreService storeService;
+    private StoreService storeService;
 
     @Autowired
-    CurrencyConverterService currencyConverter;
+    private CurrencyConverterService currencyConverter;
 
     public FeedResultDTO getTimelineFeed(long userId, int offset, Optional<FilteringDTO> filters) {
         if (!userService.existsById(userId)) {

@@ -3,7 +3,7 @@ package com.tamir.followear.services;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.tamir.followear.AWS.s3.S3Service;
-import com.tamir.followear.dto.MoreFromDTO;
+import com.tamir.followear.dto.BasicPostDTO;
 import com.tamir.followear.dto.PostInfoDTO;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Post;
@@ -37,22 +37,22 @@ public class PostService {
     private final Logger logger = LoggerFactory.getLogger(PostService.class);
 
     @Autowired
-    PostRepository postRepo;
+    private PostRepository postRepo;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    StoreService storeService;
+    private StoreService storeService;
 
     @Autowired
-    S3Service s3Service;
+    private S3Service s3Service;
 
     @Autowired
-    StreamService streamService;
+    private StreamService streamService;
 
     @Autowired
-    ScrapingService scrapingService;
+    private ScrapingService scrapingService;
 
     public Post create(Post post) {
         return postRepo.saveAndFlush(post);
@@ -175,14 +175,14 @@ public class PostService {
      * @param currPostId the 3 posts returned must NOT include this post
      * @return 3 random posts from the user chosen randomly from the user's last 14 posts
      */
-    public List<MoreFromDTO> getMorePostsFromUser(long userId, long currPostId) {
+    public List<BasicPostDTO> getMorePostsFromUser(long userId, long currPostId) {
         List<Post> last14 = postRepo.lastPostsByUser(userId, 14, currPostId);
         Collections.shuffle(last14);
 
-        List<MoreFromDTO> moreFromList = new ArrayList<>();
+        List<BasicPostDTO> moreFromList = new ArrayList<>();
         for(int i=0; i<last14.size() && i<3; i++) {
             Post post = last14.get(i);
-            moreFromList.add(new MoreFromDTO(post.getId(), post.getImageAddr()));
+            moreFromList.add(new BasicPostDTO(post.getId(), post.getImageAddr()));
         }
 
         return moreFromList;

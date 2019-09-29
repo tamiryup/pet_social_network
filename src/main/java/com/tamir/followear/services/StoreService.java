@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class StoreService {
 
     @Autowired
-    StoreRepository storeRepo;
+    private StoreRepository storeRepo;
 
     public Store create(Store store) {
         return storeRepo.save(store);
