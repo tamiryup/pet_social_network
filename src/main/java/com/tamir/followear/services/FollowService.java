@@ -12,6 +12,7 @@ import javax.transaction.Transactional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -83,7 +84,7 @@ public class FollowService {
      * Returns relevant users for specific user.
      * see {@link FollowRepository#getRelevantSuggestionsForUser(long, int)}
      * In addition to the explanation at the link, a relevant user must be followed by
-     * at least 8% of the people I'm following. when that 8% must be larger than 2
+     * at least 8% of the people I'm following. where that 8% must be larger than 2
      *
      * @param userId
      * @param limit
@@ -105,5 +106,12 @@ public class FollowService {
         }
 
         return ids;
+    }
+
+    public List<Long> getUserFollowingIds(long userId) {
+        List<Follow> followList = followRepo.findBySlaveId(userId);
+        List<Long> followingIds = followList.stream().map(follow -> follow.getMasterId())
+                .collect(Collectors.toList());
+        return followingIds;
     }
 }

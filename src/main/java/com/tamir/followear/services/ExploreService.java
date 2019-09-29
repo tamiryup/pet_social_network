@@ -4,11 +4,15 @@ import com.google.common.base.Suppliers;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.tamir.followear.entities.User;
+import com.tamir.followear.helpers.CollectionsHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -17,6 +21,9 @@ public class ExploreService {
 
     @Autowired
     FollowService followService;
+
+    @Autowired
+    UserService userService;
 
     private final int mostPopularUsersLimit = 50;
 
@@ -34,10 +41,11 @@ public class ExploreService {
                 this::mostPopularUsersSupplier, 1, TimeUnit.DAYS);
 
         relevantUsersCache = CacheBuilder.newBuilder()
-                .maximumSize(1000)
+                .maximumSize(10000)
+                .expireAfterWrite(1, TimeUnit.DAYS)
                 .build(new CacheLoader<Long, List<Long>>() {
                     @Override
-                    public List<Long> load(Long userId) throws Exception {
+                    public List<Long> load(Long userId) {
                         return loadRelevantUsers(userId);
                     }
                 });
@@ -50,4 +58,32 @@ public class ExploreService {
     private List<Long> loadRelevantUsers(long userId) {
         return followService.relevantSuggestionsForUser(userId, relevantUsersLimit);
     }
+
+    /**
+     * Just like the popular users only without the users that the given user is already following
+     *
+     * @param userId
+     * @return A list of popular users
+     * without the ones the user with the specific userId is already following
+     */
+    private List<Long> getPopularUsersForUser(long userId) {
+        List<Long> popularUsersIds = popularUsers.get();
+        List<Long> alreadyFollowingIds = followService.getUserFollowingIds(userId);
+        popularUsersIds.removeAll(alreadyFollowingIds);
+        return popularUsersIds;
+    }
+
+    public List<User> getExploreUsers(long userId) {
+        List<Long> popularUsersIds = getPopularUsersForUser(userId);
+        List<Long> relevantUsersIds = relevantUsersCache.getUnchecked(userId);
+        List<Long> exploreUsersIds = CollectionsHelper
+                .mergeListsAlternativelyNoDuplicates(popularUsersIds, relevantUsersIds);
+
+        System.out.println("explore users ids: " + exploreUsersIds);
+        List<User> exploreUsers = userService.findAllById(exploreUsersIds);
+
+        return exploreUsers;
+    }
+
+
 }

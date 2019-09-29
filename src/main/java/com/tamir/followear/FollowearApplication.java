@@ -1,9 +1,11 @@
 package com.tamir.followear;
 
 import com.tamir.followear.dto.UploadItemDTO;
+import com.tamir.followear.entities.User;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
+import com.tamir.followear.helpers.CollectionsHelper;
 import com.tamir.followear.services.ExploreService;
 import com.tamir.followear.services.FollowService;
 import com.tamir.followear.services.PostService;
@@ -14,7 +16,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @SpringBootApplication
 public class FollowearApplication implements CommandLineRunner {

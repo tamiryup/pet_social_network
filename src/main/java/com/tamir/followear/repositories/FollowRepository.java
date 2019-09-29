@@ -17,10 +17,15 @@ public interface FollowRepository extends CrudRepository<Follow, FollowKey> {
 
     boolean existsByMasterIdAndSlaveId(long masterId, long slaveId);
 
+    List<Follow> findBySlaveId(long slaveId);
+
     @Transactional
     @Query(value =
             "SELECT master_id, COUNT(master_id) as num_followers\n" +
-            "FROM follows GROUP BY master_id ORDER BY num_followers DESC LIMIT :limit",
+            "FROM follows\n" +
+            "GROUP BY master_id\n" +
+            "ORDER BY num_followers DESC\n" +
+            "LIMIT :limit",
     nativeQuery = true)
     List<Object[]> getPopularUsers(@Param("limit") int limit);
 

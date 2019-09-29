@@ -32,31 +32,31 @@ public class UserService {
     @Autowired
     S3Service s3Service;
 
-    public boolean existsByEmail(String email){
+    public boolean existsByEmail(String email) {
         return userRepo.existsByEmail(email);
     }
 
-    public boolean existsByUsername(String username){
+    public boolean existsByUsername(String username) {
         return userRepo.existsByUsername(username);
     }
 
-    public boolean existsById(long id){
+    public boolean existsById(long id) {
         return userRepo.existsById(id);
     }
 
-    public User findByEmail(String email){
+    public User findByEmail(String email) {
         return userRepo.findByEmail(email);
     }
 
-    public User findByUsername(String username){
+    public User findByUsername(String username) {
         return userRepo.findByUsername(username);
     }
 
-    public User create(User user){
+    public User create(User user) {
         return userRepo.save(user);
     }
 
-    public User update(User user){
+    public User update(User user) {
         return userRepo.save(user);
     }
 
@@ -64,9 +64,9 @@ public class UserService {
         userRepo.delete(user);
     }
 
-    public User findById(long id){
+    public User findById(long id) {
         Optional<User> user = userRepo.findById(id);
-        if(!user.isPresent()){
+        if (!user.isPresent()) {
             return null;
         }
         return user.get();
@@ -80,12 +80,12 @@ public class UserService {
      * in case there is a duplicate id. The list returns the users in the same order
      * as the ids received.
      */
-    public List<User> findAllById(List<Long> ids){
+    public List<User> findAllById(List<Long> ids) {
         List<User> userList = Lists.newArrayList(userRepo.findAllById(ids));
         List<User> userListPlusDuplicates = new ArrayList<>();
-        for(long id : ids){
-            User userById = Iterables.tryFind(userList, user -> id==user.getId()).orNull();
-            if(userById!=null) //if null than id doesn't exist in database therefore do nothing
+        for (long id : ids) {
+            User userById = Iterables.tryFind(userList, user -> id == user.getId()).orNull();
+            if (userById != null) //if null than id doesn't exist in database therefore do nothing
                 userListPlusDuplicates.add(userById);
         }
         return userListPlusDuplicates;
@@ -107,9 +107,9 @@ public class UserService {
         return userMap;
     }
 
-    public String updateProfilePictureAddrById(long id, String profilePictureAddr){
+    public String updateProfilePictureAddrById(long id, String profilePictureAddr) {
         User user = findById(id);
-        if(user==null){
+        if (user == null) {
             throw new InvalidUserException();
         }
         String lastAddr = user.getProfileImageAddr();
@@ -119,20 +119,20 @@ public class UserService {
     }
 
     public String updateProfileImage(long id, MultipartFile image) throws IOException {
-        if(!existsById(id))
+        if (!existsById(id))
             throw new InvalidUserException();
         ImageType imageType = ImageType.ProfileImage;
         String extension = FileHelper.getMultipartFileExtension(image);
         String addr = s3Service.uploadImage(imageType, image, extension);
         String lastAddr = updateProfilePictureAddrById(id, addr);
-        if(!lastAddr.equals(CommonBeanConfig.getDefaultProfileImageAddr())) {
+        if (!lastAddr.equals(CommonBeanConfig.getDefaultProfileImageAddr())) {
             s3Service.deleteByKey(lastAddr);
         }
         return addr;
     }
 
-    public void updateDescriptionById(long id, String description){
-        if(!existsById(id))
+    public void updateDescriptionById(long id, String description) {
+        if (!existsById(id))
             throw new InvalidUserException();
         userRepo.updateDescriptionById(id, description);
     }
@@ -141,7 +141,7 @@ public class UserService {
         List<SearchDTO> results = new ArrayList<>();
 
         List<User> users = userRepo.searchByQuery(query);
-        for(User user : users) {
+        for (User user : users) {
             SearchDTO dto =
                     new SearchDTO(user.getId(), user.getUsername(), user.getFullName(), user.getProfileImageAddr());
             results.add(dto);
