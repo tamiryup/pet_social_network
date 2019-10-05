@@ -18,8 +18,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Transactional
     @Query(value =
             "SELECT * FROM posts p WHERE p.user_id = :userId and p.id != :excludeId " +
-            "ORDER BY p.create_date DESC LIMIT :limit",
-    nativeQuery = true)
+                    "ORDER BY p.create_date DESC LIMIT :limit",
+            nativeQuery = true)
     List<Post> lastPostsByUser(@Param("userId") long userId, @Param("limit") int limit,
                                @Param("excludeId") long excludeId);
 
@@ -28,4 +28,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(value = "UPDATE Post p SET p.numViews = p.numViews + 1\n" +
             "WHERE p.id = :postId AND p.userId != :userId")
     void incPostViews(@Param("userId") long userId, @Param("postId") long postId);
+
+    @Transactional
+    @Query(value =
+            "SELECT * FROM posts\n" +
+            "WHERE create_date >= (NOW() - 3 * INTERVAL '1 week') AND num_views > 0\n" +
+            "ORDER BY num_views DESC\n" +
+            "LIMIT :limit",
+    nativeQuery = true)
+    List<Post> recentMostPopularPosts(@Param("limit") int limit);
 }

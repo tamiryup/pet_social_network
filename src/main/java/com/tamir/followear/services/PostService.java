@@ -199,4 +199,8 @@ public class PostService {
     public void incPostViews(long userId, long postId) {
         postRepo.incPostViews(userId, postId);
     }
+
+    public List<Post> getMostPopularPosts(int limit) {
+        return postRepo.recentMostPopularPosts(limit);
+    }
 }
