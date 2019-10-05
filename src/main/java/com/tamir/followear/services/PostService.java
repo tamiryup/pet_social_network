@@ -187,4 +187,16 @@ public class PostService {
 
         return moreFromList;
     }
+
+    /**
+     * Increment the numViews of specific post iff the user sending the request
+     * is not the same user who uploaded the post.
+     * Essentially the user who uploaded the post cannot count as a "view".
+     *
+     * @param userId The user who sent the request (the user who is viewing the post)
+     * @param postId
+     */
+    public void incPostViews(long userId, long postId) {
+        postRepo.incPostViews(userId, postId);
+    }
 }

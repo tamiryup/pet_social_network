@@ -105,6 +105,12 @@ public class SocialController {
         return postService.getPostInfo(postId);
     }
 
+    @PostMapping("inc-post-views")
+    @ResponseBody
+    public void incPostViews(@PathVariable long id, @RequestParam long postId) {
+        postService.incPostViews(id, postId);
+    }
+
     @GetMapping("more-from")
     @ResponseBody
     public List<BasicPostDTO> moreFrom(@RequestParam long masterUserId, @RequestParam long currPostId) {
