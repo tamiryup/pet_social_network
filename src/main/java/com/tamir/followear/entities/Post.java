@@ -1,5 +1,6 @@
 package com.tamir.followear.entities;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
@@ -98,5 +99,16 @@ public class Post {
 
     public String getFormattedPrice() {
         return this.currency.getSign() + this.price;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if(this.getClass() != o.getClass()) {
+            return false;
+        }
+
+        Post p = (Post) o;
+        return (this.id == p.getId());
     }
 }
