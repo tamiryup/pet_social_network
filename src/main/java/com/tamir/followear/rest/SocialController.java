@@ -68,15 +68,15 @@ public class SocialController {
     @GetMapping("timeline-feed")
     @ResponseBody
     public FeedResultDTO getTimelineFeed(@PathVariable long id, @RequestParam int offset,
-                                         @RequestBody Optional<FilteringDTO> filters){
-        FeedResultDTO feedResult= feedService.getTimelineFeed(id, offset, filters);
+                                         @RequestBody Optional<FilteringDTO> filters) {
+        FeedResultDTO feedResult = feedService.getTimelineFeed(id, offset, filters);
         return feedResult;
     }
 
     @GetMapping("user-feed")
     @ResponseBody
     public FeedResultDTO getUserFeed(@PathVariable long id, @RequestParam int offset,
-                                             @RequestBody Optional<FilteringDTO> filters){
+                                     @RequestBody Optional<FilteringDTO> filters) {
         FeedResultDTO feedResult = feedService.getUserFeed(id, offset, filters);
         return feedResult;
     }
@@ -90,19 +90,19 @@ public class SocialController {
 
     @GetMapping("follow-slaves")
     @ResponseBody
-    public List<FeedFollowDTO> getUserSlaves(@PathVariable long id, @RequestParam int offset){
+    public List<FeedFollowDTO> getUserSlaves(@PathVariable long id, @RequestParam int offset) {
         return feedService.getUserSlaves(id, offset);
     }
 
     @GetMapping("follow-masters")
     @ResponseBody
-    public List<FeedFollowDTO> getUserMasters(@PathVariable long id, @RequestParam int offset){
+    public List<FeedFollowDTO> getUserMasters(@PathVariable long id, @RequestParam int offset) {
         return feedService.getUserMasters(id, offset);
     }
 
     @GetMapping("is-following")
     @ResponseBody
-    public boolean isFollowing(@PathVariable long id, @RequestParam long masterId){
+    public boolean isFollowing(@PathVariable long id, @RequestParam long masterId) {
         return followService.isFollowing(masterId, id);
     }
 

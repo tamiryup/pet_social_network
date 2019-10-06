@@ -156,8 +156,17 @@ public class FeedService {
         return new FeedResultDTO(feedPostDTOS, offset);
     }
 
+    public FeedResultDTO getExploreFeed(Optional<FilteringDTO> filters) {
+        List<Post> explorePosts = exploreService.getExplorePosts();
+        return getExploreFeedResult(explorePosts, filters);
+    }
+
     public FeedResultDTO getExploreFeed(long userId, Optional<FilteringDTO> filters) {
         List<Post> explorePosts = exploreService.getExplorePosts(userId);
+        return getExploreFeedResult(explorePosts, filters);
+    }
+
+    private FeedResultDTO getExploreFeedResult(List<Post> explorePosts, Optional<FilteringDTO> filters) {
         explorePosts = filterPosts(explorePosts, filters);
 
         List<ExplorePostDTO> explorePostDTOS = new ArrayList<>();
