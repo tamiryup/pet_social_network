@@ -114,7 +114,7 @@ public class SocialController {
     @GetMapping("more-from")
     @ResponseBody
     public List<BasicPostDTO> moreFrom(@RequestParam long masterUserId, @RequestParam long currPostId) {
-        return postService.getMorePostsFromUser(masterUserId, currPostId);
+        return postService.moreFromUser(masterUserId, currPostId, 3);
     }
 
     @GetMapping("discover-people")

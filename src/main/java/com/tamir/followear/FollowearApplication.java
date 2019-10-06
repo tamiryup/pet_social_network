@@ -1,6 +1,7 @@
 package com.tamir.followear;
 
 import com.tamir.followear.dto.UploadItemDTO;
+import com.tamir.followear.entities.Post;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;

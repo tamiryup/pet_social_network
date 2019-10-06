@@ -12,4 +12,5 @@ public class BasicPostDTO {
 
     private long postId;
     private String postImageAddr;
+
 }

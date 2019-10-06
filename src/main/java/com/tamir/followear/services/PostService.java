@@ -169,23 +169,35 @@ public class PostService {
     }
 
     /**
-     * Given a specific user, return 3 more posts from that user.
+     * Given a specific user, return {@code numPosts} more posts from that user.
      *
      * @param userId
-     * @param currPostId the 3 posts returned must NOT include this post
-     * @return 3 random posts from the user chosen randomly from the user's last 14 posts
+     * @param currPostId the posts returned must NOT include this post
+     * @param numPosts the number of posts to return (if larger than 14 returns 14)
+     *
+     * @return {@code numPosts} random posts from the user chosen randomly from the user's last 14 posts
      */
-    public List<BasicPostDTO> getMorePostsFromUser(long userId, long currPostId) {
+    public List<Post> getMorePostsFromUser(long userId, long currPostId, int numPosts) {
         List<Post> last14 = postRepo.lastPostsByUser(userId, 14, currPostId);
         Collections.shuffle(last14);
 
-        List<BasicPostDTO> moreFromList = new ArrayList<>();
-        for(int i=0; i<last14.size() && i<3; i++) {
+        List<Post> moreFromList = new ArrayList<>();
+        for(int i=0; i<last14.size() && i<numPosts; i++) {
             Post post = last14.get(i);
-            moreFromList.add(new BasicPostDTO(post.getId(), post.getImageAddr()));
+            moreFromList.add(post);
         }
 
         return moreFromList;
+    }
+
+
+    public List<BasicPostDTO> moreFromUser(long userId, long currPostId, int numPosts) {
+        List<BasicPostDTO> resultList = new ArrayList<>();
+        List<Post> posts = getMorePostsFromUser(userId, currPostId, numPosts);
+        for(Post post : posts) {
+            resultList.add(new BasicPostDTO(post.getId(), post.getImageAddr()));
+        }
+        return resultList;
     }
 
     /**

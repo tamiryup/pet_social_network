@@ -95,7 +95,7 @@ public class ExploreService {
         List<User> exploreUsers = getExploreUsers(userId);
         for(User user : exploreUsers) {
             List<BasicPostDTO> items =
-                    postService.getMorePostsFromUser(user.getId(), 0); // 0 to not exclude any post
+                    postService.moreFromUser(user.getId(), 0, 3); // 0 to not exclude any post
             long numFollowers = followService.getNumFollowers(user.getId());
             DiscoverPeopleDTO person = new DiscoverPeopleDTO(user.getId(), user.getProfileImageAddr(),
                     user.getUsername(), user.getFullName(), numFollowers, items);
@@ -104,6 +104,5 @@ public class ExploreService {
 
         return discoverPeopleFeed;
     }
-
 
 }
