@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
+import com.tamir.followear.helpers.StringHelper;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -98,7 +99,8 @@ public class Post {
     }
 
     public String getFormattedPrice() {
-        return this.currency.getSign() + this.price;
+        double priceDoubleValue = Double.valueOf(this.price);
+        return this.currency.getSign() + StringHelper.formatDouble(priceDoubleValue);
     }
 
     @Override

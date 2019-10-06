@@ -14,7 +14,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Locale;
 
 @SpringBootApplication
 public class FollowearApplication implements CommandLineRunner {
@@ -82,7 +85,7 @@ public class FollowearApplication implements CommandLineRunner {
 
         long userId = 2;
 
-        for(int i=0; i<50; i++) {
+        for(int i=0; i<25; i++) {
             postService.uploadItemPost(userId, coat);
             postService.uploadItemPost(userId, top);
             postService.uploadItemPost(userId, bag);

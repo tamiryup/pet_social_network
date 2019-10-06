@@ -14,6 +14,7 @@ import com.tamir.followear.enums.ImageType;
 import com.tamir.followear.exceptions.InvalidPostException;
 import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.helpers.FileHelper;
+import com.tamir.followear.helpers.StringHelper;
 import com.tamir.followear.repositories.PostRepository;
 import com.tamir.followear.stream.StreamService;
 import org.slf4j.Logger;
@@ -128,8 +129,10 @@ public class PostService {
         }
         String thumbnail = (thumbnailAddresses.size() > 0) ? thumbnailAddresses.get(0) : null;
 
+        String price = StringHelper.removeCommas(item.getPrice()); //save price without commas
+
         Post post = new Post(userId, item.getStoreId(), imageAddr, item.getDescription(), item.getLink(),
-                item.getPrice(), Currency.ILS, item.getDesigner(), item.getProductId(),
+                price, Currency.ILS, item.getDesigner(), item.getProductId(),
                 thumbnail, item.getCategory(), item.getProductType());
         post = create(post);
 
