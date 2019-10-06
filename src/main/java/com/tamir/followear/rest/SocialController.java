@@ -81,6 +81,13 @@ public class SocialController {
         return feedResult;
     }
 
+    @GetMapping("explore-feed")
+    @ResponseBody
+    public FeedResultDTO getExploreFeed(@PathVariable long id, @RequestBody Optional<FilteringDTO> filters) {
+        FeedResultDTO feedResult = feedService.getExploreFeed(id, filters);
+        return feedResult;
+    }
+
     @GetMapping("follow-slaves")
     @ResponseBody
     public List<FeedFollowDTO> getUserSlaves(@PathVariable long id, @RequestParam int offset){

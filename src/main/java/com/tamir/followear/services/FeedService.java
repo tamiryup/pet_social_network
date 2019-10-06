@@ -156,6 +156,20 @@ public class FeedService {
         return new FeedResultDTO(feedPostDTOS, offset);
     }
 
+    public FeedResultDTO getExploreFeed(long userId, Optional<FilteringDTO> filters) {
+        List<Post> explorePosts = exploreService.getExplorePosts(userId);
+        explorePosts = filterPosts(explorePosts, filters);
+
+        List<ExplorePostDTO> explorePostDTOS = new ArrayList<>();
+        for(Post post : explorePosts) {
+            ExplorePostDTO dto = new ExplorePostDTO(post.getId(), post.getUserId(),
+                    post.getImageAddr(), post.getDescription());
+            explorePostDTOS.add(dto);
+        }
+
+        return new FeedResultDTO(explorePostDTOS, -1); // -1 because offset has no affect on explore requests
+    }
+
     private List<Post> filterPosts(List<Post> posts, Optional<FilteringDTO> filters) {
         if(!filters.isPresent()) {
             return posts;

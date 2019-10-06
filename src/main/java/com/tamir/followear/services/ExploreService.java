@@ -14,9 +14,12 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Service
 public class ExploreService {
@@ -101,5 +104,40 @@ public class ExploreService {
         return exploreUsers;
     }
 
+    private List<Post> getExplorePostsFromUserList(List<User> exploreUsers) {
+        List<Post> posts = new ArrayList<>();
+        List<Integer> coeffs = Arrays.asList(5,4,3,2,1);
+
+        for(int i=0; i<50 && i<exploreUsers.size(); i++) {
+            long currId = exploreUsers.get(i).getId();
+            int numPosts = coeffs.get(i/10);
+            posts.addAll(postService.getMorePostsFromUser(currId, 0, numPosts));
+        }
+
+        return posts;
+    }
+
+    private List<Post> getExplorePosts(List<User> exploreUsers) {
+        List<Post> explorePostsByUsers = getExplorePostsFromUserList(exploreUsers);
+        List<Post> explorePostsByNumViews = postService.getMostPopularPosts(75);
+
+        List<Post> explorePosts = new ArrayList<>();
+        explorePosts.addAll(explorePostsByUsers);
+        explorePosts.addAll(explorePostsByNumViews);
+        explorePosts = explorePosts.stream().distinct().collect(Collectors.toList()); //remove duplicates
+
+        Collections.shuffle(explorePosts);
+        return explorePosts;
+    }
+
+    public List<Post> getExplorePosts() {
+        List<User> exploreUsers = getExploreUsers();
+        return getExplorePosts(exploreUsers);
+    }
+
+    public List<Post> getExplorePosts(long userId) {
+        List<User> exploreUsers = getExploreUsers(userId);
+        return getExplorePosts(exploreUsers);
+    }
 
 }
