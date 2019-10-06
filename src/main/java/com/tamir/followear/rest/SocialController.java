@@ -120,7 +120,7 @@ public class SocialController {
     @GetMapping("discover-people")
     @ResponseBody
     public List<DiscoverPeopleDTO> getDiscoverPeople(@PathVariable long id) {
-        return exploreService.getDiscoverPeople(id);
+        return feedService.getDiscoverPeople(id);
     }
 
 }

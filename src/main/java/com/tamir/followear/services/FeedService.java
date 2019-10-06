@@ -43,6 +43,12 @@ public class FeedService {
     private StoreService storeService;
 
     @Autowired
+    private ExploreService exploreService;
+
+    @Autowired
+    private FollowService followService;
+
+    @Autowired
     private CurrencyConverterService currencyConverter;
 
     public FeedResultDTO getTimelineFeed(long userId, int offset, Optional<FilteringDTO> filters) {
@@ -234,5 +240,30 @@ public class FeedService {
             dtos.add(dto);
         }
         return dtos;
+    }
+
+    public List<DiscoverPeopleDTO> getDiscoverPeople() {
+        List<User> exploreUsers = exploreService.getExploreUsers();
+        return mapUserListToDiscoverPeople(exploreUsers);
+    }
+
+    public List<DiscoverPeopleDTO> getDiscoverPeople(long userId) {
+        List<User> exploreUsers = exploreService.getExploreUsers(userId);
+        return mapUserListToDiscoverPeople(exploreUsers);
+    }
+
+    private List<DiscoverPeopleDTO> mapUserListToDiscoverPeople(List<User> exploreUsers) {
+        List<DiscoverPeopleDTO> discoverPeopleFeed = new ArrayList<>();
+
+        for(User user : exploreUsers) {
+            List<BasicPostDTO> items =
+                    postService.moreFromUser(user.getId(), 0, 3); // 0 to not exclude any post
+            long numFollowers = followService.getNumFollowers(user.getId());
+            DiscoverPeopleDTO person = new DiscoverPeopleDTO(user.getId(), user.getProfileImageAddr(),
+                    user.getUsername(), user.getFullName(), numFollowers, items);
+            discoverPeopleFeed.add(person);
+        }
+
+        return discoverPeopleFeed;
     }
 }

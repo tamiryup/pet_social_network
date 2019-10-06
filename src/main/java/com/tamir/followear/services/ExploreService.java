@@ -6,6 +6,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.tamir.followear.dto.BasicPostDTO;
 import com.tamir.followear.dto.DiscoverPeopleDTO;
+import com.tamir.followear.entities.Post;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.helpers.CollectionsHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,26 +84,22 @@ public class ExploreService {
         List<Long> exploreUsersIds = CollectionsHelper
                 .mergeListsAlternativelyNoDuplicates(popularUsersIds, relevantUsersIds);
 
-        System.out.println("explore users ids: " + exploreUsersIds);
         List<User> exploreUsers = userService.findAllById(exploreUsersIds);
 
         return exploreUsers;
     }
 
-    public List<DiscoverPeopleDTO> getDiscoverPeople(long userId) {
-        List<DiscoverPeopleDTO> discoverPeopleFeed = new ArrayList<>();
-
-        List<User> exploreUsers = getExploreUsers(userId);
-        for(User user : exploreUsers) {
-            List<BasicPostDTO> items =
-                    postService.moreFromUser(user.getId(), 0, 3); // 0 to not exclude any post
-            long numFollowers = followService.getNumFollowers(user.getId());
-            DiscoverPeopleDTO person = new DiscoverPeopleDTO(user.getId(), user.getProfileImageAddr(),
-                    user.getUsername(), user.getFullName(), numFollowers, items);
-            discoverPeopleFeed.add(person);
-        }
-
-        return discoverPeopleFeed;
+    /**
+     * General explore users for an unsigned user.
+     * The users in the explore for an unsigned user are just the popular users.
+     *
+     * @return
+     */
+    public List<User> getExploreUsers() {
+        List<Long> popularUsersIds = popularUsers.get();
+        List<User> exploreUsers = userService.findAllById(popularUsersIds);
+        return exploreUsers;
     }
+
 
 }
