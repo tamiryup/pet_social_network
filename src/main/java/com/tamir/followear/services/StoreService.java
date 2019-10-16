@@ -19,6 +19,10 @@ public class StoreService {
     @Autowired
     private StoreRepository storeRepo;
 
+    public Store findByWebsite(String website) {
+        return storeRepo.findByWebsite(website);
+    }
+
     public Store create(Store store) {
         return storeRepo.save(store);
     }

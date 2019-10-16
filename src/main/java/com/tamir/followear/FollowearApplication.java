@@ -4,9 +4,7 @@ import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
-import com.tamir.followear.services.ExploreService;
-import com.tamir.followear.services.FollowService;
-import com.tamir.followear.services.PostService;
+import com.tamir.followear.services.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +12,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Arrays;
-import java.util.Locale;
 
 @SpringBootApplication
 public class FollowearApplication implements CommandLineRunner {
@@ -36,11 +31,18 @@ public class FollowearApplication implements CommandLineRunner {
 
 	@Autowired
     ExploreService exploreService;
+    ScrapingService scrapingService;
+
+	@Autowired
+    StoreService storeService;
 
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
+		UploadItemDTO itemDTO = scrapingService.extractItem("https://www.shopbop.com/pixie-coat-iamgia/vp/v=1/1538098230.htm?fm=pd_sb_pd_browse_1_bstslr&os=false");
+		System.out.println(itemDTO);
 	}
+
 
 	private void fillUpDatabase() throws Exception{
         UploadItemDTO coat = new UploadItemDTO(

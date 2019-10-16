@@ -9,6 +9,9 @@ public enum ProductType {
     Shorts,
     JacketsOrCoats,
     Swimwear,
-    Lingerie
+    Lingerie,
+    Shoes,
+    Bags,
+    Accessories
 
 }
