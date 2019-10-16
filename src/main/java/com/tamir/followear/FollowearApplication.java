@@ -7,6 +7,7 @@ import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.repositories.StoreRepository;
 import com.tamir.followear.services.PostService;
+import com.tamir.followear.services.ScrapingService;
 import com.tamir.followear.services.StoreService;
 import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 @SpringBootApplication
 public class FollowearApplication implements CommandLineRunner {
@@ -36,15 +38,18 @@ public class FollowearApplication implements CommandLineRunner {
     PostService postService;
 
 	@Autowired
-    StoreService storeService;
+    ScrapingService scrapingService;
 
 	@Autowired
-    StoreRepository storeRepo;
+    StoreService storeService;
 
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
+		UploadItemDTO itemDTO = scrapingService.extractItem("https://www.shopbop.com/pixie-coat-iamgia/vp/v=1/1538098230.htm?fm=pd_sb_pd_browse_1_bstslr&os=false");
+		System.out.println(itemDTO);
 	}
+
 
 	private void fillUpDatabase() throws Exception{
         UploadItemDTO coat = new UploadItemDTO(

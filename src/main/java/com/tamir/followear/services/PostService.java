@@ -142,7 +142,7 @@ public class PostService {
     }
 
     public Post uploadLink(long userId, String website, String link) throws IOException {
-        UploadItemDTO item = scrapingService.extractItem(website, link);
+        UploadItemDTO item = scrapingService.extractItem(link);
         return uploadItemPost(userId, item);
     }
 
