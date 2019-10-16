@@ -65,20 +65,20 @@ public class ScrapingService {
 
         options.setBinary(chromeBinary);
 
-//        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
-//                "--user-data-dir=/tmp/user-data", "--hide-scrollbars", "--enable-logging",
-//                "--log-level=0", "--v=99", "--single-process", "--data-path=/tmp/data-path",
-//                "--ignore-certificate-errors", "--homedir=/tmp", "--disk-cache-dir=/tmp/cache-dir",
-//                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
-//                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
+                "--user-data-dir=/tmp/user-data", "--hide-scrollbars", "--enable-logging",
+                "--log-level=0", "--v=99", "--single-process", "--data-path=/tmp/data-path",
+                "--ignore-certificate-errors", "--homedir=/tmp", "--disk-cache-dir=/tmp/cache-dir",
+                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
+                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
 
         WebDriver driver = new ChromeDriver(options);
         driver.get(productPageLink);
         return driver;
     }
 
-    public long getStoreID(String storeName){
-        Store store = storeService.findByWebsite(storeName);
+    public long getStoreID(String website){
+        Store store = storeService.findByWebsite(website);
         long id = store.getId();
         return id;
     }
@@ -99,7 +99,7 @@ public class ScrapingService {
 
     public UploadItemDTO extractItem(String productPageLink) {
         UploadItemDTO itemDTO = new UploadItemDTO();
-        long id;
+        long storeId;
         String website;
         try{
             website = getDomainName(productPageLink);
@@ -107,33 +107,33 @@ public class ScrapingService {
         catch (Exception e){
             System.out.println("error - couldn't extract website");
             System.out.println(e);
-            return null; // TODO return error?
+            return null; // TODO return error!
         }
-        id = getStoreID(website);
+        storeId = getStoreID(website);
         switch (website) {
             case "asos.com":
-                itemDTO = asosDTO(productPageLink, id);
+                itemDTO = asosDTO(productPageLink, storeId);
                 break;
             case "net-a-porter.com":
-                itemDTO = netaporterDTO(website, productPageLink, id);
+                itemDTO = netaporterDTO(productPageLink, storeId);
                 break;
             case "terminalx.com":
-                itemDTO = terminalxDTO(website, productPageLink, id);
+                itemDTO = terminalxDTO(productPageLink, storeId);
                 break;
             case "farfetch.com":
-                itemDTO = farfetchDTO(website, productPageLink, id);
+                itemDTO = farfetchDTO(productPageLink, storeId);
                 break;
             case "shein.com":
-                itemDTO = sheinDTO(website, productPageLink, id);
+                itemDTO = sheinDTO(productPageLink, storeId);
                 break;
             case "zara.com":
-                itemDTO = zaraDTO(website, productPageLink, id);
+                itemDTO = zaraDTO(productPageLink, storeId);
                 break;
             case "hm.com":
-                itemDTO = hmDTO(website, productPageLink, id);
+                itemDTO = hmDTO(productPageLink, storeId);
                 break;
             case "shopbop.com":
-                itemDTO = shopBopDTO(website, productPageLink, id);
+                itemDTO = shopBopDTO(productPageLink, storeId);
                 break;
             default:
                 System.out.println("Looking forward to the Weekend");
@@ -349,31 +349,11 @@ public class ScrapingService {
             case "£":
                 result = Currency.GBP;
                 break;
-
             case "₪":
                 result = Currency.ILS;
                 break;
         }
         return result;
-
-
-//        String price = "";
-//        String itemCurrency = "";
-//        for (int i = 0; i < fullPrice.length(); i++) {
-//            char c = fullPrice.toLowerCase().charAt(i);
-//            if (c >= '0' && c <= '9' || c == '.') {
-//                price += c;
-//            }
-//            if (c >= 'a' && c <= 'z') {
-//                itemCurrency += c;
-//            }
-//            //TODO: check how ASOS displays price when browsing from AWS
-//            if (c == '$') {
-//                itemCurrency = "USD";
-//
-//            }
-//        }
-//        return Arrays.asList(price, itemCurrency);
     }
 
 
@@ -392,6 +372,7 @@ public class ScrapingService {
             endIndex = beginIndex + 8;
         }
         productID = productPageLink.substring(beginIndex, endIndex);
+
         WebDriver driver = getDriver(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select("div.product-hero").first();
@@ -420,7 +401,7 @@ public class ScrapingService {
 
     }
 
-    private UploadItemDTO netaporterDTO(String website, String productPageLink, long id) {
+    private UploadItemDTO netaporterDTO(String productPageLink, long storeId) {
         String productID;
         Category category;
         ProductType productType;
@@ -465,13 +446,12 @@ public class ScrapingService {
         category = itemTags.category;
         productType = itemTags.productType;
 
-
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,id, designer, imgExtension, productID, links, category,productType);
+                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
     }
 
 
-    private UploadItemDTO terminalxDTO(String website, String productPageLink, long id) {
+    private UploadItemDTO terminalxDTO(String productPageLink, long storeId) {
         String productID = null;
         Category category;
         ProductType productType;
@@ -492,8 +472,8 @@ public class ScrapingService {
         } else {
             productID = productID.substring(beginIndex, endIndex);
         }
+        Currency currency = Currency.ILS; //terminalx only uses ILS
 
-        Currency currency = Currency.ILS;
         WebDriver driver = getDriver(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select("span.base.attribute_name").first();
@@ -508,10 +488,6 @@ public class ScrapingService {
         List<String> links = imageElements.eachAttr("src");
         String imgExtension = "jpg";
         String imageAddr = links.get(0);
-//        int endOfThumbnails = 3;
-//        int size = links.size();
-//        int maxThumbnails = Math.min(endOfThumbnails,size-1);
-        //links = links.subList(0,size);
         links.remove(0);
         driver.close();
 
@@ -522,7 +498,7 @@ public class ScrapingService {
 
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,id, designer, imgExtension, productID, links, category,productType);
+                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
     }
 
 
@@ -568,10 +544,11 @@ public class ScrapingService {
 //    }
 
 
-    private UploadItemDTO farfetchDTO(String website, String productPageLink, long id) {
+    private UploadItemDTO farfetchDTO(String productPageLink, long storeId) {
         String productID = null;
         Category category;
         ProductType productType;
+
         WebDriver driver = getDriver(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select("span._b4693b").first();
@@ -604,10 +581,10 @@ public class ScrapingService {
 
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,id, designer, imgExtension, productID, links, category,productType);
+                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
     }
 
-    private UploadItemDTO sheinDTO(String website, String productPageLink, long id) {
+    private UploadItemDTO sheinDTO(String productPageLink, long storeId) {
         String productID = null;
         Category category;
         ProductType productType;
@@ -670,11 +647,11 @@ public class ScrapingService {
 
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,id, designer, imgExtension, productID, links, category,productType);
+                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
     }
 
 
-    private UploadItemDTO zaraDTO(String website, String productPageLink, long id) {
+    private UploadItemDTO zaraDTO(String productPageLink, long storeId) {
         Category category;
         ProductType productType;
         WebDriver driver = getDriver(productPageLink);
@@ -708,10 +685,10 @@ public class ScrapingService {
 
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,id, designer, imgExtension, productID, links, category,productType);
+                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
     }
 
-    private UploadItemDTO hmDTO(String website, String productPageLink, long id) {
+    private UploadItemDTO hmDTO(String productPageLink, long storeId) {
         String designer = null;
         Category category;
         ProductType productType;
@@ -744,12 +721,12 @@ public class ScrapingService {
         productType = itemTags.productType;
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,id, designer, imgExtension, productID, links, category,productType);
+                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
 
     }
 
 
-    private UploadItemDTO shopBopDTO(String website, String productPageLink, long id) {
+    private UploadItemDTO shopBopDTO(String productPageLink, long storeId) {
         Category category;
         ProductType productType;
         WebDriver driver = getDriver(productPageLink);
@@ -777,7 +754,7 @@ public class ScrapingService {
         productType = itemTags.productType;
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,id, designer, imgExtension, productID, links, category,productType);
+                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
     }
 
 }
