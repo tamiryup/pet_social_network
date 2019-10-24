@@ -4,6 +4,7 @@ import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.ProductType;
+import com.tamir.followear.exceptions.BadLinkException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -34,6 +35,9 @@ import com.tamir.followear.enums.Currency;
 @Service
 public class ScrapingService {
 
+    @Autowired
+    StoreService storeService;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ScrapingService.class);
 
     @Value("${fw.chrome.driver}")
@@ -47,14 +51,11 @@ public class ScrapingService {
         System.setProperty("webdriver.chrome.driver", chromedriverPath);
     }
 
-    @Autowired
-    StoreService storeService;
-
     public class ItemTags {
         private Category category;
         private ProductType productType;
 
-        public ItemTags(Category category,ProductType product){
+        public ItemTags(Category category, ProductType product) {
             this.category = category;
             this.productType = product;
         }
@@ -77,37 +78,36 @@ public class ScrapingService {
         return driver;
     }
 
-    public long getStoreID(String website){
+    private long getStoreID(String website) {
         Store store = storeService.findByWebsite(website);
+        if (store == null) {
+            throw new BadLinkException("website is not supported");
+        }
         long id = store.getId();
         return id;
     }
 
-    public static String getDomainName(String productPageLink) throws URISyntaxException {
+    private String getDomainName(String productPageLink) throws URISyntaxException {
         URI uri = new URI(productPageLink);
         String domain = uri.getHost();
         if (domain.startsWith("www.")) {
             return domain.substring(4);
         }
-        if (domain.startsWith("il.")){
-            return  domain.substring(3);
-        }
-        else{
+        if (domain.startsWith("il.")) {
+            return domain.substring(3);
+        } else {
             return domain;
         }
     }
 
     public UploadItemDTO extractItem(String productPageLink) {
-        UploadItemDTO itemDTO = new UploadItemDTO();
+        UploadItemDTO itemDTO;
         long storeId;
         String website;
-        try{
+        try {
             website = getDomainName(productPageLink);
-        }
-        catch (Exception e){
-            System.out.println("error - couldn't extract website");
-            System.out.println(e);
-            return null; // TODO return error!
+        } catch (Exception e) {
+            throw new BadLinkException("invalid link");
         }
         storeId = getStoreID(website);
         switch (website) {
@@ -136,8 +136,7 @@ public class ScrapingService {
                 itemDTO = shopBopDTO(productPageLink, storeId);
                 break;
             default:
-                System.out.println("Looking forward to the Weekend");
-                break;
+                throw new BadLinkException("website is not supported");
         }
         return itemDTO;
     }
@@ -211,10 +210,10 @@ public class ScrapingService {
         Map<ProductType, List<String>> hebrewDictionary = new HashMap<>();
         List<String> topsValues = Arrays.asList("שירט", "אוברול", "חולצ", "גופיי", "סווט", "סווד", "טופ", "בגד גוף");
         List<String> dressValues = Arrays.asList("שמלת", "חצאית");
-        List<String> pantsValues = Arrays.asList("ג'ינס", "שורטס", "טייץ","מכנס");
+        List<String> pantsValues = Arrays.asList("ג'ינס", "שורטס", "טייץ", "מכנס");
         List<String> shoesValues = Arrays.asList("נעל", "spadrilles",
                 "קבקבי", "סנדל", "מגפ", "מגף");
-        List<String> coatsAndJacketsValues = Arrays.asList("ג'קט","קרדיגן", "מעיל", "וסט", "ז'קט");
+        List<String> coatsAndJacketsValues = Arrays.asList("ג'קט", "קרדיגן", "מעיל", "וסט", "ז'קט");
         List<String> swimwearValues = Arrays.asList("בגד ים", "ביקיני");
         List<String> accesoriesValues = Arrays.asList("תכשיט",
                 "משקפי שמש",
@@ -246,13 +245,13 @@ public class ScrapingService {
         Map<ProductType, List<String>> englishDictionary = new HashMap<>();
         List<String> topsValues = Arrays.asList("top", "tee", "weater", "jumper", "hirt", "tank",
                 "cami", "bodysuit", "blouse", "bandeau", "vest", "singlet", "body",
-                "hoodie", "sweatshirt", "pullover", "turtleneck", "polo", "tunic","jumpsuit");
+                "hoodie", "sweatshirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit");
         List<String> dressValues = Arrays.asList("dress", "skirt");
         List<String> pantsValues = Arrays.asList("pants", "trousers",
                 "legging", "short", "jeans");
         List<String> shoesValues = Arrays.asList("shoes", "spadrilles",
                 "heel", "boots", "trainers", "slippers", "sandals", "runner", "slider", "sneakers");
-        List<String> coatsAndJacketsValues = Arrays.asList("vest", "blazer","cardigan",
+        List<String> coatsAndJacketsValues = Arrays.asList("vest", "blazer", "cardigan",
                 "coat", "jacket", "waistcoat", "pullover", "parka", "poncho", "bomber", "suit",
                 "duster", "kimono", "wrap");
         List<String> bagValues = Arrays.asList("bag", "tote",
@@ -271,10 +270,10 @@ public class ScrapingService {
 
 
     public ItemTags itemClassification(String productDescription, Map<ProductType, List<String>> dict) {
-        ProductType productType= ProductType.Default;
+        ProductType productType = ProductType.Default;
         Category category = Category.Clothing;
-        Map<String,ItemTags> result = null;
-        ItemTags itemTags = new ItemTags(category,productType);
+        Map<String, ItemTags> result = null;
+        ItemTags itemTags = new ItemTags(category, productType);
         Boolean pantsKey = false;
         Boolean topsKey = false;
         Boolean jacketsOrCoatsKey = false;
@@ -286,22 +285,22 @@ public class ScrapingService {
                 if (productDescription.toLowerCase().contains(aString)) {
 
                     productType = key;
-                    if (key == ProductType.Bags ){
+                    if (key == ProductType.Bags) {
                         productType = ProductType.Default;
                         category = Category.Bags;
                     }
-                    if (key == ProductType.Shoes){
+                    if (key == ProductType.Shoes) {
                         productType = ProductType.Default;
                         category = Category.Shoes;
                     }
-                    if (key == ProductType.Accessories){
+                    if (key == ProductType.Accessories) {
                         productType = ProductType.Default;
                         category = Category.Accessories;
                     }
                     if (key == ProductType.Pants) {
                         pantsKey = true;
                     }
-                    if (key == ProductType.JacketsOrCoats){
+                    if (key == ProductType.JacketsOrCoats) {
                         jacketsOrCoatsKey = true;
                     }
                     if (key == ProductType.Tops) {
@@ -312,13 +311,13 @@ public class ScrapingService {
                     }
                 }
                 if (pantsKey && (jacketsOrCoatsKey || topsKey || dressesOrSkirts)) {
-                    if (jacketsOrCoatsKey){
+                    if (jacketsOrCoatsKey) {
                         key = ProductType.JacketsOrCoats;
                     }
-                    if (topsKey){
+                    if (topsKey) {
                         key = ProductType.Tops;
                     }
-                    if (dressesOrSkirts){
+                    if (dressesOrSkirts) {
                         key = ProductType.DressesOrSkirts;
                     }
                 }
@@ -332,9 +331,9 @@ public class ScrapingService {
     }
 
 
-    public Currency priceTag(String fullPrice) {
-        String CURRENCY_SYMBOLS= "\\p{Sc}\u0024\u060B";
-        Pattern p = Pattern.compile("[" +CURRENCY_SYMBOLS + "][\\d,]+");
+    private Currency priceTag(String fullPrice) {
+        String CURRENCY_SYMBOLS = "\\p{Sc}\u0024\u060B";
+        Pattern p = Pattern.compile("[" + CURRENCY_SYMBOLS + "][\\d,]+");
         Matcher m = p.matcher(fullPrice);
         String symbol = fullPrice;
         Currency result = Currency.USD;
@@ -343,9 +342,9 @@ public class ScrapingService {
             symbol = m.group(0);
         }
 
-        symbol = symbol.substring(0,1);
+        symbol = symbol.substring(0, 1);
 
-        switch (symbol){
+        switch (symbol) {
             case "£":
                 result = Currency.GBP;
                 break;
@@ -365,9 +364,8 @@ public class ScrapingService {
         int endIndex;
         int beginIndex = productPageLink.indexOf("/prd/");
         if (beginIndex == -1) {
-            System.out.println("this is not a product page");
-            return null;
-        }else{
+            throw new BadLinkException("this is not a product page");
+        } else {
             beginIndex = beginIndex + 5;
             endIndex = beginIndex + 8;
         }
@@ -397,7 +395,7 @@ public class ScrapingService {
         productType = itemTags.productType;
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeID, designer, imgExtension, productID, links, category,productType);
+                price, currency, storeID, designer, imgExtension, productID, links, category, productType);
 
     }
 
@@ -407,8 +405,7 @@ public class ScrapingService {
         ProductType productType;
         int beginIndex = productPageLink.indexOf("/product/");
         if (beginIndex == -1) {
-            System.out.println("this is not a product page");
-            return null;
+            throw new BadLinkException("this is not a product page");
         }
         beginIndex = beginIndex + 9;
         int endIndex = beginIndex + 7;
@@ -434,8 +431,8 @@ public class ScrapingService {
         links.remove(0);
         int endOfThumbnails = 3;
         int size = links.size();
-        int maxThumbnails = Math.min(endOfThumbnails,size);
-        links = links.subList(0,maxThumbnails);
+        int maxThumbnails = Math.min(endOfThumbnails, size);
+        links = links.subList(0, maxThumbnails);
         for (int i = 0; i < links.size(); i++) {
             links.set(i, "https:" + links.get(i));
         }
@@ -447,7 +444,7 @@ public class ScrapingService {
         productType = itemTags.productType;
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
+                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
 
@@ -467,8 +464,7 @@ public class ScrapingService {
             break;
         }
         if (productID == null) {
-            System.out.println("this is not a product page");
-            return null;
+            throw new BadLinkException("this is not a product page");
         } else {
             productID = productID.substring(beginIndex, endIndex);
         }
@@ -498,9 +494,8 @@ public class ScrapingService {
 
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
+                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
-
 
 
 //    private UploadItemDTO adikaDTO(String website, String productPageLink) {
@@ -581,7 +576,7 @@ public class ScrapingService {
 
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
+                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
     private UploadItemDTO sheinDTO(String productPageLink, long storeId) {
@@ -601,13 +596,11 @@ public class ScrapingService {
         Element discountedPriceSpan = document.select("div.price-discount.j-price-discount").first();
 
 
-        if (discountedPriceSpan!=null) {
+        if (discountedPriceSpan != null) {
             price = discountedPriceSpan.text();
             currency = priceTag(price);
             price = price.substring(1);
-        }
-
-        else  {
+        } else {
             price = priceSpan.text();
             currency = priceTag(price);
             price = price.substring(1);
@@ -638,7 +631,7 @@ public class ScrapingService {
         ItemTags itemTags = itemClassification(description, dict);
         category = itemTags.category;
         productType = itemTags.productType;
-        if (productType==ProductType.Default){
+        if (productType == ProductType.Default) {
             dict = InitilizeItemsEnglishDict();
             itemTags = itemClassification(description, dict);
             category = itemTags.category;
@@ -647,7 +640,7 @@ public class ScrapingService {
 
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
+                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
 
@@ -685,7 +678,7 @@ public class ScrapingService {
 
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
+                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
     private UploadItemDTO hmDTO(String productPageLink, long storeId) {
@@ -721,7 +714,7 @@ public class ScrapingService {
         productType = itemTags.productType;
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
+                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
 
     }
 
@@ -754,7 +747,7 @@ public class ScrapingService {
         productType = itemTags.productType;
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency,storeId, designer, imgExtension, productID, links, category,productType);
+                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
 }

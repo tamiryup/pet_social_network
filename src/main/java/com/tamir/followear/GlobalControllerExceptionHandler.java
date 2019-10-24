@@ -130,4 +130,12 @@ public class GlobalControllerExceptionHandler {
         ErrorMessage error = new ErrorMessage("Exchange Rate Exception", e.getMessage());
         return error;
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadLinkException.class)
+    @ResponseBody
+    public ErrorMessage handleBadLinkException(BadLinkException e) {
+        ErrorMessage error = new ErrorMessage("Bad Link Exception", e.getMessage());
+        return error;
+    }
 }

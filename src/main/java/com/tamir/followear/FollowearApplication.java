@@ -30,7 +30,6 @@ public class FollowearApplication implements CommandLineRunner {
     FollowService followService;
 
 	@Autowired
-    ExploreService exploreService;
     ScrapingService scrapingService;
 
 	@Autowired
@@ -39,7 +38,7 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
-		UploadItemDTO itemDTO = scrapingService.extractItem("https://www.shopbop.com/pixie-coat-iamgia/vp/v=1/1538098230.htm?fm=pd_sb_pd_browse_1_bstslr&os=false");
+		UploadItemDTO itemDTO = scrapingService.extractItem("https://www.terminalx.com/catalog/product/view/id/385751/s/x443420008/category/132/");
 		System.out.println(itemDTO);
 	}
 
