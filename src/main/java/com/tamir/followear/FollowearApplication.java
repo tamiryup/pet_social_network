@@ -38,8 +38,6 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
-		UploadItemDTO itemDTO = scrapingService.extractItem("https://www.asos.com/asos-design/asos-design-premium-vinyl-cupped-waterfall-midi-dress/prd/13078811?clr=black&colourWayId=16528973&SearchQuery=&cid=8799");
-		System.out.println(itemDTO);
 	}
 
 
