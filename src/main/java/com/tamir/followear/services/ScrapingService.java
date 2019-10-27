@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.propertyeditors.CurrencyEditor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -35,6 +36,9 @@ import com.tamir.followear.enums.Currency;
 public class ScrapingService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScrapingService.class);
+
+    @Autowired
+    CurrencyConverterService currConverterService;
 
     @Value("${fw.chrome.driver}")
     private String chromedriverPath;
@@ -60,9 +64,18 @@ public class ScrapingService {
         }
     }
 
+    public class ItemPriceCurr {
+        private Currency currency;
+        private String price;
+
+        public ItemPriceCurr(Currency currency,String price){
+            this.currency = currency;
+            this.price = price;
+        }
+    }
+
     private WebDriver getDriver(String productPageLink) {
         ChromeOptions options = new ChromeOptions();
-
         options.setBinary(chromeBinary);
 
         options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
@@ -332,28 +345,95 @@ public class ScrapingService {
     }
 
 
-    public Currency priceTag(String fullPrice) {
-        String CURRENCY_SYMBOLS= "\\p{Sc}\u0024\u060B";
-        Pattern p = Pattern.compile("[" +CURRENCY_SYMBOLS + "][\\d,]+");
-        Matcher m = p.matcher(fullPrice);
-        String symbol = fullPrice;
-        Currency result = Currency.USD;
+    public ItemPriceCurr priceTag(String fullPrice) {
+        Currency curr = Currency.USD;
+        Map<String, String> currencies = new HashMap<>();
+        currencies.put("GBP","£");
+        currencies.put("USD","$");
+        currencies.put("ILS","₪");
+        ItemPriceCurr itemPriceCurr = new ItemPriceCurr(curr,fullPrice);
+        for (Map.Entry<String, String> entry : currencies.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (fullPrice.contains(key) || fullPrice.contains(value) ){
+                if (key == "USD"){
+                    curr = Currency.USD;
+                }
+                if (key == "GBP"){
+                    curr = Currency.GBP;
+                }
+                if (key == "ILS"){
+                    curr = Currency.ILS;
+                }
 
-        while (m.find()) {
-            symbol = m.group(0);
+                int index = fullPrice.indexOf(" ");
+                if (index !=-1) {
+                    if (index == 1){
+                        fullPrice = fullPrice.substring(1);
+                    }
+                    else {
+                        fullPrice = fullPrice.substring(0, index);
+                    }
+                }
+                else{
+                    if (fullPrice.contains(key)) {
+                        index = fullPrice.indexOf(key);
+                        if (index != -1) {
+                            fullPrice = fullPrice.substring(0, index);
+                        }
+                    }
+                    else {
+                        index = fullPrice.indexOf(value);
+                        if (index != -1) {
+                            if (index == 0){
+                                fullPrice = fullPrice.substring(1);
+                            }
+                            else {
+                                fullPrice = fullPrice.substring(0, index);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+
         }
-
-        symbol = symbol.substring(0,1);
-
-        switch (symbol){
-            case "£":
-                result = Currency.GBP;
-                break;
-            case "₪":
-                result = Currency.ILS;
-                break;
-        }
-        return result;
+//        String CURRENCY_SYMBOLS= "\\p{Sc}\u0024\u060B";
+//        Pattern p = Pattern.compile("[" +CURRENCY_SYMBOLS + "][\\d,]+");
+//        Matcher m = p.matcher(fullPrice);
+//        String symbol = fullPrice;
+//        while (m.find()) {
+//            symbol = m.group(0);
+//        }
+//
+//        symbol = symbol.substring(0,1);
+//
+//        switch (symbol){
+//            case "£":
+//                curr = Currency.GBP;
+//                if (fullPrice.length()>1) {
+//                    fullPrice.substring(1);
+//                }
+//                break;
+//            case "₪":
+//                curr = Currency.ILS;
+//                System.out.println("hi");
+//                if (fullPrice.length()>1) {
+//                    int index = fullPrice.indexOf(" ");
+//                    if (index !=-1) {
+//                        fullPrice = fullPrice.substring(0, index);
+//                        System.out.println("in if");
+//                    }else{
+//                        index = fullPrice.indexOf("₪");
+//                        fullPrice = fullPrice.substring(0,index);
+//                    }
+//                }
+//                break;
+//        }
+        itemPriceCurr.currency = curr;
+        itemPriceCurr.price = fullPrice;
+        return itemPriceCurr;
     }
 
 
@@ -375,13 +455,17 @@ public class ScrapingService {
 
         WebDriver driver = getDriver(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
-        Element descriptionDiv = document.select("div.product-hero").first();
-        Element descriptionText = descriptionDiv.select("h1").first();
-        String description = descriptionText.text();
+        Elements descriptionDiv = document.select("div.product-hero");
+        String description = descriptionDiv.select("h1").text();
         Element priceSpan = document.select("span.current-price").first();
         String fullPrice = priceSpan.text();
-        Currency currency = priceTag(fullPrice);
-        String price = (fullPrice.substring(1));
+        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
+        Currency currency = itemPriceCurr.currency;
+
+        String price = itemPriceCurr.price;
+        double priceInILS = currConverterService.convert(currency, Currency.ILS, Double.valueOf(price));
+        price = Double.toString(priceInILS);
+
         Elements imagesDiv = document.select("div.fullImageContainer");
         Elements images = imagesDiv.select("img");
         String imgExtension = "jpg";
@@ -422,7 +506,8 @@ public class ScrapingService {
         Element priceSymbol = document.select("span.currency.style-scope.nap-price").first();
         String price = priceSpan.text();
         String priceSymbolText = priceSymbol.text();
-        Currency currency = priceTag(priceSymbolText);
+        ItemPriceCurr itemPriceCurr = priceTag(priceSymbolText);
+        Currency currency = itemPriceCurr.currency;
         Element designerDiv = document.select("a.designer-name span").first();
         String designer = designerDiv.text();
         Element imageDiv = document.select("img.product-image.first-image").first();
@@ -472,18 +557,18 @@ public class ScrapingService {
         } else {
             productID = productID.substring(beginIndex, endIndex);
         }
-        Currency currency = Currency.ILS; //terminalx only uses ILS
-
         WebDriver driver = getDriver(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select("span.base.attribute_name").first();
         String description = descriptionDiv.text();
         Element priceSpan = document.select("span.price").first();
-        String price = priceSpan.text();
+        String fullPrice = priceSpan.text();
+        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
+        Currency currency = itemPriceCurr.currency;
+        String price = itemPriceCurr.price;
         Element designerDiv = document.select("div.product-item-brand a").first();
         String designer = designerDiv.text();
-        Elements imagesDiv = document.select(
-                "div.magnifier-preview");
+        Elements imagesDiv = document.select("div#preview.magnifier-preview");
         Elements imageElements = imagesDiv.select("img");
         List<String> links = imageElements.eachAttr("src");
         String imgExtension = "jpg";
@@ -556,8 +641,10 @@ public class ScrapingService {
         Element designerDiv = document.select("a._7fe79a._3f59ca._dc2535._f01e99 span").first();
         String designer = designerDiv.text();
         Element priceSpan = document.select("span._def925._b4693b").first();
-        String price = priceSpan.text();
-        Currency currency = priceTag(price);
+        String fullPrice = priceSpan.text();
+        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
+        Currency currency = itemPriceCurr.currency;
+        String price = itemPriceCurr.price;
         Elements imagesDiv = document.select("picture._61beb2._ef9cef");
         Elements imageElements = imagesDiv.select("img");
         List<String> links = imageElements.eachAttr("src");
@@ -589,6 +676,7 @@ public class ScrapingService {
         Category category;
         ProductType productType;
         String price = null;
+        ItemPriceCurr itemPriceCurr = null;
         List<String> links = new ArrayList<>();
         Currency currency;
         WebDriver driver = getDriver(productPageLink);
@@ -603,14 +691,17 @@ public class ScrapingService {
 
         if (discountedPriceSpan!=null) {
             price = discountedPriceSpan.text();
-            currency = priceTag(price);
-            price = price.substring(1);
+            itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
+
         }
 
         else  {
             price = priceSpan.text();
-            currency = priceTag(price);
-            price = price.substring(1);
+            itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
         }
 
         Element imageDiv = document.select("img.j-lazy-dpr-img.j-change-main_image").first();
@@ -660,9 +751,10 @@ public class ScrapingService {
         String description = descriptionDiv.text();
         description = description.replace("פרטי", "");
         Element priceSpan = document.select("div.price._product-price span").first();
-        String price = priceSpan.text();
-        Currency currency = priceTag(price);
-        price = price.substring(1);
+        String fullPrice = priceSpan.text();
+        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
+        Currency currency = itemPriceCurr.currency;
+        String price = itemPriceCurr.price;
         Element fullDescriptionDiv = document.select("p.description").first();
         String designer = "";
         String imgExtension = "jpg";
@@ -735,9 +827,10 @@ public class ScrapingService {
         String description = descriptionDiv.text();
         String designer = document.select("span.brand-name").first().text();
         Element priceSpan = document.select("span.pdp-price").first();
-        String price = priceSpan.text();
-        Currency currency = priceTag(price);
-        price = price.substring(1);
+        String fullPrice = priceSpan.text();
+        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
+        Currency currency = itemPriceCurr.currency;
+        String price = itemPriceCurr.price;
         Elements elem = document.select("img.display-image");
         List<String> links = elem.eachAttr("src");
         String imageAddr = links.get(0);
