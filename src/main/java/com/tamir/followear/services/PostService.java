@@ -111,10 +111,6 @@ public class PostService {
             throw new InvalidUserException();
 
         List<String> thumbnails = item.getThumbnails();
-        if (thumbnails == null || thumbnails.size() == 0) {
-            thumbnails = scrapingService.getThumbnailImages(item.getStoreId(),
-                    item.getLink());
-        }
 
         ImageType imageType = ImageType.PostImage;
         InputStream imageInputStream = FileHelper.urlToInputStream(item.getImageAddr());
@@ -132,7 +128,7 @@ public class PostService {
         String price = StringHelper.removeCommas(item.getPrice()); //save price without commas
 
         Post post = new Post(userId, item.getStoreId(), imageAddr, item.getDescription(), item.getLink(),
-                price, Currency.ILS, item.getDesigner(), item.getProductId(),
+                price, item.getCurrency(), item.getDesigner(), item.getProductId(),
                 thumbnail, item.getCategory(), item.getProductType());
         post = create(post);
 
@@ -146,7 +142,7 @@ public class PostService {
         return post;
     }
 
-    public Post uploadLink(long userId, String website, String link) throws IOException {
+    public Post uploadLink(long userId, String link) throws IOException {
         UploadItemDTO item = scrapingService.extractItem(link);
         return uploadItemPost(userId, item);
     }

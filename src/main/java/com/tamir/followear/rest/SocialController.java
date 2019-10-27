@@ -47,8 +47,9 @@ public class SocialController {
 
     @PostMapping("upload-link")
     @ResponseBody
-    public UploadItemDTO uploadLink(@PathVariable long id, @RequestParam String link) throws IOException {
-        return scrapingService.extractItem(link);
+    public long uploadLink(@PathVariable long id, @RequestParam String link) throws IOException {
+        Post post = postService.uploadLink(id, link);
+        return post.getId();
     }
 
     @PostMapping("follow")
