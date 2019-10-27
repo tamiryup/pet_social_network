@@ -138,4 +138,12 @@ public class GlobalControllerExceptionHandler {
         ErrorMessage error = new ErrorMessage("Bad Link Exception", e.getMessage());
         return error;
     }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(ScrapingError.class)
+    @ResponseBody
+    public ErrorMessage handleScrapingError(ScrapingError e) {
+        ErrorMessage error = new ErrorMessage("Scraping Error", e.getMessage());
+        return error;
+    }
 }

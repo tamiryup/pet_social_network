@@ -5,6 +5,7 @@ import com.tamir.followear.services.ExploreService;
 import com.tamir.followear.services.FeedService;
 import com.tamir.followear.services.ScrapingService;
 import com.tamir.followear.services.UserService;
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,7 +46,9 @@ public class GeneralController {
     @GetMapping("scraping-helper")
     @ResponseBody
     public String scrapingHelper(@RequestParam String link) {
-        return scrapingService.getDriver(link).getPageSource();
+        WebDriver driver = scrapingService.getDriver();
+        driver.get(link);
+        return driver.getPageSource();
     }
 
 }

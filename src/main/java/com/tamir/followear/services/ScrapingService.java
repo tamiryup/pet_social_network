@@ -5,6 +5,7 @@ import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.exceptions.BadLinkException;
+import com.tamir.followear.exceptions.ScrapingError;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -75,7 +76,7 @@ public class ScrapingService {
         }
     }
 
-    public WebDriver getDriver(String productPageLink) {
+    public WebDriver getDriver() {
         ChromeOptions options = new ChromeOptions();
         options.setBinary(chromeBinary);
 
@@ -87,7 +88,6 @@ public class ScrapingService {
                         " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
 
         WebDriver driver = new ChromeDriver(options);
-        driver.get(productPageLink);
         return driver;
     }
 
@@ -122,100 +122,46 @@ public class ScrapingService {
         } catch (Exception e) {
             throw new BadLinkException("invalid link");
         }
+        WebDriver driver = getDriver();
         storeId = getStoreID(website);
-        switch (website) {
-            case "asos.com":
-                itemDTO = asosDTO(productPageLink, storeId);
-                break;
-            case "net-a-porter.com":
-                itemDTO = netaporterDTO(productPageLink, storeId);
-                break;
-            case "terminalx.com":
-                itemDTO = terminalxDTO(productPageLink, storeId);
-                break;
-            case "farfetch.com":
-                itemDTO = farfetchDTO(productPageLink, storeId);
-                break;
-            case "shein.com":
-                itemDTO = sheinDTO(productPageLink, storeId);
-                break;
-            case "zara.com":
-                itemDTO = zaraDTO(productPageLink, storeId);
-                break;
-            case "hm.com":
-                itemDTO = hmDTO(productPageLink, storeId);
-                break;
-            case "shopbop.com":
-                itemDTO = shopBopDTO(productPageLink, storeId);
-                break;
-            default:
-                throw new BadLinkException("website is not supported");
+        try {
+            switch (website) {
+                case "asos.com":
+                    itemDTO = asosDTO(productPageLink, storeId, driver);
+                    break;
+                case "net-a-porter.com":
+                    itemDTO = netaporterDTO(productPageLink, storeId, driver);
+                    break;
+                case "terminalx.com":
+                    itemDTO = terminalxDTO(productPageLink, storeId, driver);
+                    break;
+                case "farfetch.com":
+                    itemDTO = farfetchDTO(productPageLink, storeId, driver);
+                    break;
+                case "shein.com":
+                    itemDTO = sheinDTO(productPageLink, storeId, driver);
+                    break;
+                case "zara.com":
+                    itemDTO = zaraDTO(productPageLink, storeId, driver);
+                    break;
+                case "hm.com":
+                    itemDTO = hmDTO(productPageLink, storeId, driver);
+                    break;
+                case "shopbop.com":
+                    itemDTO = shopBopDTO(productPageLink, storeId, driver);
+                    break;
+                default:
+                    throw new BadLinkException("website is not supported");
+            }
+        }catch (BadLinkException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ScrapingError(e.toString());
+        } finally {
+            driver.close();
         }
         return itemDTO;
-    }
-
-    public List<String> getThumbnailImages(long storeId, String productPageLink) {
-        List<String> links = new ArrayList<>();
-
-        try {
-
-            switch ((int) storeId) {
-                case 1:
-                    links = asosThumbnails(productPageLink);
-                    break;
-                case 2:
-                    links = netAPorterThumbnails(productPageLink);
-                    break;
-                case 3:
-                    links = terminalXThumbnails(productPageLink);
-                    break;
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return links;
-    }
-
-    //TODO: replace addresses with the addresses of better image qualities
-    private List<String> asosThumbnails(String productPageLink) throws IOException {
-        List<String> links;
-        Document document = Jsoup.connect(productPageLink).get();
-        Element elem = document.selectFirst(".thumbnails");
-        Elements imageElements = elem.getElementsByTag("img");
-        links = imageElements.eachAttr("src");
-        links.remove(0);
-        return links;
-    }
-
-    private List<String> netAPorterThumbnails(String productPageLink) throws IOException {
-        List<String> links;
-        Document document = Jsoup.connect(productPageLink).get();
-        Element elem = document.selectFirst(".thumbnail-wrapper");
-        Elements imageElements = elem.getElementsByTag("img");
-        links = imageElements.eachAttr("src");
-        links.remove(0);
-
-        for (int i = 0; i < links.size(); i++) {
-            links.set(i, "https:" + links.get(i));
-        }
-
-        return links;
-    }
-
-    //TODO: replace addresses with the addresses of better image qualities
-    private List<String> terminalXThumbnails(String productPageLink) {
-        List<String> links;
-        WebDriver driver = getDriver(productPageLink);
-        Document document = Jsoup.parse(driver.getPageSource());
-
-        Elements elements = document.select(".fotorama__thumb img");
-        links = elements.eachAttr("src");
-        links.remove(0);
-
-        driver.close();
-        return links;
     }
 
 
@@ -339,7 +285,6 @@ public class ScrapingService {
         itemTags.category = category;
         itemTags.productType = productType;
 
-
         return itemTags;
     }
 
@@ -435,7 +380,7 @@ public class ScrapingService {
     }
 
 
-    private UploadItemDTO asosDTO(String productPageLink, long storeID) {
+    private UploadItemDTO asosDTO(String productPageLink, long storeID, WebDriver driver) {
         String productID;
         Category category;
         ProductType productType;
@@ -450,7 +395,7 @@ public class ScrapingService {
         }
         productID = productPageLink.substring(beginIndex, endIndex);
 
-        WebDriver driver = getDriver(productPageLink);
+        driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Elements descriptionDiv = document.select("div.product-hero");
         String description = descriptionDiv.select("h1").text();
@@ -470,7 +415,6 @@ public class ScrapingService {
         String imageAddr = links.get(1);
         links.remove(1);
         links.remove(3);
-        driver.close();
 
         Map<ProductType, List<String>> dict = InitilizeItemsEnglishDict();
         ItemTags itemTags = itemClassification(description, dict);
@@ -482,7 +426,7 @@ public class ScrapingService {
 
     }
 
-    private UploadItemDTO netaporterDTO(String productPageLink, long storeId) {
+    private UploadItemDTO netaporterDTO(String productPageLink, long storeId, WebDriver driver) {
         String productID;
         Category category;
         ProductType productType;
@@ -494,7 +438,7 @@ public class ScrapingService {
         int endIndex = beginIndex + 7;
         productID = productPageLink.substring(beginIndex, endIndex);
 
-        WebDriver driver = getDriver(productPageLink);
+        driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select(" h2.product-name").first();
         String description = descriptionDiv.text();
@@ -520,7 +464,6 @@ public class ScrapingService {
         for (int i = 0; i < links.size(); i++) {
             links.set(i, "https:" + links.get(i));
         }
-        driver.close();
 
         Map<ProductType, List<String>> dict = InitilizeItemsEnglishDict();
         ItemTags itemTags = itemClassification(description, dict);
@@ -532,7 +475,7 @@ public class ScrapingService {
     }
 
 
-    private UploadItemDTO terminalxDTO(String productPageLink, long storeId) {
+    private UploadItemDTO terminalxDTO(String productPageLink, long storeId, WebDriver driver) {
         String productID = null;
         Category category;
         ProductType productType;
@@ -552,7 +495,8 @@ public class ScrapingService {
         } else {
             productID = productID.substring(beginIndex, endIndex);
         }
-        WebDriver driver = getDriver(productPageLink);
+
+        driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select("span.base.attribute_name").first();
         String description = descriptionDiv.text();
@@ -569,7 +513,6 @@ public class ScrapingService {
         String imgExtension = "jpg";
         String imageAddr = links.get(0);
         links.remove(0);
-        driver.close();
 
         Map<ProductType, List<String>> dict = InitilizeItemsHebrewDict();
         ItemTags itemTags = itemClassification(description, dict);
@@ -612,7 +555,6 @@ public class ScrapingService {
 //        links = imageElements.eachAttr("href");
 //        links.remove(0);
 //
-//        driver.close();
 //
 //        Map<String, List<String>> dict = InitilizeItemsHebrewDict();
 //        List<String> itemTags = itemClassification(description, dict);
@@ -623,12 +565,12 @@ public class ScrapingService {
 //    }
 
 
-    private UploadItemDTO farfetchDTO(String productPageLink, long storeId) {
+    private UploadItemDTO farfetchDTO(String productPageLink, long storeId, WebDriver driver) {
         String productID = null;
         Category category;
         ProductType productType;
 
-        WebDriver driver = getDriver(productPageLink);
+        driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select("span._b4693b").first();
         String description = descriptionDiv.text();
@@ -653,7 +595,6 @@ public class ScrapingService {
             productID = s;
             break;
         }
-        driver.close();
 
         Map<ProductType, List<String>> dict = InitilizeItemsEnglishDict();
         ItemTags itemTags = itemClassification(description, dict);
@@ -665,7 +606,7 @@ public class ScrapingService {
                 price, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
-    private UploadItemDTO sheinDTO(String productPageLink, long storeId) {
+    private UploadItemDTO sheinDTO(String productPageLink, long storeId, WebDriver driver) {
         String productID = null;
         Category category;
         ProductType productType;
@@ -673,7 +614,7 @@ public class ScrapingService {
         ItemPriceCurr itemPriceCurr = null;
         List<String> links = new ArrayList<>();
         Currency currency;
-        WebDriver driver = getDriver(productPageLink);
+        driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select("h1.name").first();
         String description = descriptionDiv.text();
@@ -705,7 +646,6 @@ public class ScrapingService {
             productID = s;
             break;
         }
-        driver.close();
         Elements thumbnails = document.select("img.j-verlok-lazy.j-change-dt_image");
         for (Element imgThumbnail : thumbnails) {
             String imgSrc = imgThumbnail.attr("src");
@@ -731,10 +671,10 @@ public class ScrapingService {
     }
 
 
-    private UploadItemDTO zaraDTO(String productPageLink, long storeId) {
+    private UploadItemDTO zaraDTO(String productPageLink, long storeId, WebDriver driver) {
         Category category;
         ProductType productType;
-        WebDriver driver = getDriver(productPageLink);
+        driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select(" h1.product-name").first();
         String description = descriptionDiv.text();
@@ -757,7 +697,6 @@ public class ScrapingService {
         int endIndex = productPageLink.indexOf("html");
         int startIndex = endIndex - 9;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
-        driver.close();
 
         Map<ProductType, List<String>> dict = InitilizeItemsHebrewDict();
         ItemTags itemTags = itemClassification(description, dict);
@@ -769,12 +708,12 @@ public class ScrapingService {
                 price, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
-    private UploadItemDTO hmDTO(String productPageLink, long storeId) {
+    private UploadItemDTO hmDTO(String productPageLink, long storeId, WebDriver driver) {
         String designer = null;
         Category category;
         ProductType productType;
         Currency currency = Currency.USD;
-        WebDriver driver = getDriver(productPageLink);
+        driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select(" h1.primary.product-item-headline").first();
         String description = descriptionDiv.text();
@@ -794,7 +733,6 @@ public class ScrapingService {
         int endIndex = productPageLink.indexOf("html");
         int startIndex = endIndex - 11;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
-        driver.close();
 
         Map<ProductType, List<String>> dict = InitilizeItemsEnglishDict();
         ItemTags itemTags = itemClassification(description, dict);
@@ -807,10 +745,10 @@ public class ScrapingService {
     }
 
 
-    private UploadItemDTO shopBopDTO(String productPageLink, long storeId) {
+    private UploadItemDTO shopBopDTO(String productPageLink, long storeId, WebDriver driver) {
         Category category;
         ProductType productType;
-        WebDriver driver = getDriver(productPageLink);
+        driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select(" div#product-title").first();
         String description = descriptionDiv.text();
@@ -828,7 +766,6 @@ public class ScrapingService {
         int endIndex = productPageLink.indexOf("htm");
         int startIndex = endIndex - 11;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
-        driver.close();
 
         Map<ProductType, List<String>> dict = InitilizeItemsEnglishDict();
         ItemTags itemTags = itemClassification(description, dict);
