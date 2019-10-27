@@ -2,10 +2,7 @@ package com.tamir.followear.rest;
 
 import com.tamir.followear.dto.*;
 import com.tamir.followear.entities.Post;
-import com.tamir.followear.services.ExploreService;
-import com.tamir.followear.services.FeedService;
-import com.tamir.followear.services.FollowService;
-import com.tamir.followear.services.PostService;
+import com.tamir.followear.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +27,9 @@ public class SocialController {
     @Autowired
     ExploreService exploreService;
 
+    @Autowired
+    ScrapingService scrapingService;
+
     @PostMapping("upload")
     @ResponseBody
     public long uploadPost(@PathVariable long id, @RequestParam MultipartFile image,
@@ -47,10 +47,8 @@ public class SocialController {
 
     @PostMapping("upload-link")
     @ResponseBody
-    public long uploadLink(@PathVariable long id, @RequestParam String link) throws IOException {
-        //TODO: make it work
-        //Post post = postService.uploadLink(id, website, link);
-        return 1;
+    public UploadItemDTO uploadLink(@PathVariable long id, @RequestParam String link) throws IOException {
+        return scrapingService.extractItem(link);
     }
 
     @PostMapping("follow")

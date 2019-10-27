@@ -61,7 +61,7 @@ public class ScrapingService {
         }
     }
 
-    private WebDriver getDriver(String productPageLink) {
+    public WebDriver getDriver(String productPageLink) {
         ChromeOptions options = new ChromeOptions();
 
         options.setBinary(chromeBinary);
