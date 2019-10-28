@@ -13,6 +13,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @SpringBootApplication
 public class FollowearApplication implements CommandLineRunner {
@@ -27,13 +29,10 @@ public class FollowearApplication implements CommandLineRunner {
     PostService postService;
 
 	@Autowired
-    FollowService followService;
-
-	@Autowired
     ScrapingService scrapingService;
 
 	@Autowired
-    StoreService storeService;
+    ItemClassificationService classificationService;
 
 	@Override
 	public void run(String... args) throws Exception {

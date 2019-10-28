@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.propertyeditors.CurrencyEditor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -29,8 +28,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.*;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 
 import com.tamir.followear.enums.Currency;
 
@@ -43,6 +40,9 @@ public class ScrapingService {
     @Autowired
     CurrencyConverterService currConverterService;
 
+    @Autowired
+    ItemClassificationService classificationService;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ScrapingService.class);
 
     @Value("${fw.chrome.driver}")
@@ -54,16 +54,6 @@ public class ScrapingService {
     @PostConstruct
     public void init() throws IOException {
         System.setProperty("webdriver.chrome.driver", chromedriverPath);
-    }
-
-    public class ItemTags {
-        private Category category;
-        private ProductType productType;
-
-        public ItemTags(Category category, ProductType product) {
-            this.category = category;
-            this.productType = product;
-        }
     }
 
     public class ItemPriceCurr {
@@ -162,130 +152,6 @@ public class ScrapingService {
             driver.close();
         }
         return itemDTO;
-    }
-
-
-    public Map<ProductType, List<String>> InitilizeItemsHebrewDict() {
-        Map<ProductType, List<String>> hebrewDictionary = new HashMap<>();
-        List<String> topsValues = Arrays.asList("שירט", "אוברול", "חולצ", "גופיי", "סווט", "סווד", "טופ", "בגד גוף");
-        List<String> dressValues = Arrays.asList("שמלת", "חצאית");
-        List<String> pantsValues = Arrays.asList("ג'ינס", "שורטס", "טייץ", "מכנס");
-        List<String> shoesValues = Arrays.asList("נעל", "spadrilles",
-                "קבקבי", "סנדל", "מגפ", "מגף");
-        List<String> coatsAndJacketsValues = Arrays.asList("ג'קט", "קרדיגן", "מעיל", "וסט", "ז'קט");
-        List<String> swimwearValues = Arrays.asList("בגד ים", "ביקיני");
-        List<String> accesoriesValues = Arrays.asList("תכשיט",
-                "משקפי שמש",
-                "משקפיי",
-                "חגור",
-                "כובע",
-                "גרבי",
-                "מטפחת",
-                "צעיף",
-                "עגיל",
-                "קשת");
-
-        hebrewDictionary.put(ProductType.Tops, topsValues);
-        hebrewDictionary.put(ProductType.DressesOrSkirts, dressValues);
-        hebrewDictionary.put(ProductType.Pants, pantsValues);
-        hebrewDictionary.put(ProductType.Shoes, shoesValues);
-        hebrewDictionary.put(ProductType.JacketsOrCoats, coatsAndJacketsValues);
-        //hebrewDictionary.put(ProductType.Bags, bagValues);
-        hebrewDictionary.put(ProductType.Swimwear, swimwearValues);
-        hebrewDictionary.put(ProductType.Accessories, accesoriesValues);
-
-        return hebrewDictionary;
-    }
-
-
-    public Map<ProductType, List<String>> InitilizeItemsEnglishDict() {
-        ProductType productType;
-
-        Map<ProductType, List<String>> englishDictionary = new HashMap<>();
-        List<String> topsValues = Arrays.asList("top", "tee", "weater", "jumper", "hirt", "tank",
-                "cami", "bodysuit", "blouse", "bandeau", "vest", "singlet", "body",
-                "hoodie", "sweatshirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit");
-        List<String> dressValues = Arrays.asList("dress", "skirt");
-        List<String> pantsValues = Arrays.asList("pants", "trousers",
-                "legging", "short", "jeans");
-        List<String> shoesValues = Arrays.asList("shoes", "spadrilles",
-                "heel", "boots", "trainers", "slippers", "sandals", "runner", "slider", "sneakers");
-        List<String> coatsAndJacketsValues = Arrays.asList("vest", "blazer", "cardigan",
-                "coat", "jacket", "waistcoat", "pullover", "parka", "poncho", "bomber", "suit",
-                "duster", "kimono", "wrap");
-        List<String> bagValues = Arrays.asList("bag", "tote",
-                "clutch", "crossbody", "cross-body", "wallet", "backpack", "satchel", "handbag",
-                "basket", "clutch-bag", "handbag");
-
-        englishDictionary.put(ProductType.Tops, topsValues);
-        englishDictionary.put(ProductType.DressesOrSkirts, dressValues);
-        englishDictionary.put(ProductType.Pants, pantsValues);
-        englishDictionary.put(ProductType.Shoes, shoesValues);
-        englishDictionary.put(ProductType.JacketsOrCoats, coatsAndJacketsValues);
-        englishDictionary.put(ProductType.Bags, bagValues);
-
-        return englishDictionary;
-    }
-
-
-    public ItemTags itemClassification(String productDescription, Map<ProductType, List<String>> dict) {
-        ProductType productType = ProductType.Default;
-        Category category = Category.Clothing;
-        Map<String, ItemTags> result = null;
-        ItemTags itemTags = new ItemTags(category, productType);
-        Boolean pantsKey = false;
-        Boolean topsKey = false;
-        Boolean jacketsOrCoatsKey = false;
-        Boolean dressesOrSkirts = false;
-        for (Map.Entry<ProductType, List<String>> entry : dict.entrySet()) {
-            ProductType key = entry.getKey();
-            List<String> value = entry.getValue();
-            for (String aString : value) {
-                if (productDescription.toLowerCase().contains(aString)) {
-
-                    productType = key;
-                    if (key == ProductType.Bags) {
-                        productType = ProductType.Default;
-                        category = Category.Bags;
-                    }
-                    if (key == ProductType.Shoes) {
-                        productType = ProductType.Default;
-                        category = Category.Shoes;
-                    }
-                    if (key == ProductType.Accessories) {
-                        productType = ProductType.Default;
-                        category = Category.Accessories;
-                    }
-                    if (key == ProductType.Pants) {
-                        pantsKey = true;
-                    }
-                    if (key == ProductType.JacketsOrCoats) {
-                        jacketsOrCoatsKey = true;
-                    }
-                    if (key == ProductType.Tops) {
-                        topsKey = true;
-                    }
-                    if (key == ProductType.DressesOrSkirts) {
-                        dressesOrSkirts = true;
-                    }
-                }
-                if (pantsKey && (jacketsOrCoatsKey || topsKey || dressesOrSkirts)) {
-                    if (jacketsOrCoatsKey) {
-                        key = ProductType.JacketsOrCoats;
-                    }
-                    if (topsKey) {
-                        key = ProductType.Tops;
-                    }
-                    if (dressesOrSkirts) {
-                        key = ProductType.DressesOrSkirts;
-                    }
-                }
-            }
-        }
-        itemTags.category = category;
-        itemTags.productType = productType;
-
-        return itemTags;
     }
 
 
@@ -416,10 +282,10 @@ public class ScrapingService {
         links.remove(1);
         links.remove(3);
 
-        Map<ProductType, List<String>> dict = InitilizeItemsEnglishDict();
-        ItemTags itemTags = itemClassification(description, dict);
-        category = itemTags.category;
-        productType = itemTags.productType;
+        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, currency, storeID, designer, imgExtension, productID, links, category, productType);
@@ -465,10 +331,10 @@ public class ScrapingService {
             links.set(i, "https:" + links.get(i));
         }
 
-        Map<ProductType, List<String>> dict = InitilizeItemsEnglishDict();
-        ItemTags itemTags = itemClassification(description, dict);
-        category = itemTags.category;
-        productType = itemTags.productType;
+        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, currency, storeId, designer, imgExtension, productID, links, category, productType);
@@ -514,11 +380,10 @@ public class ScrapingService {
         String imageAddr = links.get(0);
         links.remove(0);
 
-        Map<ProductType, List<String>> dict = InitilizeItemsHebrewDict();
-        ItemTags itemTags = itemClassification(description, dict);
-        category = itemTags.category;
-        productType = itemTags.productType;
-
+        Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, currency, storeId, designer, imgExtension, productID, links, category, productType);
@@ -557,7 +422,7 @@ public class ScrapingService {
 //
 //
 //        Map<String, List<String>> dict = InitilizeItemsHebrewDict();
-//        List<String> itemTags = itemClassification(description, dict);
+//        List<String> itemTags = classify(description, dict);
 
 //        return new UploadItemDTO(imageAddr, productPageLink, description,
 //                price, currency, website, designer, imgExtension, productID, links, itemTags);
@@ -596,11 +461,10 @@ public class ScrapingService {
             break;
         }
 
-        Map<ProductType, List<String>> dict = InitilizeItemsEnglishDict();
-        ItemTags itemTags = itemClassification(description, dict);
-        category = itemTags.category;
-        productType = itemTags.productType;
-
+        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, currency, storeId, designer, imgExtension, productID, links, category, productType);
@@ -619,16 +483,13 @@ public class ScrapingService {
         Element descriptionDiv = document.select("h1.name").first();
         String description = descriptionDiv.text();
 //        String designer = document.select("h1.name.span").first().text();
-        String designer = "";
+        String designer = null;
         Element priceSpan = document.select("div.price-origin.j-price-origin").first();
         Element discountedPriceSpan = document.select("div.price-discount.j-price-discount").first();
         if (discountedPriceSpan != null) {
             price = discountedPriceSpan.text();
-        }
-
-        else  {
+        } else  {
             price = priceSpan.text();
-
         }
         itemPriceCurr = priceTag(price);
         currency = itemPriceCurr.currency;
@@ -654,15 +515,15 @@ public class ScrapingService {
         for (int i = 0; i < links.size(); i++) {
             links.set(i, "https:" + links.get(i));
         }
-        Map<ProductType, List<String>> dict = InitilizeItemsHebrewDict();
-        ItemTags itemTags = itemClassification(description, dict);
-        category = itemTags.category;
-        productType = itemTags.productType;
+        Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
         if (productType == ProductType.Default) {
-            dict = InitilizeItemsEnglishDict();
-            itemTags = itemClassification(description, dict);
-            category = itemTags.category;
-            productType = itemTags.productType;
+            dict = classificationService.getEnglishDict();
+            itemTags = classificationService.classify(description, dict);
+            category = itemTags.getCategory();
+            productType = itemTags.getProductType();
         }
 
 
@@ -698,11 +559,10 @@ public class ScrapingService {
         int startIndex = endIndex - 9;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
 
-        Map<ProductType, List<String>> dict = InitilizeItemsHebrewDict();
-        ItemTags itemTags = itemClassification(description, dict);
-        category = itemTags.category;
-        productType = itemTags.productType;
-
+        Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, currency, storeId, designer, imgExtension, productID, links, category, productType);
@@ -734,10 +594,10 @@ public class ScrapingService {
         int startIndex = endIndex - 11;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
 
-        Map<ProductType, List<String>> dict = InitilizeItemsEnglishDict();
-        ItemTags itemTags = itemClassification(description, dict);
-        category = itemTags.category;
-        productType = itemTags.productType;
+        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, currency, storeId, designer, imgExtension, productID, links, category, productType);
@@ -767,10 +627,10 @@ public class ScrapingService {
         int startIndex = endIndex - 11;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
 
-        Map<ProductType, List<String>> dict = InitilizeItemsEnglishDict();
-        ItemTags itemTags = itemClassification(description, dict);
-        category = itemTags.category;
-        productType = itemTags.productType;
+        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, currency, storeId, designer, imgExtension, productID, links, category, productType);
