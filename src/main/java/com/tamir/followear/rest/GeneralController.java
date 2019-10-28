@@ -48,7 +48,9 @@ public class GeneralController {
     public String scrapingHelper(@RequestParam String link) {
         WebDriver driver = scrapingService.getDriver();
         driver.get(link);
-        return driver.getPageSource();
+        String pageSource = driver.getPageSource();
+        driver.close();
+        return pageSource;
     }
 
 }
