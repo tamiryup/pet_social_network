@@ -37,7 +37,7 @@ public class GeneralController {
         return feedService.getDiscoverPeople();
     }
 
-    @GetMapping("explore-feed")
+    @PostMapping("explore-feed")
     @ResponseBody
     public FeedResultDTO getExploreFeed(@RequestBody Optional<FilteringDTO> filters) {
         return feedService.getExploreFeed(filters);

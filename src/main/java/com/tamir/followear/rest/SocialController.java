@@ -64,7 +64,7 @@ public class SocialController {
         followService.unfollow(masterId, slaveId);
     }
 
-    @GetMapping("timeline-feed")
+    @PostMapping("timeline-feed")
     @ResponseBody
     public FeedResultDTO getTimelineFeed(@PathVariable long id, @RequestParam int offset,
                                          @RequestBody Optional<FilteringDTO> filters) {
@@ -72,7 +72,7 @@ public class SocialController {
         return feedResult;
     }
 
-    @GetMapping("user-feed")
+    @PostMapping("user-feed")
     @ResponseBody
     public FeedResultDTO getUserFeed(@PathVariable long id, @RequestParam int offset,
                                      @RequestBody Optional<FilteringDTO> filters) {
@@ -80,7 +80,7 @@ public class SocialController {
         return feedResult;
     }
 
-    @GetMapping("explore-feed")
+    @PostMapping("explore-feed")
     @ResponseBody
     public FeedResultDTO getExploreFeed(@PathVariable long id, @RequestBody Optional<FilteringDTO> filters) {
         FeedResultDTO feedResult = feedService.getExploreFeed(id, filters);
