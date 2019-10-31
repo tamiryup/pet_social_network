@@ -104,17 +104,18 @@ public class ScrapingService {
     }
 
     public UploadItemDTO extractItem(String productPageLink) {
+        WebDriver driver = null;
         UploadItemDTO itemDTO;
         long storeId;
         String website;
         try {
             website = getDomainName(productPageLink);
-        } catch (Exception e) {
+        } catch (URISyntaxException e) {
             throw new BadLinkException("invalid link");
         }
-        WebDriver driver = getDriver();
-        storeId = getStoreID(website);
         try {
+        driver = getDriver();
+        storeId = getStoreID(website);
             switch (website) {
                 case "asos.com":
                     itemDTO = asosDTO(productPageLink, storeId, driver);
@@ -149,7 +150,9 @@ public class ScrapingService {
             e.printStackTrace();
             throw new ScrapingError(e.toString());
         } finally {
-            driver.close();
+            if(driver != null) {
+                driver.close();
+            }
         }
         return itemDTO;
     }
