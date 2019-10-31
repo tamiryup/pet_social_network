@@ -191,6 +191,10 @@ public class PostService {
 
 
     public List<BasicPostDTO> moreFromUser(long userId, long currPostId, int numPosts) {
+        if(!userService.existsById(userId)) {
+            throw new InvalidUserException();
+        }
+
         List<BasicPostDTO> resultList = new ArrayList<>();
         List<Post> posts = getMorePostsFromUser(userId, currPostId, numPosts);
         for(Post post : posts) {

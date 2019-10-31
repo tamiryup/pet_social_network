@@ -162,6 +162,10 @@ public class FeedService {
     }
 
     public FeedResultDTO getExploreFeed(long userId, Optional<FilteringDTO> filters) {
+        if(!userService.existsById(userId)) {
+            throw new InvalidUserException();
+        }
+
         List<Post> explorePosts = exploreService.getExplorePosts(userId);
         return getExploreFeedResult(explorePosts, filters);
     }
@@ -271,6 +275,10 @@ public class FeedService {
     }
 
     public List<DiscoverPeopleDTO> getDiscoverPeople(long userId) {
+        if(!userService.existsById(userId)){
+            throw new InvalidUserException();
+        }
+
         List<User> exploreUsers = exploreService.getExploreUsers(userId);
         return mapUserListToDiscoverPeople(exploreUsers);
     }
