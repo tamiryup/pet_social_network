@@ -4,8 +4,6 @@ import com.google.common.base.Suppliers;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.tamir.followear.dto.BasicPostDTO;
-import com.tamir.followear.dto.DiscoverPeopleDTO;
 import com.tamir.followear.entities.Post;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.helpers.CollectionsHelper;
@@ -75,9 +73,10 @@ public class ExploreService {
      * without the ones the user with the specific userId is already following
      */
     private List<Long> getPopularUsersForUser(long userId) {
-        List<Long> popularUsersIds = popularUsers.get();
+        List<Long> popularUsersIds = new ArrayList<>(popularUsers.get());
         List<Long> alreadyFollowingIds = followService.getUserFollowingIds(userId);
         popularUsersIds.removeAll(alreadyFollowingIds);
+        popularUsersIds.remove(userId);
         return popularUsersIds;
     }
 
