@@ -6,6 +6,7 @@ import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.exceptions.BadLinkException;
 import com.tamir.followear.exceptions.ScrapingError;
+import lombok.ToString;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -56,11 +57,12 @@ public class ScrapingService {
         System.setProperty("webdriver.chrome.driver", chromedriverPath);
     }
 
+    @ToString
     public class ItemPriceCurr {
         private Currency currency;
         private String price;
 
-        public ItemPriceCurr(Currency currency,String price){
+        public ItemPriceCurr(Currency currency, String price) {
             this.currency = currency;
             this.price = price;
         }
@@ -114,8 +116,8 @@ public class ScrapingService {
             throw new BadLinkException("invalid link");
         }
         try {
-        driver = getDriver();
-        storeId = getStoreID(website);
+            driver = getDriver();
+            storeId = getStoreID(website);
             switch (website) {
                 case "asos.com":
                     itemDTO = asosDTO(productPageLink, storeId, driver);
@@ -144,13 +146,13 @@ public class ScrapingService {
                 default:
                     throw new BadLinkException("website is not supported");
             }
-        }catch (BadLinkException e) {
+        } catch (BadLinkException e) {
             throw e;
         } catch (Exception e) {
             e.printStackTrace();
             throw new ScrapingError(e.toString());
         } finally {
-            if(driver != null) {
+            if (driver != null) {
                 driver.close();
             }
         }
@@ -158,93 +160,17 @@ public class ScrapingService {
     }
 
 
-    public ItemPriceCurr priceTag(String fullPrice) {
+    private ItemPriceCurr priceTag(String fullPrice) {
         Currency curr = Currency.USD;
-        Map<String, String> currencies = new HashMap<>();
-        currencies.put("GBP","£");
-        currencies.put("USD","$");
-        currencies.put("ILS","₪");
-        ItemPriceCurr itemPriceCurr = new ItemPriceCurr(curr,fullPrice);
-        for (Map.Entry<String, String> entry : currencies.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            if (fullPrice.contains(key) || fullPrice.contains(value) ){
-                if (key == "USD"){
-                    curr = Currency.USD;
-                }
-                if (key == "GBP"){
-                    curr = Currency.GBP;
-                }
-                if (key == "ILS"){
-                    curr = Currency.ILS;
-                }
-
-                int index = fullPrice.indexOf(" ");
-                if (index !=-1) {
-                    if (index == 1){
-                        fullPrice = fullPrice.substring(1);
-                    }
-                    else {
-                        fullPrice = fullPrice.substring(0, index);
-                    }
-                }
-                else{
-                    if (fullPrice.contains(key)) {
-                        index = fullPrice.indexOf(key);
-                        if (index != -1) {
-                            fullPrice = fullPrice.substring(0, index);
-                        }
-                    }
-                    else {
-                        index = fullPrice.indexOf(value);
-                        if (index != -1) {
-                            if (index == 0){
-                                fullPrice = fullPrice.substring(1);
-                            }
-                            else {
-                                fullPrice = fullPrice.substring(0, index);
-                            }
-                        }
-                    }
-
-                }
+        String price;
+        for (Currency currency : Currency.values()) {
+            if (fullPrice.contains(currency.name()) || fullPrice.contains(currency.getSign())) {
+                curr = currency;
             }
-
         }
-//        String CURRENCY_SYMBOLS= "\\p{Sc}\u0024\u060B";
-//        Pattern p = Pattern.compile("[" +CURRENCY_SYMBOLS + "][\\d,]+");
-//        Matcher m = p.matcher(fullPrice);
-//        String symbol = fullPrice;
-//        while (m.find()) {
-//            symbol = m.group(0);
-//        }
-//
-//        symbol = symbol.substring(0,1);
-//
-//        switch (symbol){
-//            case "£":
-//                curr = Currency.GBP;
-//                if (fullPrice.length()>1) {
-//                    fullPrice.substring(1);
-//                }
-//                break;
-//            case "₪":
-//                curr = Currency.ILS;
-//                System.out.println("hi");
-//                if (fullPrice.length()>1) {
-//                    int index = fullPrice.indexOf(" ");
-//                    if (index !=-1) {
-//                        fullPrice = fullPrice.substring(0, index);
-//                        System.out.println("in if");
-//                    }else{
-//                        index = fullPrice.indexOf("₪");
-//                        fullPrice = fullPrice.substring(0,index);
-//                    }
-//                }
-//                break;
-//        }
-        itemPriceCurr.currency = curr;
-        itemPriceCurr.price = fullPrice;
+
+        price = fullPrice.replaceAll("[^0-9\\,\\.]", "");
+        ItemPriceCurr itemPriceCurr = new ItemPriceCurr(curr, price);
         return itemPriceCurr;
     }
 
@@ -491,7 +417,7 @@ public class ScrapingService {
         Element discountedPriceSpan = document.select("div.price-discount.j-price-discount").first();
         if (discountedPriceSpan != null) {
             price = discountedPriceSpan.text();
-        } else  {
+        } else {
             price = priceSpan.text();
         }
         itemPriceCurr = priceTag(price);
