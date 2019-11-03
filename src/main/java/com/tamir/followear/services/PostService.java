@@ -55,6 +55,9 @@ public class PostService {
     @Autowired
     private ScrapingService scrapingService;
 
+    @Autowired
+    private CurrencyConverterService currConverterService;
+
     public Post create(Post post) {
         return postRepo.saveAndFlush(post);
     }
@@ -126,6 +129,12 @@ public class PostService {
         String thumbnail = (thumbnailAddresses.size() > 0) ? thumbnailAddresses.get(0) : null;
 
         String price = StringHelper.removeCommas(item.getPrice()); //save price without commas
+        if(item.getCurrency() == Currency.EUR) { //save price in ILS if currency is EUR
+            double priceAsEur = Double.valueOf(price);
+            double priceAsIls = currConverterService.convert(Currency.EUR, Currency.ILS, priceAsEur);
+            item.setCurrency(Currency.ILS);
+            price = "" + priceAsIls;
+        }
 
         Post post = new Post(userId, item.getStoreId(), imageAddr, item.getDescription(), item.getLink(),
                 price, item.getCurrency(), item.getDesigner(), item.getProductId(),
