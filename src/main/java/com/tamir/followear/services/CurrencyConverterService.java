@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -83,8 +84,15 @@ public class CurrencyConverterService {
     public double convert(Currency from, Currency to, double amount) {
         try {
 
+            DecimalFormat doubleFormat = new DecimalFormat("#.##");
             double exchangeRate = ratesCache.get(from.name() + "_" + to.name());
-            return amount * exchangeRate;
+            double result = amount * exchangeRate;
+
+            //keep 2 decimal places
+            String resultAsString = doubleFormat.format(result);
+            result = Double.valueOf(resultAsString);
+
+            return result;
 
         } catch(Exception e) {
             throw new ExchangeRateException(e.getMessage());
