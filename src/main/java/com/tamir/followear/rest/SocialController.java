@@ -30,14 +30,6 @@ public class SocialController {
     @Autowired
     ScrapingService scrapingService;
 
-    @PostMapping("upload")
-    @ResponseBody
-    public long uploadPost(@PathVariable long id, @RequestParam MultipartFile image,
-                           @RequestParam String description) throws IOException {
-        Post post = postService.uploadPost(id, image, description);
-        return post.getId();
-    }
-
     @PostMapping("upload-item")
     @ResponseBody
     public long uploadItem(@PathVariable long id, @RequestBody UploadItemDTO item) throws IOException {

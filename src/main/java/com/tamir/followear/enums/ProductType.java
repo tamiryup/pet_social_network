@@ -10,6 +10,8 @@ public enum ProductType {
     JacketsOrCoats,
     Swimwear,
     Lingerie,
+
+    //Invalid product types - used only to help classification function
     Shoes,
     Bags,
     Accessories
