@@ -427,7 +427,7 @@ public class ScrapingService {
         Element imageDiv = document.select("img.j-lazy-dpr-img.j-change-main_image").first();
         String imageAddr = imageDiv.attr("src");
         imageAddr = "https:" + imageAddr;
-        String imgExtension = "jpg";
+        String imgExtension = "webp";
         Pattern MY_PATTERN = Pattern.compile("\\d+");
         Matcher m = MY_PATTERN.matcher(productPageLink);
 
