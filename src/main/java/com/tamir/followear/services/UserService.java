@@ -5,20 +5,20 @@ import com.google.common.collect.Lists;
 import com.tamir.followear.AWS.cognito.CognitoService;
 import com.tamir.followear.AWS.s3.S3Service;
 import com.tamir.followear.CommonBeanConfig;
+import com.tamir.followear.dto.ChangePasswordDTO;
 import com.tamir.followear.dto.SearchDTO;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.enums.ImageType;
-import com.tamir.followear.exceptions.CognitoException;
-import com.tamir.followear.exceptions.InvalidEmailException;
-import com.tamir.followear.exceptions.InvalidUserException;
-import com.tamir.followear.exceptions.UserCollisionException;
+import com.tamir.followear.exceptions.*;
 import com.tamir.followear.helpers.FileHelper;
+import com.tamir.followear.helpers.HttpHelper;
 import com.tamir.followear.helpers.StringHelper;
 import com.tamir.followear.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -156,11 +156,11 @@ public class UserService {
 
     public void updateEmailById(long id, String email) {
         User user = findById(id);
-        if(user == null) {
+        if (user == null) {
             throw new InvalidUserException();
-        } else if(existsByEmail(email)) {
+        } else if (existsByEmail(email)) {
             throw new UserCollisionException("email already exists");
-        } else if(!StringHelper.isEmail(email)) {
+        } else if (!StringHelper.isEmail(email)) {
             throw new InvalidEmailException();
         }
 
@@ -171,6 +171,18 @@ public class UserService {
         }
 
         userRepo.updateEmailById(id, email);
+    }
+
+    public void changePassword(long id, ChangePasswordDTO changePasswordDTO, HttpServletRequest servletRequest) {
+        if (!existsById(id)) {
+            throw new InvalidUserException();
+        }
+        if (!StringHelper.isValidPassword(changePasswordDTO.getNewPassword())) {
+            throw new InvalidPassword();
+        }
+
+        cognitoService.changePassword(changePasswordDTO.getOldPassword(), changePasswordDTO.getNewPassword(),
+                servletRequest);
     }
 
     public List<SearchDTO> searchAutocomplete(String query) {

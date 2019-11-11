@@ -6,6 +6,11 @@ import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
 import com.amazonaws.services.cognitoidp.model.*;
 import com.tamir.followear.AWS.MyAWSCredentials;
+import com.tamir.followear.dto.ChangePasswordDTO;
+import com.tamir.followear.exceptions.CognitoException;
+import com.tamir.followear.exceptions.InvalidPassword;
+import com.tamir.followear.exceptions.NoAuthException;
+import com.tamir.followear.helpers.HttpHelper;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +19,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @NoArgsConstructor
@@ -128,6 +135,28 @@ public class CognitoService {
         return result;
     }
 
+
+    public String getAccessToken(HttpServletRequest request) {
+
+        Map<String, String> cookieValueMap = HttpHelper.getCookieValueMapFromRequest(request);
+
+        if (cookieValueMap.containsKey("access_token")) {
+            return cookieValueMap.get("access_token");
+        } else if (cookieValueMap.containsKey("refresh_token")) {
+
+            try {
+                String refreshToken = cookieValueMap.get("refresh_token");
+                AuthenticationResultType resultType = performRefresh(refreshToken);
+                return resultType.getAccessToken();
+            } catch (AWSCognitoIdentityProviderException notAuthEx) {
+                throw new NoAuthException(notAuthEx.getMessage());
+            }
+
+        } else {
+            throw new NoAuthException();
+        }
+    }
+
     public ForgotPasswordResult forgotPassword(String username) {
         ForgotPasswordResult forgotPasswordRes;
         ForgotPasswordRequest forgotPasswordReq = new ForgotPasswordRequest()
@@ -172,6 +201,23 @@ public class CognitoService {
         request.setUserPoolId(cogPoolId);
 
         cognitoProvider.adminUpdateUserAttributes(request);
+    }
+
+    public void changePassword(String oldPassword, String newPassword, HttpServletRequest servletRequest) {
+        String accessToken = getAccessToken(servletRequest);
+
+        ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest();
+        changePasswordRequest.setAccessToken(accessToken);
+        changePasswordRequest.setPreviousPassword(oldPassword);
+        changePasswordRequest.setProposedPassword(newPassword);
+
+        try {
+            cognitoProvider.changePassword(changePasswordRequest);
+        } catch (InvalidPasswordException e) {
+            throw new InvalidPassword();
+        } catch (AWSCognitoIdentityProviderException e) {
+            throw new CognitoException(e.getMessage());
+        }
     }
 
 }
