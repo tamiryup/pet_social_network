@@ -2,6 +2,7 @@ package com.tamir.followear.rest;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.tamir.followear.dto.AuthResultDTO;
+import com.tamir.followear.dto.LoginDTO;
 import com.tamir.followear.dto.NewPassowrdDTO;
 import com.tamir.followear.dto.SignupRequestDTO;
 import com.tamir.followear.services.AuthService;
@@ -44,8 +45,9 @@ public class RegisterController {
     @GetMapping(value = "/signin", produces = "application/json")
     @ResponseBody
     public AuthResultDTO signinUser(HttpServletResponse response,
-                                    @RequestParam String username, @RequestParam String password) {
-        AuthResultDTO authResultDTO = registrationService.signIn(response, username, password);
+                                    @RequestBody LoginDTO loginReq) {
+        AuthResultDTO authResultDTO = registrationService.signIn(response, loginReq.getUsername(),
+                loginReq.getPassword());
         return authResultDTO;
     }
 
