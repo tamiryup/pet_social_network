@@ -119,8 +119,9 @@ public class UserService {
     }
 
     public String updateProfileImage(long id, MultipartFile image) throws IOException {
-        if (!existsById(id))
+        if (!existsById(id)) {
             throw new InvalidUserException();
+        }
         ImageType imageType = ImageType.ProfileImage;
         String extension = FileHelper.getMultipartFileExtension(image);
         String addr = s3Service.uploadImage(imageType, image, extension);
@@ -132,9 +133,17 @@ public class UserService {
     }
 
     public void updateDescriptionById(long id, String description) {
-        if (!existsById(id))
+        if (!existsById(id)) {
             throw new InvalidUserException();
+        }
         userRepo.updateDescriptionById(id, description);
+    }
+
+    public void updateFullNameById(long id, String fullName) {
+        if (!existsById(id)) {
+            throw new InvalidUserException();
+        }
+        userRepo.updateFullNameById(id, fullName);
     }
 
     public List<SearchDTO> searchAutocomplete(String query) {

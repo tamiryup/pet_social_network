@@ -30,4 +30,10 @@ public class UserSettingsController {
         userService.updateDescriptionById(id, description);
     }
 
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/update-full-name")
+    public void updateFullName(@PathVariable long id, @RequestParam("fullName") String fullName) {
+        userService.updateFullNameById(id, fullName);
+    }
+
 }
