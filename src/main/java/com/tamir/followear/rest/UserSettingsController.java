@@ -36,4 +36,10 @@ public class UserSettingsController {
         userService.updateFullNameById(id, fullName);
     }
 
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/update-email")
+    public void updateEmail(@PathVariable long id, @RequestParam("email") String email) {
+        userService.updateEmailById(id, email);
+    }
+
 }

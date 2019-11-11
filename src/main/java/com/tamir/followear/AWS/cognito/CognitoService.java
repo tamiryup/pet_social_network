@@ -151,4 +151,27 @@ public class CognitoService {
         return confForgotPasswordRes;
     }
 
+    public void updadeEmailAttribute(String username, String email) {
+        AdminUpdateUserAttributesRequest request = new AdminUpdateUserAttributesRequest();
+
+        List<AttributeType> attributes = new ArrayList<>();
+
+        AttributeType attributeTypeEmail = new AttributeType();
+        attributeTypeEmail.setName("email");
+        attributeTypeEmail.setValue(email);
+        attributes.add(attributeTypeEmail);
+
+        //mark email as verified
+        AttributeType attributeTypeEmailVerification = new AttributeType();
+        attributeTypeEmailVerification.setName("email_verified");
+        attributeTypeEmailVerification.setValue("true");
+        attributes.add(attributeTypeEmailVerification);
+
+        request.setUserAttributes(attributes);
+        request.setUsername(username);
+        request.setUserPoolId(cogPoolId);
+
+        cognitoProvider.adminUpdateUserAttributes(request);
+    }
+
 }

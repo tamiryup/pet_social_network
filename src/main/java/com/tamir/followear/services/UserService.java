@@ -2,13 +2,18 @@ package com.tamir.followear.services;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.tamir.followear.AWS.cognito.CognitoService;
 import com.tamir.followear.AWS.s3.S3Service;
 import com.tamir.followear.CommonBeanConfig;
 import com.tamir.followear.dto.SearchDTO;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.enums.ImageType;
+import com.tamir.followear.exceptions.CognitoException;
+import com.tamir.followear.exceptions.InvalidEmailException;
 import com.tamir.followear.exceptions.InvalidUserException;
+import com.tamir.followear.exceptions.UserCollisionException;
 import com.tamir.followear.helpers.FileHelper;
+import com.tamir.followear.helpers.StringHelper;
 import com.tamir.followear.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +36,9 @@ public class UserService {
 
     @Autowired
     private S3Service s3Service;
+
+    @Autowired
+    private CognitoService cognitoService;
 
     public boolean existsByEmail(String email) {
         return userRepo.existsByEmail(email);
@@ -144,6 +152,25 @@ public class UserService {
             throw new InvalidUserException();
         }
         userRepo.updateFullNameById(id, fullName);
+    }
+
+    public void updateEmailById(long id, String email) {
+        User user = findById(id);
+        if(user == null) {
+            throw new InvalidUserException();
+        } else if(existsByEmail(email)) {
+            throw new UserCollisionException("email already exists");
+        } else if(!StringHelper.isEmail(email)) {
+            throw new InvalidEmailException();
+        }
+
+        try {
+            cognitoService.updadeEmailAttribute(user.getUsername(), email);
+        } catch (Exception e) {
+            throw new CognitoException(e.getMessage());
+        }
+
+        userRepo.updateEmailById(id, email);
     }
 
     public List<SearchDTO> searchAutocomplete(String query) {

@@ -146,4 +146,12 @@ public class GlobalControllerExceptionHandler {
         ErrorMessage error = new ErrorMessage("Scraping Error", e.getMessage());
         return error;
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidEmailException.class)
+    @ResponseBody
+    public ErrorMessage handleInvalidEmailException(InvalidEmailException e) {
+        ErrorMessage error = new ErrorMessage("Invalid Email", "the email is not valid");
+        return error;
+    }
 }

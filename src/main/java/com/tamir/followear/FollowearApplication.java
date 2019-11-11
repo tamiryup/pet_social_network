@@ -1,17 +1,24 @@
 package com.tamir.followear;
 
+import com.amazonaws.services.cognitoidp.model.AdminUpdateUserAttributesRequest;
+import com.amazonaws.services.cognitoidp.model.AdminUpdateUserAttributesResult;
+import com.amazonaws.services.cognitoidp.model.AttributeType;
+import com.tamir.followear.AWS.cognito.CognitoService;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.services.*;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +39,10 @@ public class FollowearApplication implements CommandLineRunner {
     ScrapingService scrapingService;
 
 	@Autowired
-    ItemClassificationService classificationService;
+    CognitoService cognitoService;
+
+    @Value("${fw.cognito.pool-id}")
+    private String cogPoolId;
 
 	@Override
 	public void run(String... args) throws Exception {
