@@ -42,7 +42,7 @@ public class RegisterController {
         return authResultDTO;
     }
 
-    @GetMapping(value = "/signin", produces = "application/json")
+    @PostMapping(value = "/signin", produces = "application/json")
     @ResponseBody
     public AuthResultDTO signinUser(HttpServletResponse response,
                                     @RequestBody LoginDTO loginReq) {
