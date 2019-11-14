@@ -5,7 +5,7 @@
 
     <groupId>com.tamir</groupId>
     <artifactId>followear</artifactId>
-    <version>0.1.13-SNAPSHOT</version>
+    <version>0.1.14-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>followear</name>
