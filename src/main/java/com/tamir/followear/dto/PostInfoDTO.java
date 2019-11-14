@@ -22,6 +22,7 @@ public class PostInfoDTO {
     private String storeName;
     private String website; //already formatted
     private String thumbnailAddr;
+    private String link;
     private long numViews;
 
 }

@@ -171,7 +171,7 @@ public class PostService {
         PostInfoDTO postInfo = new PostInfoDTO(post.getId(), post.getUserId(), post.getStoreId(),
                 user.getProfileImageAddr(), user.getUsername(), post.getImageAddr(), post.getDescription(),
                 post.getFormattedPrice(), store.getLogoAddr(), store.getName(), store.getWebsite(),
-                post.getThumbnail(), post.getNumViews());
+                post.getThumbnail(), post.getLink(), post.getNumViews());
 
         return postInfo;
     }
