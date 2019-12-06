@@ -58,7 +58,7 @@ public class FeedService {
 
         List<PostActivity> streamFeed;
         int numFeedRequests = 0;
-        List<UserFeedPostDTO> feedPostDTOS = new ArrayList<>();
+        List<TimelineFeedPostDTO> feedPostDTOS = new ArrayList<>();
         int streamFeedRequestLimit = filters.isPresent() ?
                 CommonBeanConfig.getMaxStreamActivitiesPerFeedRequest() : CommonBeanConfig.getNumPostsPerFeedRequest();
 
@@ -95,7 +95,7 @@ public class FeedService {
 
                 feedPostDTOS.add(new TimelineFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
                         post.getDescription(), post.getLink(), post.getFormattedPrice(), store.getWebsite(),
-                        user.getProfileImageAddr(), user.getUsername()));
+                        user.getProfileImageAddr(), user.getUsername(), post.getThumbnail()));
             }
 
             offset += streamFeed.size();
@@ -142,7 +142,8 @@ public class FeedService {
             for(Post post : posts) {
                 Store store = storeMap.get(post.getStoreId());
                 feedPostDTOS.add(new UserFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                        post.getDescription(), post.getLink(), post.getFormattedPrice(), store.getWebsite()));
+                        post.getDescription(), post.getLink(), post.getFormattedPrice(), store.getWebsite(),
+                        post.getThumbnail()));
             }
 
             offset += streamFeed.size(); //increment the offset for the next request

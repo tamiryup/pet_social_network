@@ -14,11 +14,14 @@ public class UserFeedPostDTO extends FeedPostDTO {
 
     private String website; // already formatted ('asos.com')
 
-    public UserFeedPostDTO(long postId, long userId, String postImageAddr,
-                           String description, String link, String price, String website) {
+    private String thumbnail;
+
+    public UserFeedPostDTO(long postId, long userId, String postImageAddr, String description,
+                           String link, String price, String website, String thumbnail) {
         super(postId, userId, postImageAddr, description);
         this.price = price;
         this.link = link;
         this.website = website;
+        this.thumbnail = thumbnail;
     }
 }
