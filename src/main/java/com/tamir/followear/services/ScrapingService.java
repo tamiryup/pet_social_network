@@ -102,6 +102,9 @@ public class ScrapingService {
         if (domain.startsWith("www.")) {
             return domain.substring(4);
         }
+        if (domain.startsWith("m.")) {
+            return domain.substring(2);
+        }
         if (domain.startsWith("il.")){
             return  domain.substring(3);
         }
