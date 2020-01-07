@@ -68,18 +68,28 @@ public class ScrapingService {
         }
     }
 
+    @ToString
+    public class DomainNameAndProductPageLink {
+        private String domainName;
+        private String productPageLink;
+
+        public DomainNameAndProductPageLink() {
+
+        }
+    }
+
     public WebDriver getDriver() {
         ChromeOptions options = new ChromeOptions();
-        options.setBinary(chromeBinary);
+        //options.setBinary(chromeBinary);
 
-        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
-                "--user-data-dir=/tmp/user-data", "--hide-scrollbars", "--enable-logging",
-                "--log-level=0", "--v=99", "--single-process", "--data-path=/tmp/data-path",
-                "--ignore-certificate-errors", "--homedir=/tmp", "--disk-cache-dir=/tmp/cache-dir",
-                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
-                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
-
+//        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
+//                "--user-data-dir=/tmp/user-data", "--hide-scrollbars", "--enable-logging",
+//                "--log-level=0", "--v=99", "--single-process", "--data-path=/tmp/data-path",
+//                "--ignore-certificate-errors", "--homedir=/tmp", "--disk-cache-dir=/tmp/cache-dir",
+//                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
+//                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
         WebDriver driver = new ChromeDriver(options);
+
         return driver;
     }
 
@@ -92,19 +102,27 @@ public class ScrapingService {
         return id;
     }
 
-    private String getDomainName(String productPageLink) throws URISyntaxException {
+    private DomainNameAndProductPageLink getDomainName(String productPageLink) throws URISyntaxException {
         URI uri = new URI(productPageLink);
         String domain = uri.getHost();
+        DomainNameAndProductPageLink domainNameAndProductPageLink = new DomainNameAndProductPageLink();
+        domainNameAndProductPageLink.productPageLink = productPageLink;
+        domainNameAndProductPageLink.domainName = domain;
+
         if (domain.startsWith("www.")) {
-            return domain.substring(4);
+            domainNameAndProductPageLink.domainName = domain.substring(4);
+            return domainNameAndProductPageLink;
         }
         if (domain.startsWith("m.")) {
-            return domain.substring(2);
+            domainNameAndProductPageLink.productPageLink = productPageLink.replaceFirst("m","www");
+            domainNameAndProductPageLink.domainName = domain.substring(2);
+            return domainNameAndProductPageLink;
         }
         if (domain.startsWith("il.")) {
-            return domain.substring(3);
+            domainNameAndProductPageLink.domainName = domain.substring(3);
+            return domainNameAndProductPageLink;
         } else {
-            return domain;
+            return domainNameAndProductPageLink;
         }
     }
 
@@ -112,39 +130,40 @@ public class ScrapingService {
         WebDriver driver = null;
         UploadItemDTO itemDTO;
         long storeId;
-        String website;
+
+        DomainNameAndProductPageLink domainNameAndProductPageLink = new DomainNameAndProductPageLink();
         try {
-            website = getDomainName(productPageLink);
+            domainNameAndProductPageLink = getDomainName(productPageLink);
         } catch (URISyntaxException e) {
             throw new BadLinkException("invalid link");
         }
         try {
             driver = getDriver();
-            storeId = getStoreID(website);
-            switch (website) {
+            storeId = getStoreID(domainNameAndProductPageLink.domainName);
+            switch (domainNameAndProductPageLink.domainName) {
                 case "asos.com":
-                    itemDTO = asosDTO(productPageLink, storeId, driver);
+                    itemDTO = asosDTO(domainNameAndProductPageLink.productPageLink, storeId, driver);
                     break;
                 case "net-a-porter.com":
-                    itemDTO = netaporterDTO(productPageLink, storeId, driver);
+                    itemDTO = netaporterDTO(domainNameAndProductPageLink.productPageLink, storeId, driver);
                     break;
                 case "terminalx.com":
-                    itemDTO = terminalxDTO(productPageLink, storeId, driver);
+                    itemDTO = terminalxDTO(domainNameAndProductPageLink.productPageLink, storeId, driver);
                     break;
                 case "farfetch.com":
-                    itemDTO = farfetchDTO(productPageLink, storeId, driver);
+                    itemDTO = farfetchDTO(domainNameAndProductPageLink.productPageLink, storeId, driver);
                     break;
                 case "shein.com":
-                    itemDTO = sheinDTO(productPageLink, storeId, driver);
+                    itemDTO = sheinDTO(domainNameAndProductPageLink.productPageLink, storeId, driver);
                     break;
                 case "zara.com":
-                    itemDTO = zaraDTO(productPageLink, storeId, driver);
+                    itemDTO = zaraDTO(domainNameAndProductPageLink.productPageLink, storeId, driver);
                     break;
                 case "hm.com":
-                    itemDTO = hmDTO(productPageLink, storeId, driver);
+                    itemDTO = hmDTO(domainNameAndProductPageLink.productPageLink, storeId, driver);
                     break;
                 case "shopbop.com":
-                    itemDTO = shopBopDTO(productPageLink, storeId, driver);
+                    itemDTO = shopBopDTO(domainNameAndProductPageLink.productPageLink, storeId, driver);
                     break;
                 default:
                     throw new BadLinkException("website is not supported");

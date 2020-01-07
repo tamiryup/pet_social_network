@@ -47,6 +47,8 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
+        UploadItemDTO res = scrapingService.extractItem("https://m.zara.com/il/en/faux-fur-coat-p01792316.html?v1=29736764&v2=1435745&utm_campaign=productShare&utm_medium=web_mobile_sharing&utm_source=red_social_web_mobile");
+		System.out.println(res);
 	}
 
 
