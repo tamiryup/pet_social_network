@@ -92,14 +92,20 @@ public class ScrapingService {
         return id;
     }
 
+    private String correctLink(String productPageLink) throws URISyntaxException {
+        URI uri = new URI(productPageLink);
+        String domain = uri.getHost();
+        if(domain.startsWith("m.")) {
+           return productPageLink.replaceFirst("m.", "www.");
+        }
+        return productPageLink;
+    }
+
     private String getDomainName(String productPageLink) throws URISyntaxException {
         URI uri = new URI(productPageLink);
         String domain = uri.getHost();
         if (domain.startsWith("www.")) {
             return domain.substring(4);
-        }
-        if(domain.startsWith("m.")) {
-            return domain.substring(2);
         }
         if (domain.startsWith("il.")) {
             return domain.substring(3);
@@ -114,6 +120,7 @@ public class ScrapingService {
         long storeId;
         String website;
         try {
+            productPageLink = correctLink(productPageLink);
             website = getDomainName(productPageLink);
         } catch (URISyntaxException e) {
             throw new BadLinkException("invalid link");
