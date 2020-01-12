@@ -60,6 +60,19 @@ public class StreamService {
         }
     }
 
+    public void removeActivity(Post post) {
+        try {
+            Feed userFeed = streamClient.newFeed("user", "" + post.getUserId());
+            userFeed.deleteActivityByForeignId("" + post.getId());
+        } catch (InvalidFeedNameException e) {
+            throw new StreamException(e.getDetail());
+        } catch (IOException e) {
+            throw new StreamException(e.getMessage());
+        } catch (StreamClientException e) {
+            throw new StreamException(e.getDetail());
+        }
+    }
+
     public void follow(long masterId, long slaveId) {
         try {
             Feed slaveTimeline = streamClient.newFeed("timeline", "" + slaveId);
