@@ -121,4 +121,10 @@ public class SocialController {
         return feedService.getDiscoverPeople(id);
     }
 
+    @DeleteMapping("remove-post")
+    @ResponseBody
+    public void removePost(@PathVariable long id, @RequestParam long postId) {
+        postService.removePost(id, postId);
+    }
+
 }

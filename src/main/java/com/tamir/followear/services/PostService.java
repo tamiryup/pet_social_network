@@ -13,6 +13,7 @@ import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ImageType;
 import com.tamir.followear.exceptions.InvalidPostException;
 import com.tamir.followear.exceptions.InvalidUserException;
+import com.tamir.followear.exceptions.NoAuthException;
 import com.tamir.followear.helpers.FileHelper;
 import com.tamir.followear.helpers.StringHelper;
 import com.tamir.followear.repositories.PostRepository;
@@ -21,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -88,25 +88,6 @@ public class PostService {
                 posts.add(postById);
         }
         return posts;
-    }
-
-    public Post uploadPost(long userId, MultipartFile image, String description) throws IOException {
-        if (!userService.existsById(userId))
-            throw new InvalidUserException();
-        ImageType imageType = ImageType.PostImage;
-        String extension = FileHelper.getMultipartFileExtension(image);
-        String imageAddr = s3Service.uploadImage(imageType, image, extension);
-        Post post = new Post(userId, imageAddr, description);
-        post = create(post);
-
-        try {
-            streamService.uploadActivity(post);
-        } catch (Exception e) {
-            postRepo.delete(post);
-            throw e;
-        }
-
-        return post;
     }
 
     public Post uploadItemPost(long userId, UploadItemDTO item) throws IOException {
@@ -226,5 +207,15 @@ public class PostService {
 
     public List<Post> getMostPopularPosts(int limit) {
         return postRepo.recentMostPopularPosts(limit);
+    }
+
+    public void removePost(long userId, long postId) {
+        Post post = findById(postId);
+        if(post.getUserId() != userId) {
+            throw new NoAuthException("user does not have permission to delete this post");
+        }
+
+        streamService.removeActivity(post);
+        postRepo.deleteById(postId);
     }
 }
