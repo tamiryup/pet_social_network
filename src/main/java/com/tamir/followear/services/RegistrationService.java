@@ -30,6 +30,8 @@ public class RegistrationService {
 
     public void signup(SignupRequestDTO signupReq) {
 
+        signupReq.setUserName(signupReq.getUserName().toLowerCase());
+
         if (userService.existsByEmail(signupReq.getEmail()))
             throw new UserCollisionException("email already exists");
         if (userService.existsByUsername(signupReq.getUserName()))
@@ -53,6 +55,11 @@ public class RegistrationService {
     public AuthResultDTO signIn(HttpServletResponse response, String username, String password) {
         User user;
         AuthenticationResultType authResult;
+        boolean isEmail = StringHelper.isEmail(username);
+
+        if(!isEmail) {
+            username = username.toLowerCase();
+        }
 
         try {
             authResult = cognitoService.performAuth(username, password);
@@ -61,8 +68,6 @@ public class RegistrationService {
         } catch (NotAuthorizedException e) {
             throw new InvalidAuthData(e.getMessage());
         }
-
-        boolean isEmail = StringHelper.isEmail(username);
 
         if (isEmail) {
             user = userService.findByEmail(username);
