@@ -37,4 +37,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "LIMIT :limit",
     nativeQuery = true)
     List<Post> recentMostPopularPosts(@Param("limit") int limit);
+
+    @Transactional
+    @Query(value = "SELECT COUNT(*) FROM posts WHERE user_id = :userId AND store_id= :storeId" +
+            " AND product_id = :productId LIMIT 1",
+    nativeQuery = true)
+    int countByItem(@Param("userId") long userId,@Param("storeId") long storeId,
+                     @Param("productId") String productId);
 }

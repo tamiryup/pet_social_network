@@ -14,6 +14,7 @@ import com.tamir.followear.enums.ImageType;
 import com.tamir.followear.exceptions.InvalidPostException;
 import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.exceptions.NoAuthException;
+import com.tamir.followear.exceptions.PostAlreadyExistsException;
 import com.tamir.followear.helpers.FileHelper;
 import com.tamir.followear.helpers.StringHelper;
 import com.tamir.followear.repositories.PostRepository;
@@ -90,9 +91,15 @@ public class PostService {
         return posts;
     }
 
-    public Post uploadItemPost(long userId, UploadItemDTO item) throws IOException {
+    public void validateUploadItem(long userId, UploadItemDTO item) {
         if (!userService.existsById(userId))
             throw new InvalidUserException();
+        if ( existsByItem(userId, item.getStoreId(), item.getProductId()) )
+            throw new PostAlreadyExistsException();
+    }
+
+    public Post uploadItemPost(long userId, UploadItemDTO item) throws IOException {
+        validateUploadItem(userId, item);
 
         List<String> thumbnails = item.getThumbnails();
 
@@ -207,6 +214,14 @@ public class PostService {
 
     public List<Post> getMostPopularPosts(int limit) {
         return postRepo.recentMostPopularPosts(limit);
+    }
+
+    public boolean existsByItem(long userId, long storeId, String productId) {
+        int itemCount = postRepo.countByItem(userId, storeId, productId);
+        if(itemCount > 0) {
+            return true;
+        }
+        return false;
     }
 
     public void removePost(long userId, long postId) {

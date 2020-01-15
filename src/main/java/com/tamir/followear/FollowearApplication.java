@@ -8,6 +8,7 @@ import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
+import com.tamir.followear.repositories.PostRepository;
 import com.tamir.followear.services.*;
 import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class FollowearApplication implements CommandLineRunner {
     ScrapingService scrapingService;
 
 	@Autowired
-    CognitoService cognitoService;
+    PostRepository postRepo;
 
     @Value("${fw.cognito.pool-id}")
     private String cogPoolId;

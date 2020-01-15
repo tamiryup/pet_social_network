@@ -154,4 +154,13 @@ public class GlobalControllerExceptionHandler {
         ErrorMessage error = new ErrorMessage("Invalid Email", "the email is not valid");
         return error;
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(PostAlreadyExistsException.class)
+    @ResponseBody
+    public ErrorMessage handlePostAlreadyExistsException(PostAlreadyExistsException e) {
+        ErrorMessage error = new ErrorMessage("Post Already Exists",
+                "you have already uploaded this item");
+        return error;
+    }
 }
