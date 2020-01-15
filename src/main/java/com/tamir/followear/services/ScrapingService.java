@@ -435,9 +435,9 @@ public class ScrapingService {
         price = itemPriceCurr.price;
 
         Element imageDiv = document.select("img.j-lazy-dpr-img.j-change-main_image").first();
-        String imageAddr = imageDiv.attr("src");
+        String imageAddr = imageDiv.attr("data-src");
         imageAddr = "https:" + imageAddr;
-        String imgExtension = "webp";
+        String imgExtension = "jpg";
         Pattern MY_PATTERN = Pattern.compile("\\d+");
         Matcher m = MY_PATTERN.matcher(productPageLink);
 
@@ -448,7 +448,7 @@ public class ScrapingService {
         }
         Elements thumbnails = document.select("img.j-verlok-lazy.j-change-dt_image");
         for (Element imgThumbnail : thumbnails) {
-            String imgSrc = imgThumbnail.attr("src");
+            String imgSrc = imgThumbnail.attr("data-src");
             links.add(imgSrc);
         }
         for (int i = 0; i < links.size(); i++) {
