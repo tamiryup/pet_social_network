@@ -233,4 +233,11 @@ public class PostService {
         streamService.removeActivity(post);
         postRepo.deleteById(postId);
     }
+
+    public void hidePost(long userId, long postId) {
+        if(!userService.existsById(userId))
+            throw new InvalidUserException();
+        Post post = findById(postId);
+        streamService.hideActivity(userId, post);
+    }
 }

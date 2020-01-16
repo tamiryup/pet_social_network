@@ -73,6 +73,19 @@ public class StreamService {
         }
     }
 
+    public void hideActivity(long userId, Post post) {
+        try {
+            Feed timelineFeed = streamClient.newFeed("timeline", "" + userId);
+            timelineFeed.deleteActivityByForeignId("" + post.getId());
+        } catch (InvalidFeedNameException e) {
+            throw new StreamException(e.getDetail());
+        } catch (IOException e) {
+            throw new StreamException(e.getMessage());
+        } catch (StreamClientException e) {
+            throw new StreamException(e.getDetail());
+        }
+    }
+
     public void follow(long masterId, long slaveId) {
         try {
             Feed slaveTimeline = streamClient.newFeed("timeline", "" + slaveId);
@@ -99,7 +112,7 @@ public class StreamService {
         }
     }
 
-    public List<PostActivity> getStreamTimelineFeed(long userId, int offset, int limit){
+    public List<PostActivity> getStreamTimelineFeed(long userId, int offset, int limit) {
         return getFeedActivities(userId, offset, limit, "timeline");
     }
 
@@ -133,7 +146,7 @@ public class StreamService {
             List<FeedFollow> followers = feed.getFollowers(filter);
 
             List<Long> ids = new ArrayList<>();
-            for(FeedFollow follow : followers){
+            for (FeedFollow follow : followers) {
                 ids.add(StreamHelper.generateMapFeedFollow(follow).get("slave"));
             }
 
@@ -147,7 +160,7 @@ public class StreamService {
         }
     }
 
-    public List<Long> getUserFollowing(long userId, int offset){
+    public List<Long> getUserFollowing(long userId, int offset) {
         int limit = CommonBeanConfig.getReadFollowersRequestLimit();
         try {
             Feed feed = streamClient.newFeed("timeline", "" + userId);
@@ -155,7 +168,7 @@ public class StreamService {
             List<FeedFollow> followers = feed.getFollowing(filter);
 
             List<Long> ids = new ArrayList<>();
-            for(FeedFollow follow : followers){
+            for (FeedFollow follow : followers) {
                 ids.add(StreamHelper.generateMapFeedFollow(follow).get("master"));
             }
 

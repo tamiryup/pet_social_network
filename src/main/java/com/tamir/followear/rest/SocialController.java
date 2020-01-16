@@ -127,4 +127,9 @@ public class SocialController {
         postService.removePost(id, postId);
     }
 
+    @DeleteMapping("hide-post")
+    @ResponseBody
+    public void hidePost(@PathVariable long id, @RequestParam long postId) {
+        postService.hidePost(id, postId);
+    }
 }
