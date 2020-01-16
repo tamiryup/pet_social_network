@@ -2,6 +2,7 @@ package com.tamir.followear.services;
 
 import com.tamir.followear.entities.Follow;
 import com.tamir.followear.exceptions.InvalidUserException;
+import com.tamir.followear.exceptions.NoFollowKeyException;
 import com.tamir.followear.jpaKeys.FollowKey;
 import com.tamir.followear.repositories.FollowRepository;
 import com.tamir.followear.stream.StreamService;
@@ -39,6 +40,8 @@ public class FollowService {
     public void unfollow(long masterId, long slaveId) {
         if (!userService.existsById(slaveId) || !userService.existsById(masterId))
             throw new InvalidUserException();
+        if (!isFollowing(masterId, slaveId))
+            throw new NoFollowKeyException();
         streamService.unfollow(masterId, slaveId);
         FollowKey key = new FollowKey(masterId, slaveId);
         followRepo.deleteById(key);

@@ -163,4 +163,13 @@ public class GlobalControllerExceptionHandler {
                 "you have already uploaded this item");
         return error;
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(NoFollowKeyException.class)
+    @ResponseBody
+    public ErrorMessage handleNoFollowKeyException(NoFollowKeyException e) {
+        ErrorMessage error = new ErrorMessage("No Follow Key",
+                "these users don't have a follow relationship");
+        return error;
+    }
 }
