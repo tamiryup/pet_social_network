@@ -40,7 +40,7 @@ public class FollowearApplication implements CommandLineRunner {
     ScrapingService scrapingService;
 
 	@Autowired
-    PostRepository postRepo;
+    ItemClassificationService classificationService;
 
     @Value("${fw.cognito.pool-id}")
     private String cogPoolId;

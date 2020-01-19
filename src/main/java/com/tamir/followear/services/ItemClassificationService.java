@@ -44,7 +44,7 @@ public class ItemClassificationService {
         List<String> topsValues = Arrays.asList("שירט", "אוברול", "חולצ", "גופיי", "סווט", "סווד", "טופ", "בגד גוף");
         List<String> dressValues = Arrays.asList("שמלת", "חצאית");
         List<String> pantsValues = Arrays.asList("ג'ינס", "שורטס", "טייץ", "מכנס");
-        List<String> shoesValues = Arrays.asList("נעל", "spadrilles",
+        List<String> shoesValues = Arrays.asList("נעל", "spadrilles", "סנדלי", "נעלי",
                 "קבקבי", "סנדל", "מגפ", "מגף");
         List<String> coatsAndJacketsValues = Arrays.asList("ג'קט", "קרדיגן", "מעיל", "וסט", "ז'קט");
         List<String> swimwearValues = Arrays.asList("בגד ים", "ביקיני");
@@ -66,7 +66,7 @@ public class ItemClassificationService {
         Map<ProductType, List<String>> englishDictionary = new HashMap<>();
         List<String> topsValues = Arrays.asList("top", "tee", "weater", "jumper", "hirt", "tank",
                 "cami", "bodysuit", "blouse", "bandeau", "vest", "singlet", "body",
-                "hoodie", "sweatshirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit");
+                "hoodie", "sweatshirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit", "shirt", "hoodie");
         List<String> dressValues = Arrays.asList("dress", "skirt");
         List<String> pantsValues = Arrays.asList("pants", "trousers",
                 "legging", "short", "jeans");

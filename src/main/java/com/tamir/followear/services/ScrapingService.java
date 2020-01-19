@@ -500,6 +500,10 @@ public class ScrapingService {
 
         Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        if (itemTags.getProductType() == ProductType.Default) {
+            dict = classificationService.getEnglishDict();
+            itemTags = classificationService.classify(description, dict);
+        }
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
 
