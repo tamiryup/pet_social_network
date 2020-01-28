@@ -471,9 +471,15 @@ public class ScrapingService {
     }
 
 
+    private String correctZaraLink(String productPageLink) {
+        String result = productPageLink.replaceFirst("/share/", "/il/en/");
+        return result;
+    }
+
     private UploadItemDTO zaraDTO(String productPageLink, long storeId, WebDriver driver) {
         Category category;
         ProductType productType;
+        productPageLink = correctZaraLink(productPageLink);
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select(" h1.product-name").first();
