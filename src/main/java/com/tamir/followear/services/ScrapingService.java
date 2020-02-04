@@ -193,7 +193,13 @@ public class ScrapingService {
         int endIndex;
         int beginIndex = productPageLink.indexOf("/prd/");
         if (beginIndex == -1) {
-            throw new BadLinkException("this is not a product page");
+            beginIndex = productPageLink.indexOf("/grp/");
+            if (beginIndex == -1) {
+                throw new BadLinkException("this is not a product page");
+            }else{
+                beginIndex = beginIndex + 5;
+                endIndex = beginIndex + 5;
+            }
         } else {
             beginIndex = beginIndex + 5;
             endIndex = beginIndex + 8;
@@ -457,6 +463,7 @@ public class ScrapingService {
         Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
+        productType = itemTags.getProductType();
         productType = itemTags.getProductType();
         if (productType == ProductType.Default) {
             dict = classificationService.getEnglishDict();
