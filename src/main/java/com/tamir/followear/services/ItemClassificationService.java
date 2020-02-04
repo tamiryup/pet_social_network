@@ -70,14 +70,15 @@ public class ItemClassificationService {
         List<String> dressValues = Arrays.asList("dress", "skirt");
         List<String> pantsValues = Arrays.asList("pants", "trousers",
                 "legging", "short", "jeans");
-        List<String> shoesValues = Arrays.asList("shoes", "spadrilles",
-                "heel", "boots", "trainers", "slippers", "sandals", "runner", "slider", "sneakers");
+        List<String> shoesValues = Arrays.asList("shoes", "spadrilles","mules","pumps","slides","boot","loafers",
+                "heel", "boots", "trainers", "slippers", "sandals", "runner", "slider", "sneakers","booties");
         List<String> coatsAndJacketsValues = Arrays.asList("vest", "blazer", "cardigan",
                 "coat", "jacket", "waistcoat", "pullover", "parka", "poncho", "bomber", "suit",
                 "duster", "kimono", "wrap");
         List<String> bagValues = Arrays.asList("bag", "tote",
                 "clutch", "crossbody", "cross-body", "wallet", "backpack", "satchel", "handbag",
                 "basket", "clutch-bag", "handbag");
+        List<String> lingerieValues = Arrays.asList("bra","thong","camisole","briefs","robe");
 
         englishDictionary.put(ProductType.Tops, topsValues);
         englishDictionary.put(ProductType.DressesOrSkirts, dressValues);
@@ -85,6 +86,8 @@ public class ItemClassificationService {
         englishDictionary.put(ProductType.Shoes, shoesValues);
         englishDictionary.put(ProductType.JacketsOrCoats, coatsAndJacketsValues);
         englishDictionary.put(ProductType.Bags, bagValues);
+        englishDictionary.put(ProductType.Lingerie, lingerieValues);
+
 
         return englishDictionary;
     }
