@@ -70,14 +70,14 @@ public class ScrapingService {
 
     public WebDriver getDriver() {
         ChromeOptions options = new ChromeOptions();
-        options.setBinary(chromeBinary);
-
-        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
-                "--user-data-dir=/tmp/user-data", "--hide-scrollbars", "--enable-logging",
-                "--log-level=0", "--v=99", "--single-process", "--data-path=/tmp/data-path",
-                "--ignore-certificate-errors", "--homedir=/tmp", "--disk-cache-dir=/tmp/cache-dir",
-                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
-                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+//        options.setBinary(chromeBinary);
+//
+//        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
+//                "--user-data-dir=/tmp/user-data", "--hide-scrollbars", "--enable-logging",
+//                "--log-level=0", "--v=99", "--single-process", "--data-path=/tmp/data-path",
+//                "--ignore-certificate-errors", "--homedir=/tmp", "--disk-cache-dir=/tmp/cache-dir",
+//                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
+//                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
 
         WebDriver driver = new ChromeDriver(options);
         return driver;
@@ -376,9 +376,9 @@ public class ScrapingService {
 
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
-        Element descriptionDiv = document.select("span._b4693b").first();
+        Element descriptionDiv = document.select("span._b4693b._a32b92").first();
         String description = descriptionDiv.text();
-        Element designerDiv = document.select("a._7fe79a._3f59ca._dc2535._f01e99 span").first();
+        Element designerDiv = document.select("span._947f4f._b4c5cd._f01e99").first();
         String designer = designerDiv.text();
         Element priceSpan = document.select("span._def925._b4693b").first();
         String fullPrice = priceSpan.text();
