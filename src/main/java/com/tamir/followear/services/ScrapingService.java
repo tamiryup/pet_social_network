@@ -86,7 +86,7 @@ public class ScrapingService {
     private long getStoreID(String website) {
         Store store = storeService.findByWebsite(website);
         if (store == null) {
-            throw new BadLinkException("website is not supported");
+            throw new BadLinkException("This website is not supported");
         }
         long id = store.getId();
         return id;
@@ -123,7 +123,7 @@ public class ScrapingService {
             productPageLink = correctLink(productPageLink);
             website = getDomainName(productPageLink);
         } catch (URISyntaxException e) {
-            throw new BadLinkException("invalid link");
+            throw new BadLinkException("Invalid link");
         }
         try {
             driver = getDriver();
@@ -154,7 +154,7 @@ public class ScrapingService {
                     itemDTO = shopBopDTO(productPageLink, storeId, driver);
                     break;
                 default:
-                    throw new BadLinkException("website is not supported");
+                    throw new BadLinkException("This website is not supported");
             }
         } catch (BadLinkException e) {
             throw e;
@@ -195,7 +195,7 @@ public class ScrapingService {
         if (beginIndex == -1) {
             beginIndex = productPageLink.indexOf("/grp/");
             if (beginIndex == -1) {
-                throw new BadLinkException("this is not a product page");
+                throw new BadLinkException("This is not a product page");
             }else{
                 beginIndex = beginIndex + 5;
                 endIndex = beginIndex + 5;
@@ -243,7 +243,7 @@ public class ScrapingService {
         ProductType productType;
         int beginIndex = productPageLink.indexOf("/product/");
         if (beginIndex == -1) {
-            throw new BadLinkException("this is not a product page");
+            throw new BadLinkException("This is not a product page");
         }
         beginIndex = beginIndex + 9;
         int endIndex = beginIndex + 7;
@@ -302,7 +302,7 @@ public class ScrapingService {
             break;
         }
         if (productID == null) {
-            throw new BadLinkException("this is not a product page");
+            throw new BadLinkException("This is not a product page");
         } else {
             productID = productID.substring(beginIndex, endIndex);
         }
