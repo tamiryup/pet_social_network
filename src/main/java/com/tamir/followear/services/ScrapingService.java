@@ -153,6 +153,9 @@ public class ScrapingService {
                 case "shopbop.com":
                     itemDTO = shopBopDTO(productPageLink, storeId, driver);
                     break;
+                case "matchesfashion.com":
+                    itemDTO = matchesFashionDTO(productPageLink,storeId, driver);
+                    break;
                 default:
                     throw new BadLinkException("This website is not supported");
             }
@@ -227,6 +230,56 @@ public class ScrapingService {
         links.remove(1);
         links.remove(3);
 
+        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
+
+        return new UploadItemDTO(imageAddr, productPageLink, description,
+                price, currency, storeID, designer, imgExtension, productID, links, category, productType);
+
+    }
+
+    private UploadItemDTO matchesFashionDTO(String productPageLink, long storeID, WebDriver driver) {
+        String productID;
+        Category category;
+        ProductType productType;
+        String imageAddr;
+        if (productPageLink.length() > 7) {
+            productID = productPageLink.substring(productPageLink.length() - 7);
+        }else{
+            throw new BadLinkException("This is not a product page");
+        }
+
+        driver.get(productPageLink);
+        Document document = Jsoup.parse(driver.getPageSource());
+        String designer = document.select("h1.pdp-headline a").first().text();
+        String description = document.select("span.pdp-description").text();
+        String fullPrice = document.select("p.pdp-price").first().text();
+        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
+        Currency currency = itemPriceCurr.currency;
+        String price = itemPriceCurr.price;
+        Elements imagesDiv = document.select(".slick-slide");
+        Elements images = imagesDiv.select("img");
+        String imgExtension = "jpg";
+        int indexToRemove = 0;
+        List<String> links = images.eachAttr("src");
+        List <String> tempLinks = new ArrayList<String>();
+        for (int i = 0; i < links.size(); i++) {
+            if (links.get(i).contains("6_large.jpg") || links.get(i).contains("4_large")){
+                links.set(i, "https:" + links.get(i));
+                 tempLinks.add(links.get(i));
+                break;
+            }
+        }
+        if (links.size() > 1){
+            links.set(1,"https:" + links.get(1));
+            imageAddr = links.get(1);
+        }else{
+            imageAddr="";
+        }
+        links.clear();
+        links = tempLinks;
         Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();

@@ -48,6 +48,8 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
+        UploadItemDTO matchesFashionDTO = scrapingService.extractItem("https://www.matchesfashion.com/intl/products/Malone-Souliers-Brook-mesh-and-leather-pumps-1322205");
+        System.out.println(matchesFashionDTO);
 	}
 
 
