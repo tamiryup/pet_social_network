@@ -7,10 +7,7 @@ import com.google.common.cache.LoadingCache;
 import com.tamir.followear.OkHttpClientProvider;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.exceptions.ExchangeRateException;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -71,9 +68,14 @@ public class CurrencyConverterService {
                 .url(url)
                 .build();
 
-        ResponseBody response = client.newCall(request).execute().body();
+        Response response = client.newCall(request).execute();
+        if(response.code() != 200) {
+            throw new ExchangeRateException("Received error from currconv api servers");
+        }
+
+        ResponseBody responseBody = response.body();
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Double> map = mapper.readValue(response.string(), Map.class);
+        Map<String, Double> map = mapper.readValue(responseBody.string(), Map.class);
 
         // json response might be int (ILS = 1 ILS), this handles that case (will otherwise throw an error)
         Number rate = map.get(query);
