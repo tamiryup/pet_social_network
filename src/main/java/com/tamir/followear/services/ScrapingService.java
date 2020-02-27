@@ -6,6 +6,7 @@ import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.exceptions.BadLinkException;
 import com.tamir.followear.exceptions.ScrapingError;
+import com.tamir.followear.helpers.StringHelper;
 import lombok.ToString;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -480,6 +481,14 @@ public class ScrapingService {
 
     private String correctZaraLink(String productPageLink) {
         String result = productPageLink.replaceFirst("/share/", "/il/en/");
+
+        if(StringHelper.doesContainHebrew(productPageLink)) {
+            int startIndex = productPageLink.lastIndexOf('/') + 1;
+            int htmlStringIndex = productPageLink.indexOf(".html");
+            int endIndex = productPageLink.lastIndexOf("-p", htmlStringIndex);
+            int linkLength = productPageLink.length();
+            result = productPageLink.substring(0, startIndex) + productPageLink.substring(endIndex, linkLength);
+        }
         return result;
     }
 

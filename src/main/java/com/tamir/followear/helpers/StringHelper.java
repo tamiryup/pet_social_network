@@ -32,4 +32,8 @@ public class StringHelper {
         return str;
     }
 
+    public static boolean doesContainHebrew(String str) {
+        return str.matches(".*[א-ת]+.*");
+    }
+
 }
