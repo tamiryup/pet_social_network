@@ -483,11 +483,11 @@ public class ScrapingService {
         String result = productPageLink.replaceFirst("/share/", "/il/en/");
 
         if(StringHelper.doesContainHebrew(productPageLink)) {
-            int startIndex = productPageLink.lastIndexOf('/') + 1;
-            int htmlStringIndex = productPageLink.indexOf(".html");
-            int endIndex = productPageLink.lastIndexOf("-p", htmlStringIndex);
-            int linkLength = productPageLink.length();
-            result = productPageLink.substring(0, startIndex) + productPageLink.substring(endIndex, linkLength);
+            int startIndex = result.lastIndexOf('/') + 1;
+            int htmlStringIndex = result.indexOf(".html");
+            int endIndex = result.lastIndexOf("-p", htmlStringIndex);
+            int linkLength = result.length();
+            result = result.substring(0, startIndex) + productPageLink.substring(endIndex, linkLength);
         }
         return result;
     }
