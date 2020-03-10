@@ -73,13 +73,13 @@ public class ScrapingService {
         ChromeOptions options = new ChromeOptions();
         options.setBinary(chromeBinary);
 
-        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
-                "--user-data-dir=/tmp/user-data", "--hide-scrollbars", "--enable-logging",
-                "--log-level=0", "--v=99", "--single-process", "--data-path=/tmp/data-path",
-                "--ignore-certificate-errors", "--homedir=/tmp", "--disk-cache-dir=/tmp/cache-dir",
-                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
-                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
-
+//        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
+//                "--user-data-dir=/tmp/user-data", "--hide-scrollbars", "--enable-logging",
+//                "--log-level=0", "--v=99", "--single-process", "--data-path=/tmp/data-path",
+//                "--ignore-certificate-errors", "--homedir=/tmp", "--disk-cache-dir=/tmp/cache-dir",
+//                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
+//                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+//
         WebDriver driver = new ChromeDriver(options);
         return driver;
     }
@@ -426,24 +426,29 @@ public class ScrapingService {
         Currency currency;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
-        Element descriptionDiv = document.select("h1.name").first();
+        Element descriptionDiv = document.select("div.product-intro__head-name").first();
         String description = descriptionDiv.text();
-//        String designer = document.select("h1.name.span").first().text();
         String designer = null;
-        Element priceSpan = document.select("div.price-origin.j-price-origin").first();
-        Element discountedPriceSpan = document.select("div.price-discount.j-price-discount").first();
+        Element discountedPriceSpan=null;
+        try {
+             discountedPriceSpan = document.select("div.product-intro__head-price span.discount").first();
+        }
+        catch(NullPointerException e){}
+        Element originalPrice = document.select("div.product-intro__head-price span.original").first();
         if (discountedPriceSpan != null) {
             price = discountedPriceSpan.text();
         } else {
-            price = priceSpan.text();
+            price = originalPrice.text();
         }
         itemPriceCurr = priceTag(price);
         currency = itemPriceCurr.currency;
         price = itemPriceCurr.price;
 
-        Element imageDiv = document.select("img.j-lazy-dpr-img.j-change-main_image").first();
-        String imageAddr = imageDiv.attr("data-src");
+        Element imageDiv = document.select("div.swiper-slide.product-intro__main-item.cursor-zoom-in.swiper-slide-active").first().attr("data-swiper-slide-index","0");
+
+        String imageAddr = imageDiv.select("img.j-verlok-lazy.loaded").attr("src");
         imageAddr = "https:" + imageAddr;
+        String correctImageAddr = imageAddr.replace(".webp",".jpg");
         String imgExtension = "jpg";
         Pattern MY_PATTERN = Pattern.compile("\\d+");
         Matcher m = MY_PATTERN.matcher(productPageLink);
@@ -453,18 +458,14 @@ public class ScrapingService {
             productID = s;
             break;
         }
-        Elements thumbnails = document.select("img.j-verlok-lazy.j-change-dt_image");
-        for (Element imgThumbnail : thumbnails) {
-            String imgSrc = imgThumbnail.attr("data-src");
-            links.add(imgSrc);
-        }
-        for (int i = 0; i < links.size(); i++) {
-            links.set(i, "https:" + links.get(i));
-        }
+//        Element thumbnails = document.select("div.swiper-slide.product-intro__main-item.cursor-zoom-in.swiper-slide-active").first().attr("data-swiper-slide-index","2");
+//        String imgSrc = thumbnails.select("img.j-verlok-lazy.loaded").attr("src");
+//        imgSrc = "https:" + imgSrc;
+//        links.add(imgSrc);
+
         Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
-        productType = itemTags.getProductType();
         productType = itemTags.getProductType();
         if (productType == ProductType.Default) {
             dict = classificationService.getEnglishDict();
@@ -474,7 +475,7 @@ public class ScrapingService {
         }
 
 
-        return new UploadItemDTO(imageAddr, productPageLink, description,
+        return new UploadItemDTO(correctImageAddr, productPageLink, description,
                 price, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
