@@ -41,8 +41,6 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
-        UploadItemDTO item = scrapingService.extractItem("https://il.shein.com/Flare-Leg-Sequin-Trousers-p-966720-cat-1740.html?scici=navbar_2~~tab01navbar04menu04dir01~~4_4_1~~real_1740~~~~0~~0");
-        System.out.println(item);
 	}
 
 
