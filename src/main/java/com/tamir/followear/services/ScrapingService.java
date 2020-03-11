@@ -458,10 +458,10 @@ public class ScrapingService {
             productID = s;
             break;
         }
-//        Element thumbnails = document.select("div.swiper-slide.product-intro__main-item.cursor-zoom-in.swiper-slide-active").first().attr("data-swiper-slide-index","2");
-//        String imgSrc = thumbnails.select("img.j-verlok-lazy.loaded").attr("src");
-//        imgSrc = "https:" + imgSrc;
-//        links.add(imgSrc);
+        Elements thumbnail = document.select("div.swiper-slide.product-intro__main-item.cursor-zoom-in.swiper-slide-next");
+        String imgSrc = thumbnail.select("img.j-verlok-lazy.loaded").attr("src");
+        imgSrc = "https:" + imgSrc;
+        links.add(imgSrc);
 
         Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
