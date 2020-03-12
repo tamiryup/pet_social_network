@@ -77,8 +77,9 @@ public class ItemClassificationService {
                 "duster", "kimono", "wrap");
         List<String> bagValues = Arrays.asList("bag", "tote",
                 "clutch", "crossbody", "cross-body", "wallet", "backpack", "satchel", "handbag",
-                "basket", "clutch-bag", "handbag");
-        List<String> lingerieValues = Arrays.asList("bra","thong","camisole","briefs","robe");
+                "basket", "clutch-bag","pouch");
+        List<String> lingerieValues = Arrays.asList("bra","thong","camisole","birefs","robe");
+        List<String> accessoriesValues = Arrays.asList("sunglasses","scarf","belt","hat","headband","case","cardholder","necklace","earrings","choker","ring","bracelet");
 
         englishDictionary.put(ProductType.Tops, topsValues);
         englishDictionary.put(ProductType.DressesOrSkirts, dressValues);
@@ -87,6 +88,7 @@ public class ItemClassificationService {
         englishDictionary.put(ProductType.JacketsOrCoats, coatsAndJacketsValues);
         englishDictionary.put(ProductType.Bags, bagValues);
         englishDictionary.put(ProductType.Lingerie, lingerieValues);
+        englishDictionary.put(ProductType.Accessories,accessoriesValues);
 
 
         return englishDictionary;
