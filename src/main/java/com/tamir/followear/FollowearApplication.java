@@ -41,8 +41,6 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
-		UploadItemDTO res = this.scrapingService.extractItem("https://il.shein.com/Button-Front-Belted-Embroidered-Puff-Sleeve-Striped-Dress-p-972429-cat-1727.html?scici=navbar_2~~tab01navbar09menu07dir01~~9_7_1~~itemPicking_00509854~~~~0~~0");
-		System.out.println(res);
 	}
 
 
