@@ -102,6 +102,7 @@ public class ItemClassificationService {
         Boolean topsKey = false;
         Boolean jacketsOrCoatsKey = false;
         Boolean dressesOrSkirts = false;
+        Boolean accessoriesKey = false;
         for (Map.Entry<ProductType, List<String>> entry : dict.entrySet()) {
             ProductType key = entry.getKey();
             List<String> value = entry.getValue();
@@ -119,6 +120,7 @@ public class ItemClassificationService {
                     }
                     if (key == ProductType.Accessories) {
                         productType = ProductType.Default;
+                        accessoriesKey = true;
                         category = Category.Accessories;
                     }
                     if (key == ProductType.Pants) {
@@ -137,13 +139,25 @@ public class ItemClassificationService {
 
                 if (pantsKey && (jacketsOrCoatsKey || topsKey || dressesOrSkirts)) {
                     if (jacketsOrCoatsKey) {
-                        key = ProductType.JacketsOrCoats;
+                        productType = ProductType.JacketsOrCoats;
                     }
                     if (topsKey) {
-                        key = ProductType.Tops;
+                        productType = ProductType.Tops;
                     }
                     if (dressesOrSkirts) {
-                        key = ProductType.DressesOrSkirts;
+                        productType = ProductType.DressesOrSkirts;
+                    }
+                }
+                if (accessoriesKey && (dressesOrSkirts || topsKey || jacketsOrCoatsKey)){
+                    category = Category.Clothing;
+                    if (dressesOrSkirts) {
+                        productType = ProductType.DressesOrSkirts;
+                    }
+                    if(topsKey){
+                        productType = productType.Tops;
+                    }
+                    if (jacketsOrCoatsKey) {
+                        productType = ProductType.JacketsOrCoats;
                     }
                 }
             }
