@@ -215,11 +215,7 @@ public class ScrapingService {
         String fullPrice = priceSpan.text();
         ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
         Currency currency = itemPriceCurr.currency;
-
         String price = itemPriceCurr.price;
-        double priceInILS = currConverterService.convert(currency, Currency.ILS, Double.valueOf(price));
-        price = Double.toString(priceInILS);
-
         Elements imagesDiv = document.select("div.fullImageContainer");
         Elements images = imagesDiv.select("img");
         String imgExtension = "jpg";
@@ -461,7 +457,8 @@ public class ScrapingService {
         Elements thumbnail = document.select("div.swiper-slide.product-intro__main-item.cursor-zoom-in.swiper-slide-next");
         String imgSrc = thumbnail.select("img.j-verlok-lazy.loaded").attr("src");
         imgSrc = "https:" + imgSrc;
-        links.add(imgSrc);
+        String correctImgSrc = imgSrc.replace(".webp",".jpg");
+        links.add(correctImgSrc);
 
         Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
