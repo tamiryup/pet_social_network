@@ -512,9 +512,6 @@ public class ScrapingService {
         String imgExtension = "jpg";
         Elements elem = document.select("div.media-wrap.image-wrap a");
         List<String> links = elem.eachAttr("href");
-        for (int i = 0; i < links.size(); i++) {
-            links.set(i, "https:" + links.get(i));
-        }
         String imageAddr = links.get(0);
         links.remove(0);
         int endIndex = productPageLink.indexOf("html");
