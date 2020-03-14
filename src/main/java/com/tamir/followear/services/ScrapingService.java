@@ -215,11 +215,7 @@ public class ScrapingService {
         String fullPrice = priceSpan.text();
         ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
         Currency currency = itemPriceCurr.currency;
-
         String price = itemPriceCurr.price;
-        double priceInILS = currConverterService.convert(currency, Currency.ILS, Double.valueOf(price));
-        price = Double.toString(priceInILS);
-
         Elements imagesDiv = document.select("div.fullImageContainer");
         Elements images = imagesDiv.select("img");
         String imgExtension = "jpg";
