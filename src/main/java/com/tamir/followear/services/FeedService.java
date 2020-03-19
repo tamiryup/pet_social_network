@@ -289,7 +289,12 @@ public class FeedService {
 
         for(User user : exploreUsers) {
             List<BasicPostDTO> items =
-                    postService.moreFromUser(user.getId(), 0, 4); // 0 to not exclude any post
+                    postService.moreFromUser(user.getId(), 0, 4);// 0 to not exclude any post
+
+            if(items.size() < 2) {
+                continue; //do not show users with less than 2 posts in discover people
+            }
+
             long numFollowers = followService.getNumFollowers(user.getId());
             DiscoverPeopleDTO person = new DiscoverPeopleDTO(user.getId(), user.getProfileImageAddr(),
                     user.getUsername(), user.getFullName(), numFollowers, items);
