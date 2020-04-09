@@ -1,7 +1,8 @@
 package com.tamir.followear.rest;
 
 import com.tamir.followear.dto.*;
-import com.tamir.followear.services.ExploreService;
+import com.tamir.followear.entities.User;
+import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.services.FeedService;
 import com.tamir.followear.services.ScrapingService;
 import com.tamir.followear.services.UserService;
@@ -41,6 +42,17 @@ public class GeneralController {
     @ResponseBody
     public FeedResultDTO getExploreFeed(@RequestBody Optional<FilteringDTO> filters) {
         return feedService.getExploreFeed(filters);
+    }
+
+    @GetMapping("profile-info")
+    @ResponseBody
+    public UserProfileInfoDTO profileInfo(@RequestParam long userId) {
+        User user = userService.findById(userId);
+        if(user==null)
+            throw new InvalidUserException();
+        UserProfileInfoDTO ret = new UserProfileInfoDTO(user.getId(), user.getUsername(), user.getFullName(),
+                user.getProfileImageAddr(), user.getDescription());
+        return ret;
     }
 
     @GetMapping("scraping-helper")
