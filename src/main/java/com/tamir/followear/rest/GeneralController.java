@@ -44,17 +44,6 @@ public class GeneralController {
         return feedService.getExploreFeed(filters);
     }
 
-    @GetMapping("profile-info")
-    @ResponseBody
-    public UserProfileInfoDTO profileInfo(@RequestParam long userId) {
-        User user = userService.findById(userId);
-        if(user==null)
-            throw new InvalidUserException();
-        UserProfileInfoDTO ret = new UserProfileInfoDTO(user.getId(), user.getUsername(), user.getFullName(),
-                user.getProfileImageAddr(), user.getDescription());
-        return ret;
-    }
-
     @GetMapping("scraping-helper")
     @ResponseBody
     public String scrapingHelper(@RequestParam String link) {
