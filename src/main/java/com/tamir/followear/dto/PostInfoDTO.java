@@ -24,5 +24,6 @@ public class PostInfoDTO {
     private String thumbnailAddr;
     private String link;
     private long numViews;
+    private long numLikes;
 
 }

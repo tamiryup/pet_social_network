@@ -25,6 +25,9 @@ public class SocialController {
     FeedService feedService;
 
     @Autowired
+    LikeService likeService;
+
+    @Autowired
     ExploreService exploreService;
 
     @Autowired
@@ -131,5 +134,23 @@ public class SocialController {
     @ResponseBody
     public void hidePost(@PathVariable long id, @RequestParam long postId) {
         postService.hidePost(id, postId);
+    }
+
+    @GetMapping("did-like")
+    @ResponseBody
+    public boolean didLike(@PathVariable long id, @RequestParam long postId) {
+        return likeService.didLike(id, postId);
+    }
+
+    @PostMapping("like")
+    @ResponseBody
+    public void like(@PathVariable long id, @RequestParam long postId) {
+        likeService.like(id, postId);
+    }
+
+    @PostMapping("unlike")
+    @ResponseBody
+    public void unlike(@PathVariable long id, @RequestParam long postId) {
+        likeService.unlike(id, postId);
     }
 }

@@ -5,6 +5,7 @@ import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.services.ItemClassificationService;
+import com.tamir.followear.services.LikeService;
 import com.tamir.followear.services.PostService;
 import com.tamir.followear.services.ScrapingService;
 import io.getstream.core.models.Reaction;
@@ -31,13 +32,10 @@ public class FollowearApplication implements CommandLineRunner {
     PostService postService;
 
 	@Autowired
-    ScrapingService scrapingService;
+    LikeService likeService;
 
 	@Autowired
-    ItemClassificationService classificationService;
-
-    @Value("${fw.cognito.pool-id}")
-    private String cogPoolId;
+    ScrapingService scrapingService;
 
 	@Override
 	public void run(String... args) throws Exception {

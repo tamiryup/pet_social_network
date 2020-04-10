@@ -172,4 +172,12 @@ public class GlobalControllerExceptionHandler {
                 "these users don't have a follow relationship");
         return error;
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(LikeException.class)
+    @ResponseBody
+    public ErrorMessage handleLikeException(LikeException e) {
+        ErrorMessage error = new ErrorMessage("Like Exception", e.getMessage());
+        return error;
+    }
 }

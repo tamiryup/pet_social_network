@@ -70,6 +70,10 @@ public class PostService {
         return optPost.get();
     }
 
+    public boolean existsById(long id) {
+        return postRepo.existsById(id);
+    }
+
     /**
      * finds all posts with ids from the list of ids (plus duplicates)
      *
@@ -157,7 +161,7 @@ public class PostService {
         PostInfoDTO postInfo = new PostInfoDTO(post.getId(), post.getUserId(), post.getStoreId(),
                 user.getProfileImageAddr(), user.getUsername(), post.getImageAddr(), post.getDescription(),
                 post.getFormattedPrice(), store.getLogoAddr(), store.getName(), store.getWebsite(),
-                post.getThumbnail(), post.getLink(), post.getNumViews());
+                post.getThumbnail(), post.getLink(), post.getNumViews(), post.getNumLikes());
 
         return postInfo;
     }
@@ -208,6 +212,14 @@ public class PostService {
      */
     public void incPostViews(long userId, long postId) {
         postRepo.incPostViews(userId, postId);
+    }
+
+    public void incNumLikes(long postId) {
+        postRepo.incNumLikes(postId);
+    }
+
+    public void decNumLikes(long postId) {
+        postRepo.decNumLikes(postId);
     }
 
     public List<Post> getMostPopularPosts(int limit) {
