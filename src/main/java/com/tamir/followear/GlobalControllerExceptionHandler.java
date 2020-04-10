@@ -43,9 +43,9 @@ public class GlobalControllerExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(StreamException.class)
+    @ExceptionHandler(CustomStreamException.class)
     @ResponseBody
-    public ErrorMessage handleStreamException(StreamException e){
+    public ErrorMessage handleStreamException(CustomStreamException e){
         ErrorMessage error = new ErrorMessage("Stream Error", e.getMessage());
         return error;
     }

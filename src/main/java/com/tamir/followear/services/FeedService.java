@@ -9,8 +9,8 @@ import com.tamir.followear.enums.Currency;
 import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.exceptions.NoMoreActivitiesException;
 import com.tamir.followear.helpers.StreamHelper;
-import com.tamir.followear.stream.PostActivity;
 import com.tamir.followear.stream.StreamService;
+import io.getstream.core.models.Activity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +56,7 @@ public class FeedService {
             throw new InvalidUserException();
         }
 
-        List<PostActivity> streamFeed;
+        List<Activity> streamFeed;
         int numFeedRequests = 0;
         List<TimelineFeedPostDTO> feedPostDTOS = new ArrayList<>();
         int streamFeedRequestLimit = filters.isPresent() ?
@@ -115,7 +115,7 @@ public class FeedService {
             throw new InvalidUserException();
         }
 
-        List<PostActivity> streamFeed;
+        List<Activity> streamFeed;
         int numFeedRequests = 0;
         List<UserFeedPostDTO> feedPostDTOS = new ArrayList<>();
         int streamFeedRequestLimit = filters.isPresent() ?

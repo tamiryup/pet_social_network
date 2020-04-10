@@ -11,10 +11,7 @@ import com.tamir.followear.entities.Store;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ImageType;
-import com.tamir.followear.exceptions.InvalidPostException;
-import com.tamir.followear.exceptions.InvalidUserException;
-import com.tamir.followear.exceptions.NoAuthException;
-import com.tamir.followear.exceptions.PostAlreadyExistsException;
+import com.tamir.followear.exceptions.*;
 import com.tamir.followear.helpers.FileHelper;
 import com.tamir.followear.helpers.StringHelper;
 import com.tamir.followear.repositories.PostRepository;
@@ -31,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @Transactional
@@ -131,7 +129,7 @@ public class PostService {
 
         try {
             streamService.uploadActivity(post);
-        } catch (Exception e) {
+        } catch (CustomStreamException e) {
             postRepo.delete(post);
             throw e;
         }

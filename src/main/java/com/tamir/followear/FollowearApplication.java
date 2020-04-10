@@ -7,6 +7,7 @@ import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.services.ItemClassificationService;
 import com.tamir.followear.services.PostService;
 import com.tamir.followear.services.ScrapingService;
+import io.getstream.core.models.Reaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
