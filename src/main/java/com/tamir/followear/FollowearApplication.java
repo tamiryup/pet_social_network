@@ -5,8 +5,10 @@ import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.services.ItemClassificationService;
+import com.tamir.followear.services.LikeService;
 import com.tamir.followear.services.PostService;
 import com.tamir.followear.services.ScrapingService;
+import io.getstream.core.models.Reaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,19 +32,14 @@ public class FollowearApplication implements CommandLineRunner {
     PostService postService;
 
 	@Autowired
-    ScrapingService scrapingService;
+    LikeService likeService;
 
 	@Autowired
-    ItemClassificationService classificationService;
-
-    @Value("${fw.cognito.pool-id}")
-    private String cogPoolId;
+    ScrapingService scrapingService;
 
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
-        UploadItemDTO item = scrapingService.extractItem("https://il.shein.com/Elastic-Waist-Slant-Pocket-Grid-Pants-p-622580-cat-1740.html?scici=navbar_2~~tab01navbar04menu04dir01~~4_4_1~~real_1740~~~~0~~0");
-        System.out.println(item);
 	}
 
 

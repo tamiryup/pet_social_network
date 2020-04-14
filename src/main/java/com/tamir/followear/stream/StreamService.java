@@ -3,23 +3,22 @@ package com.tamir.followear.stream;
 import com.tamir.followear.CommonBeanConfig;
 import com.tamir.followear.entities.Post;
 import com.tamir.followear.exceptions.NoMoreActivitiesException;
-import com.tamir.followear.exceptions.StreamException;
+import com.tamir.followear.exceptions.CustomStreamException;
 import com.tamir.followear.helpers.StreamHelper;
-import io.getstream.client.StreamClient;
-import io.getstream.client.exception.InvalidFeedNameException;
-import io.getstream.client.exception.StreamClientException;
-import io.getstream.client.model.beans.FeedFollow;
-import io.getstream.client.model.feeds.Feed;
-import io.getstream.client.model.filters.FeedFilter;
-import io.getstream.client.service.FlatActivityServiceImpl;
+import io.getstream.client.Client;
+import io.getstream.client.FlatFeed;
+import io.getstream.core.exceptions.StreamException;
+import io.getstream.core.models.Activity;
+import io.getstream.core.models.FollowRelation;
+import io.getstream.core.options.Pagination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class StreamService {
@@ -27,158 +26,134 @@ public class StreamService {
     @Autowired
     StreamClientProvider streamClientProvider;
 
-    StreamClient streamClient;
+    Client streamClient;
 
     @PostConstruct
     public void init() {
         this.streamClient = streamClientProvider.getClient();
     }
 
-    private PostActivity createPostActivity(Post post) {
-        PostActivity activity = new PostActivity();
-        activity.setActor("" + post.getUserId());
-        activity.setVerb("post");
-        activity.setObject("" + post.getId());
-        activity.setForeignId("" + post.getId());
-        activity.setTime(post.getCreateDate());
+    private Activity createPostActivity(Post post) {
+        Activity activity = Activity.builder()
+                .actor("" + post.getUserId())
+                .verb("post")
+                .object("" + post.getId())
+                .foreignID("" + post.getId())
+                .time(post.getCreateDate())
+                .build();
         return activity;
     }
 
     public void uploadActivity(Post post) {
         try {
-            Feed feed = streamClient.newFeed("user", "" + post.getUserId());
-            FlatActivityServiceImpl<PostActivity> activityService = feed.newFlatActivityService(PostActivity.class);
-            PostActivity activity = createPostActivity(post);
-            PostActivity response = activityService.addActivity(activity);
+            FlatFeed feed = streamClient.flatFeed("user", "" + post.getUserId());
+            Activity activity = createPostActivity(post);
+            Activity response = feed.addActivity(activity).get();
             System.out.println(response);
-        } catch (InvalidFeedNameException e) {
-            throw new StreamException(e.getDetail());
-        } catch (IOException e) {
-            throw new StreamException(e.getMessage());
-        } catch (StreamClientException e) {
-            throw new StreamException(e.getDetail());
+        } catch (StreamException e) {
+            throw new CustomStreamException(e.getMessage());
+        } catch (ExecutionException | InterruptedException e) {
+            throw new CustomStreamException("Problem with stream 'Future' Calculation");
         }
+
     }
 
     public void removeActivity(Post post) {
         try {
-            Feed userFeed = streamClient.newFeed("user", "" + post.getUserId());
-            userFeed.deleteActivityByForeignId("" + post.getId());
-        } catch (InvalidFeedNameException e) {
-            throw new StreamException(e.getDetail());
-        } catch (IOException e) {
-            throw new StreamException(e.getMessage());
-        } catch (StreamClientException e) {
-            throw new StreamException(e.getDetail());
+            FlatFeed userFeed = streamClient.flatFeed("user", "" + post.getUserId());
+            userFeed.removeActivityByForeignID("" + post.getId());
+        } catch (StreamException e) {
+            throw new CustomStreamException(e.getMessage());
         }
     }
 
     public void hideActivity(long userId, Post post) {
         try {
-            Feed timelineFeed = streamClient.newFeed("timeline", "" + userId);
-            timelineFeed.deleteActivityByForeignId("" + post.getId());
-        } catch (InvalidFeedNameException e) {
-            throw new StreamException(e.getDetail());
-        } catch (IOException e) {
-            throw new StreamException(e.getMessage());
-        } catch (StreamClientException e) {
-            throw new StreamException(e.getDetail());
+            FlatFeed timelineFeed = streamClient.flatFeed("timeline", "" + userId);
+            timelineFeed.removeActivityByForeignID("" + post.getId());
+        } catch (StreamException e) {
+            throw new CustomStreamException(e.getMessage());
         }
     }
 
     public void follow(long masterId, long slaveId) {
         try {
-            Feed slaveTimeline = streamClient.newFeed("timeline", "" + slaveId);
-            slaveTimeline.follow("user", "" + masterId);
-        } catch (InvalidFeedNameException e) {
-            throw new StreamException(e.getDetail());
-        } catch (IOException e) {
-            throw new StreamException(e.getMessage());
-        } catch (StreamClientException e) {
-            throw new StreamException(e.getDetail());
+            FlatFeed slaveTimelineFeed = streamClient.flatFeed("timeline", "" + slaveId);
+            FlatFeed masterUserFeed = streamClient.flatFeed("user", "" + masterId);
+            slaveTimelineFeed.follow(masterUserFeed);
+        } catch (StreamException e) {
+            throw new CustomStreamException(e.getMessage());
         }
     }
 
     public void unfollow(long masterId, long slaveId) {
         try {
-            Feed slaveTimeline = streamClient.newFeed("timeline", "" + slaveId);
-            slaveTimeline.unfollow("user", "" + masterId);
-        } catch (InvalidFeedNameException e) {
-            throw new StreamException(e.getDetail());
-        } catch (IOException e) {
-            throw new StreamException(e.getMessage());
-        } catch (StreamClientException e) {
-            throw new StreamException(e.getDetail());
+            FlatFeed slaveTimeline = streamClient.flatFeed("timeline", "" + slaveId);
+            FlatFeed masterUserFeed = streamClient.flatFeed("user", "" + masterId);
+            slaveTimeline.unfollow(masterUserFeed);
+        } catch (StreamException e) {
+            throw new CustomStreamException(e.getMessage());
         }
     }
 
-    public List<PostActivity> getStreamTimelineFeed(long userId, int offset, int limit) {
+    public List<Activity> getStreamTimelineFeed(long userId, int offset, int limit) {
         return getFeedActivities(userId, offset, limit, "timeline");
     }
 
-    public List<PostActivity> getStreamUserFeed(long userId, int offset, int limit) {
+    public List<Activity> getStreamUserFeed(long userId, int offset, int limit) {
         return getFeedActivities(userId, offset, limit, "user");
     }
 
-    private List<PostActivity> getFeedActivities(long userId, int offset, int limit, String feedSlug) {
+    private List<Activity> getFeedActivities(long userId, int offset, int limit, String feedSlug) {
         try {
-            Feed feed = streamClient.newFeed(feedSlug, "" + userId);
-            FlatActivityServiceImpl<PostActivity> activityService = feed.newFlatActivityService(PostActivity.class);
-            FeedFilter filter = new FeedFilter.Builder().withLimit(limit).withOffset(offset).build();
-            List<PostActivity> activities = activityService.getActivities(filter).getResults();
+            FlatFeed feed = streamClient.flatFeed(feedSlug, "" + userId);
+            Pagination pagination = new Pagination().limit(limit).offset(offset);
+            List<Activity> activities = feed.getActivities(pagination).join();
             if (activities.isEmpty())
                 throw new NoMoreActivitiesException();
             return activities;
-        } catch (IOException e) {
-            throw new StreamException(e.getMessage());
-        } catch (InvalidFeedNameException e) {
-            throw new StreamException(e.getDetail());
-        } catch (StreamClientException e) {
-            throw new StreamException(e.getDetail());
+        } catch (StreamException e) {
+            throw new CustomStreamException(e.getMessage());
         }
     }
 
     public List<Long> getUserFollowers(long userId, int offset) {
         int limit = CommonBeanConfig.getReadFollowersRequestLimit();
         try {
-            Feed feed = streamClient.newFeed("user", "" + userId);
-            FeedFilter filter = new FeedFilter.Builder().withLimit(limit).withOffset(offset).build();
-            List<FeedFollow> followers = feed.getFollowers(filter);
+            FlatFeed feed = streamClient.flatFeed("user", "" + userId);
+            Pagination pagination = new Pagination().limit(limit).offset(offset);
+            List<FollowRelation> followers = feed.getFollowers(pagination).get();
 
             List<Long> ids = new ArrayList<>();
-            for (FeedFollow follow : followers) {
+            for (FollowRelation follow : followers) {
                 ids.add(StreamHelper.generateMapFeedFollow(follow).get("slave"));
             }
 
             return ids;
-        } catch (IOException e) {
-            throw new StreamException(e.getMessage());
-        } catch (InvalidFeedNameException e) {
-            throw new StreamException(e.getDetail());
-        } catch (StreamClientException e) {
-            throw new StreamException(e.getDetail());
+        } catch (StreamException e) {
+            throw new CustomStreamException(e.getMessage());
+        } catch (ExecutionException | InterruptedException e) {
+            throw new CustomStreamException("Problem with stream 'Future' Calculation");
         }
     }
 
     public List<Long> getUserFollowing(long userId, int offset) {
         int limit = CommonBeanConfig.getReadFollowersRequestLimit();
         try {
-            Feed feed = streamClient.newFeed("timeline", "" + userId);
-            FeedFilter filter = new FeedFilter.Builder().withLimit(limit).withOffset(offset).build();
-            List<FeedFollow> followers = feed.getFollowing(filter);
+            FlatFeed feed = streamClient.flatFeed("timeline", "" + userId);
+            Pagination pagination = new Pagination().limit(limit).offset(offset);
+            List<FollowRelation> followers = feed.getFollowed(pagination).get();
 
             List<Long> ids = new ArrayList<>();
-            for (FeedFollow follow : followers) {
+            for (FollowRelation follow : followers) {
                 ids.add(StreamHelper.generateMapFeedFollow(follow).get("master"));
             }
 
             return ids;
-        } catch (IOException e) {
-            throw new StreamException(e.getMessage());
-        } catch (InvalidFeedNameException e) {
-            throw new StreamException(e.getDetail());
-        } catch (StreamClientException e) {
-            throw new StreamException(e.getDetail());
+        } catch (StreamException e) {
+            throw new CustomStreamException(e.getMessage());
+        } catch (ExecutionException | InterruptedException e) {
+            throw new CustomStreamException("Problem with stream 'Future' Calculation");
         }
     }
 

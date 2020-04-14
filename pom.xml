@@ -5,7 +5,7 @@
 
     <groupId>com.tamir</groupId>
     <artifactId>followear</artifactId>
-    <version>0.1.26-SNAPSHOT</version>
+    <version>0.1.33-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>followear</name>
@@ -72,8 +72,8 @@
         <!-- stream dependency -->
         <dependency>
             <groupId>io.getstream.client</groupId>
-            <artifactId>stream-repo-apache</artifactId>
-            <version>1.2.0</version>
+            <artifactId>stream-java</artifactId>
+            <version>3.0.0</version>
         </dependency>
 
         <!-- uuid fasterxml dependency -->

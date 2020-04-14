@@ -1,19 +1,16 @@
 package com.tamir.followear.stream;
 
-import io.getstream.client.StreamClient;
-import io.getstream.client.apache.StreamClientImpl;
-import io.getstream.client.config.ClientConfiguration;
+import io.getstream.client.Client;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.net.MalformedURLException;
 
 @Component
 public class StreamClientProvider {
 
-    private ClientConfiguration clientConfig;
-
-    private StreamClient streamClient;
+    private Client streamClient;
 
     @Value("${fw.stream.key}")
     private String appKey;
@@ -25,12 +22,11 @@ public class StreamClientProvider {
     }
 
     @PostConstruct
-    public void init() {
-        this.clientConfig = new ClientConfiguration();
-        this.streamClient = new StreamClientImpl(clientConfig, appKey, appSecret);
+    public void init() throws MalformedURLException {
+        this.streamClient = Client.builder(appKey, appSecret).build();
     }
 
-    public StreamClient getClient() {
+    public Client getClient() {
         return streamClient;
     }
 }

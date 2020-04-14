@@ -76,6 +76,9 @@ public class Post {
 
     private long numViews;
 
+    @Column(columnDefinition = "bigint default 0")
+    private long numLikes;
+
     public Post(long userId, String imageAddr, String description) {
         this.userId = userId;
         this.imageAddr = imageAddr;

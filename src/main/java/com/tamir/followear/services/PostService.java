@@ -11,10 +11,7 @@ import com.tamir.followear.entities.Store;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ImageType;
-import com.tamir.followear.exceptions.InvalidPostException;
-import com.tamir.followear.exceptions.InvalidUserException;
-import com.tamir.followear.exceptions.NoAuthException;
-import com.tamir.followear.exceptions.PostAlreadyExistsException;
+import com.tamir.followear.exceptions.*;
 import com.tamir.followear.helpers.FileHelper;
 import com.tamir.followear.helpers.StringHelper;
 import com.tamir.followear.repositories.PostRepository;
@@ -31,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @Transactional
@@ -70,6 +68,10 @@ public class PostService {
         }
 
         return optPost.get();
+    }
+
+    public boolean existsById(long id) {
+        return postRepo.existsById(id);
     }
 
     /**
@@ -131,7 +133,7 @@ public class PostService {
 
         try {
             streamService.uploadActivity(post);
-        } catch (Exception e) {
+        } catch (CustomStreamException e) {
             postRepo.delete(post);
             throw e;
         }
@@ -159,7 +161,7 @@ public class PostService {
         PostInfoDTO postInfo = new PostInfoDTO(post.getId(), post.getUserId(), post.getStoreId(),
                 user.getProfileImageAddr(), user.getUsername(), post.getImageAddr(), post.getDescription(),
                 post.getFormattedPrice(), store.getLogoAddr(), store.getName(), store.getWebsite(),
-                post.getThumbnail(), post.getLink(), post.getNumViews());
+                post.getThumbnail(), post.getLink(), post.getNumViews(), post.getNumLikes());
 
         return postInfo;
     }
@@ -210,6 +212,14 @@ public class PostService {
      */
     public void incPostViews(long userId, long postId) {
         postRepo.incPostViews(userId, postId);
+    }
+
+    public void incNumLikes(long postId) {
+        postRepo.incNumLikes(postId);
+    }
+
+    public void decNumLikes(long postId) {
+        postRepo.decNumLikes(postId);
     }
 
     public List<Post> getMostPopularPosts(int limit) {

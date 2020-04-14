@@ -1,6 +1,9 @@
 package com.tamir.followear.rest;
 
 import com.tamir.followear.dto.ChangePasswordDTO;
+import com.tamir.followear.dto.UserInfoDTO;
+import com.tamir.followear.entities.User;
+import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,18 @@ public class UserSettingsController {
 
     @Autowired
     UserService userService;
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/current-settings")
+    @ResponseBody
+    public UserInfoDTO getUserById(@PathVariable long id){
+        User user = userService.findById(id);
+        if(user==null)
+            throw new InvalidUserException();
+        UserInfoDTO ret = new UserInfoDTO(user.getId(), user.getUsername(), user.getFullName(),
+                user.getProfileImageAddr(), user.getDescription(), user.getEmail(), user.getBirthDate());
+        return ret;
+    }
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/update-profile-image")

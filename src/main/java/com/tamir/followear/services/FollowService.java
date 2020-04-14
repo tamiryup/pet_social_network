@@ -60,7 +60,7 @@ public class FollowService {
     }
 
     public boolean isFollowing(long masterId, long slaveId) {
-        return followRepo.existsByMasterIdAndSlaveId(masterId, slaveId);
+        return followRepo.existsById(new FollowKey(masterId, slaveId));
     }
 
     /**

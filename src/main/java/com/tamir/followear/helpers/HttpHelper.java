@@ -80,11 +80,17 @@ public class HttpHelper {
     /**
      *
      * @param request
-     * @param index starts from 1
+     * @param index starts from 1 (minuses are from the end)
      * @return
      */
     public static String getPathPartByIndex(HttpServletRequest request, int index) {
         String[] pathParts = getPathParts(request);
+
+        // if index < 0 go from the end of the pathParts array
+        if(index < 0) {
+            index = pathParts.length + index;
+        }
+
         return pathParts[index];
     }
 

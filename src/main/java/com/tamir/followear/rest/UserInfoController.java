@@ -1,6 +1,7 @@
 package com.tamir.followear.rest;
 
 import com.tamir.followear.dto.UserInfoDTO;
+import com.tamir.followear.dto.UserProfileInfoDTO;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.services.FollowService;
@@ -22,14 +23,14 @@ public class UserInfoController {
     @Autowired
     FollowService followService;
 
-    @GetMapping("/details")
+    @GetMapping("profile-info")
     @ResponseBody
-    public UserInfoDTO getUserById(@PathVariable long id){
+    public UserProfileInfoDTO profileInfo(@PathVariable long id) {
         User user = userService.findById(id);
         if(user==null)
             throw new InvalidUserException();
-        UserInfoDTO ret = new UserInfoDTO(user.getId(), user.getUsername(), user.getFullName(),
-                user.getProfileImageAddr(), user.getDescription(), user.getEmail(), user.getBirthDate());
+        UserProfileInfoDTO ret = new UserProfileInfoDTO(user.getId(), user.getUsername(), user.getFullName(),
+                user.getProfileImageAddr(), user.getDescription());
         return ret;
     }
 

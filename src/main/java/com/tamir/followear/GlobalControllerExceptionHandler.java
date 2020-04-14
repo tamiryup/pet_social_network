@@ -43,9 +43,9 @@ public class GlobalControllerExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(StreamException.class)
+    @ExceptionHandler(CustomStreamException.class)
     @ResponseBody
-    public ErrorMessage handleStreamException(StreamException e){
+    public ErrorMessage handleStreamException(CustomStreamException e){
         ErrorMessage error = new ErrorMessage("Stream Error", e.getMessage());
         return error;
     }
@@ -170,6 +170,14 @@ public class GlobalControllerExceptionHandler {
     public ErrorMessage handleNoFollowKeyException(NoFollowKeyException e) {
         ErrorMessage error = new ErrorMessage("No Follow Key",
                 "these users don't have a follow relationship");
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(LikeException.class)
+    @ResponseBody
+    public ErrorMessage handleLikeException(LikeException e) {
+        ErrorMessage error = new ErrorMessage("Like Exception", e.getMessage());
         return error;
     }
 }

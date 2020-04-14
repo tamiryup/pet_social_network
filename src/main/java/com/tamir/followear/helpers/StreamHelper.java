@@ -1,7 +1,7 @@
 package com.tamir.followear.helpers;
 
-import io.getstream.client.model.activities.SimpleActivity;
-import io.getstream.client.model.beans.FeedFollow;
+import io.getstream.core.models.Activity;
+import io.getstream.core.models.FollowRelation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,34 +10,34 @@ import java.util.Map;
 
 public class StreamHelper {
 
-    public static List<Long> extractActorsFromActivites(List<? extends SimpleActivity> activities){
+    public static List<Long> extractActorsFromActivites(List<Activity> activities){
         List<Long> actors = new ArrayList<>();
-        for(SimpleActivity activity : activities){
+        for(Activity activity : activities){
             actors.add(Long.parseLong(activity.getActor()));
         }
         return actors;
     }
 
-    public static List<Long> extractObjectsFromActivities(List<? extends SimpleActivity> activities){
+    public static List<Long> extractObjectsFromActivities(List<Activity> activities){
         List<Long> objects = new ArrayList<>();
-        for(SimpleActivity activity : activities){
+        for(Activity activity : activities){
             objects.add(Long.parseLong(activity.getObject()));
         }
         return objects;
     }
 
     /**
-     * extracts a map of the target and feed from a {@link FeedFollow} object
+     * extracts a map of the target and feed from a {@link FollowRelation} object
      * THE MAP:
-     * "slave":id - the id of the following feed (FeedFollow.feed)
+     * "slave":id - the id of the following feed (FeedFollow.source)
      * "master:id - the id of the followed feed (FeedFollow.target)
      *
-     * @param feedFollow
+     * @param followRelation
      * @return a map mapping keywords to the user ids in the database
      */
-    public static Map<String, Long> generateMapFeedFollow(FeedFollow feedFollow){
-        String mastertString = feedFollow.getTargetId();
-        String slaveString = feedFollow.getFeedId();
+    public static Map<String, Long> generateMapFeedFollow(FollowRelation followRelation){
+        String mastertString = followRelation.getTarget();
+        String slaveString = followRelation.getSource();
         long masterId = extractIdFromFeedString(mastertString);
         long slaveId = extractIdFromFeedString(slaveString);
         Map<String, Long> map = new HashMap<>();

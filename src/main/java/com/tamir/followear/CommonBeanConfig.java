@@ -67,7 +67,6 @@ public class CommonBeanConfig {
                 new FilterRegistrationBean<>();
 
         registrationBean.setFilter(authFilter);
-        registrationBean.addUrlPatterns("/user-info/*");
         registrationBean.addUrlPatterns("/social/*");
         registrationBean.addUrlPatterns("/settings/*");
 

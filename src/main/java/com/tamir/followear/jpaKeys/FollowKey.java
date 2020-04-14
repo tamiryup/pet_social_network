@@ -3,6 +3,7 @@ package com.tamir.followear.jpaKeys;
 import java.io.Serializable;
 
 public class FollowKey implements Serializable {
+
     private long masterId;
     private long slaveId;
 

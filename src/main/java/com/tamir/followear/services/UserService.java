@@ -45,6 +45,7 @@ public class UserService {
     }
 
     public boolean existsByUsername(String username) {
+        username = username.toLowerCase();
         return userRepo.existsByUsername(username);
     }
 
