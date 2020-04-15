@@ -9,7 +9,6 @@ public enum Currency {
     EUR("€"),
     GBP("£");
 
-
     @Getter
     private String sign;
 

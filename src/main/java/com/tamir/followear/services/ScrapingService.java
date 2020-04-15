@@ -257,7 +257,7 @@ public class ScrapingService {
 
         }
         catch(NullPointerException e){
-
+            e.printStackTrace();
         }
         if (price!=null) {
             price = price.substring(10);
@@ -286,12 +286,13 @@ public class ScrapingService {
         int maxThumbnails = Math.min(endOfThumbnails, size);
         links = links.subList(0, maxThumbnails);
         for (int i = 0; i < links.size(); i++) {
-            links.set(i, "https:" + links.get(i));
+            links.set(i, links.get(i));
         }
         if (size > 0) {
             imageAddr = links.get(0);
         }
         links.remove(0);
+
         Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
