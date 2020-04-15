@@ -240,6 +240,8 @@ public class ScrapingService {
         String productID;
         Category category;
         ProductType productType;
+        String price=null;
+        String priceSymbol;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         productID = driver.findElement(By.xpath("//meta[@itemprop='productID']"))
@@ -250,10 +252,25 @@ public class ScrapingService {
         Element descriptionDiv = document.select(" p.ProductInformation77__name").first();
         String description = descriptionDiv.text();
 
-        String price = driver.findElement(By.xpath("//span[@itemprop='price']"))
+        try {
+            price = document.select("span.PriceWithSchema9__exchange").text();
+
+        }
+        catch(NullPointerException e){
+
+        }
+        if (price!=null) {
+            price = price.substring(10);
+            priceSymbol = price.substring(0, 1);
+            price = price.substring(1);
+            price = price.replaceAll("[^\\d]", "");
+        }else{
+            price = driver.findElement(By.xpath("//span[@itemprop='price']"))
                 .getAttribute("content");
-        String priceSymbol = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
-                .getAttribute("content");
+            priceSymbol = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
+                  .getAttribute("content");
+        }
+
         ItemPriceCurr itemPriceCurr = priceTag(priceSymbol);
         Currency currency = itemPriceCurr.currency;
         Element designerDiv = document.select("h1.ProductInformation77__designer").first();
