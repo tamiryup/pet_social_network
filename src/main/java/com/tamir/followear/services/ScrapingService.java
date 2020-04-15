@@ -12,6 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -123,6 +124,7 @@ public class ScrapingService {
         try {
             productPageLink = correctLink(productPageLink);
             website = getDomainName(productPageLink);
+            System.out.println(website);
         } catch (URISyntaxException e) {
             throw new BadLinkException("Invalid link");
         }
@@ -238,33 +240,30 @@ public class ScrapingService {
         String productID;
         Category category;
         ProductType productType;
-        int beginIndex = productPageLink.indexOf("/product/");
-        if (beginIndex == -1) {
-            throw new BadLinkException("This is not a product page");
-        }
-        beginIndex = beginIndex + 9;
-        int endIndex = beginIndex + 7;
-        productID = productPageLink.substring(beginIndex, endIndex);
-
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
-        Element descriptionDiv = document.select(" h2.product-name").first();
+        productID = driver.findElement(By.xpath("//meta[@itemprop='productID']"))
+                .getAttribute("content");
+        if (productID == null){
+            throw new BadLinkException("This is not a product page");
+        }
+        Element descriptionDiv = document.select(" p.ProductInformation77__name").first();
         String description = descriptionDiv.text();
-        Element priceSpan = document.select("span.full-price.style-scope.nap-price").first();
-        Element priceSymbol = document.select("span.currency.style-scope.nap-price").first();
-        String price = priceSpan.text();
-        String priceSymbolText = priceSymbol.text();
-        ItemPriceCurr itemPriceCurr = priceTag(priceSymbolText);
+
+        String price = driver.findElement(By.xpath("//span[@itemprop='price']"))
+                .getAttribute("content");
+        String priceSymbol = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
+                .getAttribute("content");
+        ItemPriceCurr itemPriceCurr = priceTag(priceSymbol);
         Currency currency = itemPriceCurr.currency;
-        Element designerDiv = document.select("a.designer-name span").first();
+        Element designerDiv = document.select("h1.ProductInformation77__designer").first();
         String designer = designerDiv.text();
-        Element imageDiv = document.select("img.product-image.first-image").first();
-        String imageAddr = imageDiv.absUrl("src");
+        String imageAddr = "";
         String imgExtension = "jpg";
-        Element elem = document.selectFirst(".thumbnail-wrapper");
-        Elements imageElements = elem.getElementsByTag("img");
+        Elements imageDiv = document.select(".Image17__imageContainer.ImageCarousel77__thumbnailImage");
+        Elements imageElements = imageDiv.select("img");
         List<String> links = imageElements.eachAttr("src");
-        links.remove(0);
+
         int endOfThumbnails = 3;
         int size = links.size();
         int maxThumbnails = Math.min(endOfThumbnails, size);
@@ -272,7 +271,10 @@ public class ScrapingService {
         for (int i = 0; i < links.size(); i++) {
             links.set(i, "https:" + links.get(i));
         }
-
+        if (size > 0) {
+            imageAddr = links.get(0);
+        }
+        links.remove(0);
         Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
