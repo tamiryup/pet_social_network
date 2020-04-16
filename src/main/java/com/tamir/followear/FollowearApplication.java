@@ -1,5 +1,6 @@
 package com.tamir.followear;
 
+import com.tamir.followear.AWS.cognito.CognitoService;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
@@ -32,7 +33,7 @@ public class FollowearApplication implements CommandLineRunner {
     PostService postService;
 
 	@Autowired
-    LikeService likeService;
+    CognitoService cognitoService;
 
 	@Autowired
     ScrapingService scrapingService;

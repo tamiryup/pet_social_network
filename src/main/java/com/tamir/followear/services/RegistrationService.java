@@ -36,7 +36,7 @@ public class RegistrationService {
             throw new UserCollisionException("email already exists");
         if (userService.existsByUsername(signupReq.getUserName()))
             throw new UserCollisionException("username already exists");
-        if (!StringHelper.isValidPassword(signupReq.getPassword()))
+        if (!cognitoService.isValidPassword(signupReq.getPassword()))
             throw new InvalidPassword();
 
         User user = new User(signupReq.getEmail(), signupReq.getUserName(),
@@ -113,7 +113,7 @@ public class RegistrationService {
     }
 
     public ConfirmForgotPasswordResult setNewPassword(String username, String newPassword, String confirmationCode) {
-        if(!StringHelper.isValidPassword(newPassword))
+        if(!cognitoService.isValidPassword(newPassword))
             throw new InvalidPassword();
 
         ConfirmForgotPasswordResult confForgotPasswordRes;

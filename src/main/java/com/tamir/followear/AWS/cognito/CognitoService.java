@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @NoArgsConstructor
@@ -40,6 +42,9 @@ public class CognitoService {
 
     @Value("${fw.cognito.pool-id}")
     private String cogPoolId;
+
+    @Value("${spring.profiles}")
+    private String env;
 
     @PostConstruct
     private void init() {
@@ -218,6 +223,20 @@ public class CognitoService {
         } catch (AWSCognitoIdentityProviderException e) {
             throw new CognitoException(e.getMessage());
         }
+    }
+
+    public boolean isValidPassword(String password) {
+        if (env.equals("prod")) {
+
+            Pattern passwordPattern = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$");
+            Matcher mat = passwordPattern.matcher(password);
+            return mat.matches() && password.length() >= 8;
+
+        } else if (password.length() >= 6) {
+            return true;
+        }
+
+        return false;
     }
 
 }

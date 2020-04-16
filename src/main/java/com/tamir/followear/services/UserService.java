@@ -178,7 +178,7 @@ public class UserService {
         if (!existsById(id)) {
             throw new InvalidUserException();
         }
-        if (!StringHelper.isValidPassword(changePasswordDTO.getNewPassword())) {
+        if (!cognitoService.isValidPassword(changePasswordDTO.getNewPassword())) {
             throw new InvalidPassword();
         }
 

@@ -14,13 +14,6 @@ public class StringHelper {
         return mat.matches();
     }
 
-    public static boolean isValidPassword(String password) {
-        if (password.length() >= 6) {
-            return true;
-        }
-        return false;
-    }
-
     public static String removeCommas(String str) {
         String newStr = str.replace(",", "");
         return newStr;
