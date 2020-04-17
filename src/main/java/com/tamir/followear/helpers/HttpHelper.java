@@ -37,7 +37,7 @@ public class HttpHelper {
         refreshTokenCookie.setMaxAge(60*60*24*365*10 - 5*60); //ten years - 5 minutes
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setHttpOnly(true);
-        //refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setSecure(true);
 
         response.addCookie(refreshTokenCookie);
     }
@@ -49,14 +49,14 @@ public class HttpHelper {
         idTokenCookie.setMaxAge(authResult.getExpiresIn() - 5*60);
         idTokenCookie.setPath("/");
         idTokenCookie.setHttpOnly(true);
-        //idTokenCookie.setSecure(true);
+        idTokenCookie.setSecure(true);
 
         //set access_token cookie
         Cookie accessTokenCookie = new Cookie("access_token", authResult.getAccessToken());
         accessTokenCookie.setMaxAge(authResult.getExpiresIn() - 5*60);
         accessTokenCookie.setPath("/");
         accessTokenCookie.setHttpOnly(true);
-        //accessTokenCookie.setSecure(true);
+        accessTokenCookie.setSecure(true);
 
         response.addCookie(idTokenCookie);
         response.addCookie(accessTokenCookie);
