@@ -124,7 +124,7 @@ public class ScrapingService {
         try {
             productPageLink = correctLink(productPageLink);
             website = getDomainName(productPageLink);
-            System.out.println(website);
+
         } catch (URISyntaxException e) {
             throw new BadLinkException("Invalid link");
         }
@@ -396,6 +396,7 @@ public class ScrapingService {
         String productID = null;
         Category category;
         ProductType productType;
+        String fullPrice=null;
 
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
@@ -403,8 +404,19 @@ public class ScrapingService {
         String description = descriptionDiv.text();
         Element designerDiv = document.select("span._947f4f._b4c5cd._f01e99").first();
         String designer = designerDiv.text();
-        Element priceSpan = document.select("span._def925._b4693b").first();
-        String fullPrice = priceSpan.text();
+        //Element priceSpan = document.select("span._def925._b4693b").first();
+        // first try to see if item is on-sale
+        try {
+            fullPrice = document.select("strong._def925._c4de76._b4693b").first().text();
+
+        }
+        catch(NullPointerException e){
+            e.printStackTrace();
+        }
+        // if full price is null item isn't on-sale
+        if (fullPrice == null){
+            fullPrice = document.select("span._def925._b4693b").first().text();
+        }
         ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
         Currency currency = itemPriceCurr.currency;
         String price = itemPriceCurr.price;
