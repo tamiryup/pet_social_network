@@ -44,7 +44,8 @@ public class CommonBeanConfig {
     private CsrfService csrfService;
 
     @Bean
-    public FilterRegistrationBean<CorsFilter> corsFilter(){
+    public FilterRegistrationBean<CorsFilter> corsFilter(
+            @Value("${fw.should-allow-cors}") boolean shouldAllowCors){
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
@@ -56,6 +57,9 @@ public class CommonBeanConfig {
         CorsFilter corsFilter = new CorsFilter(source);
         FilterRegistrationBean<CorsFilter> registrationBean =
                 new FilterRegistrationBean<>(corsFilter);
+
+        registrationBean.setEnabled(shouldAllowCors);
+
         return registrationBean;
     }
 
