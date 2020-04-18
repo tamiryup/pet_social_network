@@ -156,6 +156,15 @@ public class GlobalControllerExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidUsernameException.class)
+    @ResponseBody
+    public ErrorMessage handleInvalidUsernameException(InvalidUsernameException e) {
+        ErrorMessage error = new ErrorMessage("Invalid Username",
+                "username must contain only numbers and english letters");
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(PostAlreadyExistsException.class)
     @ResponseBody
     public ErrorMessage handlePostAlreadyExistsException(PostAlreadyExistsException e) {

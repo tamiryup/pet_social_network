@@ -29,6 +29,10 @@ public class RegistrationService {
     private CsrfService csrfService;
 
     public void signup(SignupRequestDTO signupReq) {
+        if(!StringHelper.isValidUsername(signupReq.getUserName()))
+            throw new InvalidUsernameException();
+        if(!StringHelper.isEmail(signupReq.getEmail()))
+            throw new InvalidEmailException();
 
         signupReq.setUserName(signupReq.getUserName().toLowerCase());
 

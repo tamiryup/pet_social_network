@@ -14,6 +14,10 @@ public class StringHelper {
         return mat.matches();
     }
 
+    public static boolean isValidUsername(String username) {
+        return username.matches("[a-zA-Z0-9]*");
+    }
+
     public static String removeCommas(String str) {
         String newStr = str.replace(",", "");
         return newStr;
