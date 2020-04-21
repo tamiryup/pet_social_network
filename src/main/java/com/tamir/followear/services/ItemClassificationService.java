@@ -66,10 +66,10 @@ public class ItemClassificationService {
         Map<ProductType, List<String>> englishDictionary = new HashMap<>();
         List<String> topsValues = Arrays.asList("top", "tee", "weater", "jumper", "hirt", "tank",
                 "cami", "bodysuit", "blouse", "bandeau", "vest", "singlet", "body",
-                "hoodie", "sweatshirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit", "shirt", "hoodie");
-        List<String> dressValues = Arrays.asList("dress", "skirt");
+                "hoodie", "sweatshirt","sweater","T-shirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit", "shirt", "hoodie");
+        List<String> dressValues = Arrays.asList("dress", "skirt","culottes","skorts");
         List<String> pantsValues = Arrays.asList("pants", "trousers",
-                "legging", "short", "jeans");
+                "legging","leggings", "short", "jeans","shorts");
         List<String> shoesValues = Arrays.asList("shoes", "spadrilles","mules","pumps","slides","boot","loafers",
                 "heel", "boots", "trainers", "slippers", "sandals", "runner", "slider", "sneakers","booties");
         List<String> coatsAndJacketsValues = Arrays.asList("vest", "blazer", "cardigan",
@@ -79,7 +79,7 @@ public class ItemClassificationService {
                 "clutch", "crossbody", "cross-body", "wallet", "backpack", "satchel", "handbag",
                 "basket", "clutch-bag","pouch");
         List<String> lingerieValues = Arrays.asList("bra","thong","camisole","birefs","robe");
-        List<String> accessoriesValues = Arrays.asList("sunglasses","scarf","belt","hat","headband","case","cardholder","necklace","earrings","choker","ring","bracelet");
+        List<String> accessoriesValues = Arrays.asList("gloves","turban","hair","beanie","sunglasses","sunglases","scarf","belt","hat","headband","case","cardholder","necklace","earrings","choker","ring","bracelet", "wallet","cap","visor","cuff","watch","earmuffs","beret","fedora","fascinator");
 
         englishDictionary.put(ProductType.Tops, topsValues);
         englishDictionary.put(ProductType.DressesOrSkirts, dressValues);
