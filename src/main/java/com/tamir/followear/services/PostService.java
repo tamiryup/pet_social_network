@@ -236,9 +236,11 @@ public class PostService {
 
     public void removePost(long userId, long postId) {
         Post post = findById(postId);
-        if(post.getUserId() != userId) {
+
+        if(post == null)
+            throw new InvalidPostException();
+        if(post.getUserId() != userId)
             throw new NoAuthException("user does not have permission to delete this post");
-        }
 
         streamService.removeActivity(post);
         postRepo.deleteById(postId);
