@@ -1,12 +1,12 @@
 package com.tamir.followear.rest;
 
 import com.tamir.followear.dto.*;
-import com.tamir.followear.entities.User;
-import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.services.FeedService;
 import com.tamir.followear.services.ScrapingService;
 import com.tamir.followear.services.UserService;
 import org.openqa.selenium.WebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +16,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("general")
 public class GeneralController {
+
+    private final Logger logger = LoggerFactory.getLogger(GeneralController.class);
 
     @Autowired
     UserService userService;
@@ -29,18 +31,21 @@ public class GeneralController {
     @GetMapping("search")
     @ResponseBody
     public List<SearchDTO> search(@RequestParam String query) {
+        logger.info("starting search input query: {}", query);
         return userService.searchAutocomplete(query);
     }
 
     @GetMapping("discover-people")
     @ResponseBody
     public List<DiscoverPeopleDTO> discoverPeople() {
+        logger.info("starting getGeneralDiscoverPeople");
         return feedService.getDiscoverPeople();
     }
 
     @PostMapping("explore-feed")
     @ResponseBody
     public FeedResultDTO getExploreFeed(@RequestBody Optional<FilteringDTO> filters) {
+        logger.info("starting getGeneralExploreFeed input filters: {}", filters);
         return feedService.getExploreFeed(filters);
     }
 

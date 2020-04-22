@@ -9,6 +9,8 @@ import com.tamir.followear.services.AuthService;
 import com.tamir.followear.services.CsrfService;
 import com.tamir.followear.services.RegistrationService;
 import com.tamir.followear.services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("registration")
 public class RegisterController {
+
+    private final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 
     @Autowired
     UserService userService;
@@ -37,6 +41,7 @@ public class RegisterController {
     @PostMapping(value = "/signup", consumes = "application/json", produces = "application/json")
     @ResponseBody
     public AuthResultDTO signupNewUser(HttpServletResponse response, @RequestBody SignupRequestDTO signupReq) {
+        logger.info("starting signupNewUser input signupReq: {}", signupReq);
         registrationService.signup(signupReq);
         AuthResultDTO authResultDTO = registrationService.signIn(response, signupReq.getUserName(), signupReq.getPassword());
         return authResultDTO;
@@ -46,6 +51,7 @@ public class RegisterController {
     @ResponseBody
     public AuthResultDTO signinUser(HttpServletResponse response,
                                     @RequestBody LoginDTO loginReq) {
+        logger.info("starting signinUser input loginReq: {}", loginReq);
         AuthResultDTO authResultDTO = registrationService.signIn(response, loginReq.getUsername(),
                 loginReq.getPassword());
         return authResultDTO;
@@ -54,6 +60,8 @@ public class RegisterController {
     @GetMapping(value = "/auto-login")
     @ResponseBody
     public AuthResultDTO autoLogin(HttpServletRequest request, HttpServletResponse response) {
+        logger.info("starting autoLogin");
+
         JWTClaimsSet claimsSet = authService.authenticateRequest(request, response);
         csrfService.setCsrfCookie(response);
 
@@ -67,18 +75,21 @@ public class RegisterController {
     @GetMapping("/logout")
     @ResponseBody
     public void logout(HttpServletRequest request, HttpServletResponse response) {
+        logger.info("starting logout");
         registrationService.logout(request, response);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/reset-password")
     public void resetPassword(@RequestParam String username) {
+        logger.info("starting resetPassword input username: {}", username);
         registrationService.resetPassword(username);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/set-new-password")
     public void setNewPassword(@RequestBody NewPassowrdDTO newPasswordReq) {
+        logger.info("starting setNewPassword input newPasswordReq: {}", newPasswordReq);
         registrationService.setNewPassword(newPasswordReq.getUsername(),
                 newPasswordReq.getNewPassword(), newPasswordReq.getCode());
     }
@@ -86,12 +97,14 @@ public class RegisterController {
     @GetMapping(value = "/check-username-exists")
     @ResponseBody
     public boolean checkUsernameExists(@RequestParam String username) {
+        logger.info("starting checkUsernameExists input username: {}", username);
         return userService.existsByUsername(username);
     }
 
     @GetMapping(value = "/check-email-exists")
     @ResponseBody
     public boolean checkEmailExists(@RequestParam String email) {
+        logger.info("starting checkEmailExists input email: {}", email);
         return userService.existsByEmail(email);
     }
 

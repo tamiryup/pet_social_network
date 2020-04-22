@@ -36,6 +36,7 @@ public class AuthenticationFilter implements Filter {
             throws IOException, ServletException {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpServletRequest request = (HttpServletRequest) servletRequest;
+
         String lastPathPart = HttpHelper.getPathPartByIndex(request, -1);
         List<String> excludedPaths = Arrays.asList("user-feed", "post-info", "follow-slaves", "follow-masters");
 
