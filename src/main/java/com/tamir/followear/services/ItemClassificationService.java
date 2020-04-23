@@ -66,12 +66,12 @@ public class ItemClassificationService {
         Map<ProductType, List<String>> englishDictionary = new HashMap<>();
         List<String> topsValues = Arrays.asList("top", "tee", "weater", "jumper", "hirt", "tank",
                 "cami", "bodysuit", "blouse", "bandeau", "vest", "singlet", "body",
-                "hoodie", "sweatshirt","sweater","T-shirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit", "shirt", "hoodie");
+                "hoodie", "sweatshirt","sweater","t-shirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit", "shirt", "hoodie");
         List<String> dressValues = Arrays.asList("dress", "skirt","culottes","skorts");
         List<String> pantsValues = Arrays.asList("pants", "trousers",
                 "legging","leggings", "short", "jeans","shorts");
         List<String> shoesValues = Arrays.asList("shoes", "spadrilles","mules","pumps","slides","boot","loafers",
-                "heel", "boots", "trainers", "slippers", "sandals", "runner", "slider", "sneakers","booties");
+                "heel", "trainers", "slippers", "sandals","stilletos","toe", "runner", "slider", "sneakers","flats");
         List<String> coatsAndJacketsValues = Arrays.asList("vest", "blazer", "cardigan",
                 "coat", "jacket", "waistcoat", "pullover", "parka", "poncho", "bomber", "suit",
                 "duster", "kimono", "wrap");
@@ -103,6 +103,7 @@ public class ItemClassificationService {
         Boolean jacketsOrCoatsKey = false;
         Boolean dressesOrSkirts = false;
         Boolean accessoriesKey = false;
+        Boolean shoesKey = false;
         for (Map.Entry<ProductType, List<String>> entry : dict.entrySet()) {
             ProductType key = entry.getKey();
             List<String> value = entry.getValue();
@@ -117,6 +118,7 @@ public class ItemClassificationService {
                     if (key == ProductType.Shoes) {
                         productType = ProductType.Default;
                         category = Category.Shoes;
+                        shoesKey = true;
                     }
                     if (key == ProductType.Accessories) {
                         productType = ProductType.Default;
@@ -148,7 +150,7 @@ public class ItemClassificationService {
                         productType = ProductType.DressesOrSkirts;
                     }
                 }
-                if (accessoriesKey && (dressesOrSkirts || topsKey || jacketsOrCoatsKey)){
+                if (accessoriesKey && (dressesOrSkirts || topsKey || jacketsOrCoatsKey || shoesKey)){
                     category = Category.Clothing;
                     if (dressesOrSkirts) {
                         productType = ProductType.DressesOrSkirts;
@@ -158,6 +160,9 @@ public class ItemClassificationService {
                     }
                     if (jacketsOrCoatsKey) {
                         productType = ProductType.JacketsOrCoats;
+                    }
+                    if (shoesKey){
+                        productType = ProductType.Shoes;
                     }
                 }
             }
