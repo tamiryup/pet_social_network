@@ -407,10 +407,9 @@ public class ScrapingService {
         // first try to see if item is on-sale
         try {
             fullPrice = document.select("strong._def925._c4de76._b4693b").first().text();
-
         }
         catch(NullPointerException e){
-            e.printStackTrace();
+
         }
         // if full price is null item isn't on-sale
         if (fullPrice == null){

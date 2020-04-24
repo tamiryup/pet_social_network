@@ -1,7 +1,6 @@
 package com.tamir.followear.services;
 
 import com.tamir.followear.entities.Like;
-import com.tamir.followear.entities.Post;
 import com.tamir.followear.exceptions.InvalidPostException;
 import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.exceptions.LikeException;

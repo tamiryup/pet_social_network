@@ -1,6 +1,5 @@
 package com.tamir.followear.entities;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;

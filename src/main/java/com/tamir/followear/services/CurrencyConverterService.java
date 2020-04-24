@@ -8,6 +8,8 @@ import com.tamir.followear.OkHttpClientProvider;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.exceptions.ExchangeRateException;
 import okhttp3.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class CurrencyConverterService {
 
+    private final Logger logger = LoggerFactory.getLogger(CurrencyConverterService.class);
+
     @Autowired
     private OkHttpClientProvider okHttpClientProvider;
 
@@ -44,7 +48,7 @@ public class CurrencyConverterService {
     @PostConstruct
     private void init() {
         ratesCache = CacheBuilder.newBuilder()
-                .refreshAfterWrite(2, TimeUnit.HOURS)
+                .refreshAfterWrite(12, TimeUnit.HOURS)
                 .build(
                         new CacheLoader<String, Double>() {
                             @Override
@@ -70,6 +74,7 @@ public class CurrencyConverterService {
 
         Response response = client.newCall(request).execute();
         if(response.code() != 200) {
+            logger.warn("Received error from currconv api servers");
             throw new ExchangeRateException("Received error from currconv api servers");
         }
 
