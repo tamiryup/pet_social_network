@@ -22,9 +22,11 @@ public class ExchangeRate {
 
     private double rate;
 
-    @CreationTimestamp
-    private Date createDate;
-
     @UpdateTimestamp
     private Date updateDate;
+
+    public ExchangeRate(ExchangeRateId exchangeRateId, double rate) {
+        this.exchangeRateId = exchangeRateId;
+        this.rate = rate;
+    }
 }

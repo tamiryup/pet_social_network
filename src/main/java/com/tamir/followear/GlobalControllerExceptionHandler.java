@@ -189,4 +189,12 @@ public class GlobalControllerExceptionHandler {
         ErrorMessage error = new ErrorMessage("Like Exception", e.getMessage());
         return error;
     }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(MissingExchangeRateException.class)
+    @ResponseBody
+    public ErrorMessage handleMissingExchangeRateException(ExchangeRateException e) {
+        ErrorMessage error = new ErrorMessage("Missing Exchange Rate", e.getMessage());
+        return error;
+    }
 }

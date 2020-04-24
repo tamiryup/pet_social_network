@@ -14,8 +14,8 @@ import java.util.Objects;
 
 @Embeddable
 @NoArgsConstructor
-@Getter
 @AllArgsConstructor
+@Getter
 public class ExchangeRateId implements Serializable {
 
     @Enumerated(EnumType.STRING)
