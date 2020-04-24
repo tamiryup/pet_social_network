@@ -132,10 +132,11 @@ public class CurrencyConverterService {
 
             return result;
 
-        } catch(RuntimeException e) {
-            throw e;
         } catch(Exception e) {
-            throw new ExchangeRateException(e.getMessage());
+            if (e.getCause() instanceof ExchangeRateException) {
+                throw (ExchangeRateException) e.getCause();
+            }
+            throw new ExchangeRateException(e.getMessage(), e.getCause());
         }
     }
 }

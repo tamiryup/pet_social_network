@@ -6,4 +6,8 @@ public class ExchangeRateException extends RuntimeException {
         super(message);
     }
 
+    public ExchangeRateException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }
