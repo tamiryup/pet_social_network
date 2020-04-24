@@ -34,6 +34,9 @@ public class CurrencyConverterService {
     @Autowired
     private OkHttpClientProvider okHttpClientProvider;
 
+    @Autowired
+    private ExchangeRateService exchangeRateService;
+
     /**
      * key format:
      *      USD_ILS - maps to the exchange rate of 1 USD to ILS
@@ -75,7 +78,7 @@ public class CurrencyConverterService {
         Response response = client.newCall(request).execute();
         if(response.code() != 200) {
             logger.warn("Received error from currconv api servers");
-            throw new ExchangeRateException("Received error from currconv api servers");
+            return getRateByQueryString(query);
         }
 
         ResponseBody responseBody = response.body();
@@ -85,7 +88,35 @@ public class CurrencyConverterService {
         // json response might be int (ILS = 1 ILS), this handles that case (will otherwise throw an error)
         Number rate = map.get(query);
         Double rateAsDouble = rate.doubleValue();
+        updateRateByQueryString(query, rateAsDouble);
+
         return rateAsDouble;
+    }
+
+    /**
+     * gets rate by query string from database
+     *
+     * @param query at the same format as cache key
+     * @return the rate in the database
+     */
+    private double getRateByQueryString(String query) {
+        String[] currencies = query.split("_");
+        Currency fromCurrency = Currency.valueOf(currencies[0]);
+        Currency toCurrency = Currency.valueOf(currencies[1]);
+        return exchangeRateService.getRate(fromCurrency, toCurrency);
+    }
+
+    /**
+     * updates the rate in the database by query string
+     *
+     * @param query at the same format as cache key
+     * @param rate
+     */
+    private void updateRateByQueryString(String query, double rate){
+        String[] currencies = query.split("_");
+        Currency fromCurrency = Currency.valueOf(currencies[0]);
+        Currency toCurrency = Currency.valueOf(currencies[1]);
+        exchangeRateService.updateRate(fromCurrency, toCurrency, rate);
     }
 
     public double convert(Currency from, Currency to, double amount) {
@@ -101,6 +132,8 @@ public class CurrencyConverterService {
 
             return result;
 
+        } catch(RuntimeException e) {
+            throw e;
         } catch(Exception e) {
             throw new ExchangeRateException(e.getMessage());
         }
