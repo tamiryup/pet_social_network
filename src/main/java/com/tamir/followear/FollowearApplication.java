@@ -5,6 +5,7 @@ import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
+import com.tamir.followear.services.ItemClassificationService;
 import com.tamir.followear.services.PostService;
 import com.tamir.followear.services.ScrapingService;
 import org.slf4j.Logger;
@@ -15,6 +16,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @SpringBootApplication
 public class FollowearApplication implements CommandLineRunner {
@@ -34,9 +37,15 @@ public class FollowearApplication implements CommandLineRunner {
 	@Autowired
     ScrapingService scrapingService;
 
+	@Autowired
+    ItemClassificationService classificationService;
+
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
+        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+		ItemClassificationService.ItemTags res = this.classificationService.classify("Missguided underwire bikini top in leopard print",dict);
+        System.out.println(res);
 	}
 
 

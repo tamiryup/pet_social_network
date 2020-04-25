@@ -78,8 +78,10 @@ public class ItemClassificationService {
         List<String> bagValues = Arrays.asList("bag", "tote",
                 "clutch", "crossbody", "cross-body", "wallet", "backpack", "satchel", "handbag",
                 "basket", "clutch-bag","pouch");
-        List<String> lingerieValues = Arrays.asList("bra","thong","camisole","birefs","robe");
+        List<String> lingerieValues = Arrays.asList("bra","thong","camisole","briefs","robe","chemise");
         List<String> accessoriesValues = Arrays.asList("gloves","turban","hair","beanie","sunglasses","sunglases","scarf","belt","hat","headband","case","cardholder","necklace","earrings","choker","ring","bracelet", "wallet","cap","visor","cuff","watch","earmuffs","beret","fedora","fascinator");
+        List<String> swimwearValues = Arrays.asList("bikini","swimsuit","");
+
 
         englishDictionary.put(ProductType.Tops, topsValues);
         englishDictionary.put(ProductType.DressesOrSkirts, dressValues);
@@ -89,6 +91,7 @@ public class ItemClassificationService {
         englishDictionary.put(ProductType.Bags, bagValues);
         englishDictionary.put(ProductType.Lingerie, lingerieValues);
         englishDictionary.put(ProductType.Accessories,accessoriesValues);
+        englishDictionary.put(ProductType.Swimwear,swimwearValues);
 
 
         return englishDictionary;
@@ -104,6 +107,8 @@ public class ItemClassificationService {
         Boolean dressesOrSkirts = false;
         Boolean accessoriesKey = false;
         Boolean shoesKey = false;
+        Boolean lingerieKey = false;
+        Boolean swimwearKey = false;
         for (Map.Entry<ProductType, List<String>> entry : dict.entrySet()) {
             ProductType key = entry.getKey();
             List<String> value = entry.getValue();
@@ -137,6 +142,12 @@ public class ItemClassificationService {
                     if (key == ProductType.DressesOrSkirts) {
                         dressesOrSkirts = true;
                     }
+                    if (key == productType.Lingerie){
+                        lingerieKey = true;
+                    }
+                    if (key == ProductType.Swimwear){
+                        swimwearKey = true;
+                    }
                 }
 
                 if (pantsKey && (jacketsOrCoatsKey || topsKey || dressesOrSkirts)) {
@@ -165,6 +176,15 @@ public class ItemClassificationService {
                         productType = ProductType.Shoes;
                     }
                 }
+                if (lingerieKey){
+                    productType = ProductType.Lingerie;
+                }
+
+                if (swimwearKey && topsKey){
+                    productType = ProductType.Swimwear;
+                }
+
+
             }
         }
         itemTags.category = category;
