@@ -422,28 +422,43 @@ public class ScrapingService {
         Category category;
         ProductType productType;
         String fullPrice=null;
+        Element descriptionDiv=null;
 
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
-        Element descriptionDiv = document.select("span._b4693b._a32b92").first();
+        try{
+            descriptionDiv = document.select("span._b4693b._a32b92").first();
+        }
+        catch(NullPointerException e){
+            e.printStackTrace();
+        }
+
+        if (descriptionDiv == null){
+            try {
+                descriptionDiv = document.select("span._d85b45._1851d6").first();
+            }
+            catch(NullPointerException e){
+                e.printStackTrace();
+            }
+        }
         String description = descriptionDiv.text();
-        Element designerDiv = document.select("span._947f4f._b4c5cd._f01e99").first();
+        Element designerDiv = document.select("span._e87472._346238._e4b5ec").first();
         String designer = designerDiv.text();
         // first try to see if item is on-sale
         try {
-            fullPrice = document.select("strong._def925._c4de76._b4693b").first().text();
+            fullPrice = document.select("strong._e806a1._366381._d85b45").first().text();
         }
         catch(NullPointerException e){
 
         }
         // if full price is null item isn't on-sale
         if (fullPrice == null){
-            fullPrice = document.select("span._def925._b4693b").first().text();
+            fullPrice = document.select("span._e806a1._d85b45").first().text();
         }
         ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
         Currency currency = itemPriceCurr.currency;
         String price = itemPriceCurr.price;
-        Elements imagesDiv = document.select("picture._61beb2._ef9cef");
+        Elements imagesDiv = document.select("picture._492380._f8a733");
         Elements imageElements = imagesDiv.select("img");
         List<String> links = imageElements.eachAttr("src");
         String imageAddr = links.get(0);
