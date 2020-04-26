@@ -5,6 +5,7 @@ import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.services.ExchangeRateService;
+import com.tamir.followear.services.ItemClassificationService;
 import com.tamir.followear.services.PostService;
 import com.tamir.followear.services.ScrapingService;
 import org.slf4j.Logger;
@@ -33,6 +34,9 @@ public class FollowearApplication implements CommandLineRunner {
 
 	@Autowired
     ScrapingService scrapingService;
+
+	@Autowired
+    ItemClassificationService classificationService;
 
 	@Override
 	public void run(String... args) throws Exception {

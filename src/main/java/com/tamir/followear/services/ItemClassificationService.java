@@ -66,20 +66,22 @@ public class ItemClassificationService {
         Map<ProductType, List<String>> englishDictionary = new HashMap<>();
         List<String> topsValues = Arrays.asList("top", "tee", "weater", "jumper", "hirt", "tank",
                 "cami", "bodysuit", "blouse", "bandeau", "vest", "singlet", "body",
-                "hoodie", "sweatshirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit", "shirt", "hoodie");
-        List<String> dressValues = Arrays.asList("dress", "skirt");
+                "hoodie", "sweatshirt","sweater","t-shirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit", "shirt", "hoodie");
+        List<String> dressValues = Arrays.asList("dress", "skirt","culottes","skorts");
         List<String> pantsValues = Arrays.asList("pants", "trousers",
-                "legging", "short", "jeans");
+                "legging","leggings", "short", "jeans","shorts");
         List<String> shoesValues = Arrays.asList("shoes", "spadrilles","mules","pumps","slides","boot","loafers",
-                "heel", "boots", "trainers", "slippers", "sandals", "runner", "slider", "sneakers","booties");
+                "heel", "trainers", "slippers", "sandals","stilletos","toe", "runner", "slider", "sneakers","flats");
         List<String> coatsAndJacketsValues = Arrays.asList("vest", "blazer", "cardigan",
                 "coat", "jacket", "waistcoat", "pullover", "parka", "poncho", "bomber", "suit",
                 "duster", "kimono", "wrap");
         List<String> bagValues = Arrays.asList("bag", "tote",
                 "clutch", "crossbody", "cross-body", "wallet", "backpack", "satchel", "handbag",
                 "basket", "clutch-bag","pouch");
-        List<String> lingerieValues = Arrays.asList("bra","thong","camisole","birefs","robe");
-        List<String> accessoriesValues = Arrays.asList("sunglasses","scarf","belt","hat","headband","case","cardholder","necklace","earrings","choker","ring","bracelet");
+        List<String> lingerieValues = Arrays.asList("bra","thong","camisole","briefs","robe","chemise");
+        List<String> accessoriesValues = Arrays.asList("gloves","turban","hair","beanie","sunglasses","sunglases","scarf","belt","hat","headband","case","cardholder","necklace","earrings","choker","ring","bracelet", "wallet","cap","visor","cuff","watch","earmuffs","beret","fedora","fascinator");
+        List<String> swimwearValues = Arrays.asList("bikini","swimsuit","body");
+
 
         englishDictionary.put(ProductType.Tops, topsValues);
         englishDictionary.put(ProductType.DressesOrSkirts, dressValues);
@@ -89,6 +91,7 @@ public class ItemClassificationService {
         englishDictionary.put(ProductType.Bags, bagValues);
         englishDictionary.put(ProductType.Lingerie, lingerieValues);
         englishDictionary.put(ProductType.Accessories,accessoriesValues);
+        englishDictionary.put(ProductType.Swimwear,swimwearValues);
 
 
         return englishDictionary;
@@ -103,6 +106,9 @@ public class ItemClassificationService {
         Boolean jacketsOrCoatsKey = false;
         Boolean dressesOrSkirts = false;
         Boolean accessoriesKey = false;
+        Boolean shoesKey = false;
+        Boolean lingerieKey = false;
+        Boolean swimwearKey = false;
         for (Map.Entry<ProductType, List<String>> entry : dict.entrySet()) {
             ProductType key = entry.getKey();
             List<String> value = entry.getValue();
@@ -117,6 +123,7 @@ public class ItemClassificationService {
                     if (key == ProductType.Shoes) {
                         productType = ProductType.Default;
                         category = Category.Shoes;
+                        shoesKey = true;
                     }
                     if (key == ProductType.Accessories) {
                         productType = ProductType.Default;
@@ -135,6 +142,12 @@ public class ItemClassificationService {
                     if (key == ProductType.DressesOrSkirts) {
                         dressesOrSkirts = true;
                     }
+                    if (key == productType.Lingerie){
+                        lingerieKey = true;
+                    }
+                    if (key == ProductType.Swimwear){
+                        swimwearKey = true;
+                    }
                 }
 
                 if (pantsKey && (jacketsOrCoatsKey || topsKey || dressesOrSkirts)) {
@@ -148,7 +161,7 @@ public class ItemClassificationService {
                         productType = ProductType.DressesOrSkirts;
                     }
                 }
-                if (accessoriesKey && (dressesOrSkirts || topsKey || jacketsOrCoatsKey)){
+                if (accessoriesKey && (dressesOrSkirts || topsKey || jacketsOrCoatsKey || shoesKey)){
                     category = Category.Clothing;
                     if (dressesOrSkirts) {
                         productType = ProductType.DressesOrSkirts;
@@ -159,6 +172,16 @@ public class ItemClassificationService {
                     if (jacketsOrCoatsKey) {
                         productType = ProductType.JacketsOrCoats;
                     }
+                    if (shoesKey){
+                        productType = ProductType.Shoes;
+                    }
+                }
+                if (lingerieKey){
+                    productType = ProductType.Lingerie;
+                }
+
+                if (swimwearKey && (topsKey || lingerieKey)){
+                    productType = ProductType.Swimwear;
                 }
             }
         }
