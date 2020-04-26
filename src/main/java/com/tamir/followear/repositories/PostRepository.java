@@ -49,6 +49,17 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> recentMostPopularPosts(@Param("limit") int limit);
 
     @Transactional
+    @Query(value =
+            "SELECT * FROM posts\n" +
+            "WHERE user_id NOT IN (SELECT master_id FROM follows where slave_id = :userId)\n" +
+            "AND create_date >= (NOW() - 3 * INTERVAL '1 week') AND num_views > 0\n" +
+            "AND user_id != :userId\n" +
+            "ORDER BY num_views DESC\n" +
+            "LIMIT :limit",
+    nativeQuery = true)
+    List<Post> recentMostPopularPostsForUser(@Param("userId") long userId, @Param("limit") int limit);
+
+    @Transactional
     @Query(value = "SELECT COUNT(*) FROM posts WHERE user_id = :userId AND store_id= :storeId" +
             " AND product_id = :productId LIMIT 1",
     nativeQuery = true)

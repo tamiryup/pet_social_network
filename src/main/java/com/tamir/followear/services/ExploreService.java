@@ -116,9 +116,16 @@ public class ExploreService {
         return posts;
     }
 
-    private List<Post> getExplorePosts(List<User> exploreUsers) {
+    private List<Post> getExploreMostPopularPosts(long userId, int limit) {
+        if(userId == -1)
+            return postService.getMostPopularPosts(limit);
+
+        return postService.getMostPopularPostsForUser(userId, limit);
+    }
+
+    private List<Post> getExplorePosts(long userId, List<User> exploreUsers) {
         List<Post> explorePostsByUsers = getExplorePostsFromUserList(exploreUsers);
-        List<Post> explorePostsByNumViews = postService.getMostPopularPosts(75);
+        List<Post> explorePostsByNumViews = getExploreMostPopularPosts(userId, 75);
 
         List<Post> explorePosts = new ArrayList<>();
         explorePosts.addAll(explorePostsByUsers);
@@ -131,12 +138,12 @@ public class ExploreService {
 
     public List<Post> getExplorePosts() {
         List<User> exploreUsers = getExploreUsers();
-        return getExplorePosts(exploreUsers);
+        return getExplorePosts(-1, exploreUsers);
     }
 
     public List<Post> getExplorePosts(long userId) {
         List<User> exploreUsers = getExploreUsers(userId);
-        return getExplorePosts(exploreUsers);
+        return getExplorePosts(userId, exploreUsers);
     }
 
 }

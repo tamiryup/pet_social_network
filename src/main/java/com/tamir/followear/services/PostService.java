@@ -226,6 +226,10 @@ public class PostService {
         return postRepo.recentMostPopularPosts(limit);
     }
 
+    public List<Post> getMostPopularPostsForUser(long userId, int limit) {
+        return postRepo.recentMostPopularPostsForUser(userId, limit);
+    }
+
     public boolean existsByItem(long userId, long storeId, String productId) {
         int itemCount = postRepo.countByItem(userId, storeId, productId);
         if(itemCount > 0) {
