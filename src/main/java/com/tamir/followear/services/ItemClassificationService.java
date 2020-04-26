@@ -80,7 +80,7 @@ public class ItemClassificationService {
                 "basket", "clutch-bag","pouch");
         List<String> lingerieValues = Arrays.asList("bra","thong","camisole","briefs","robe","chemise");
         List<String> accessoriesValues = Arrays.asList("gloves","turban","hair","beanie","sunglasses","sunglases","scarf","belt","hat","headband","case","cardholder","necklace","earrings","choker","ring","bracelet", "wallet","cap","visor","cuff","watch","earmuffs","beret","fedora","fascinator");
-        List<String> swimwearValues = Arrays.asList("bikini","swimsuit","");
+        List<String> swimwearValues = Arrays.asList("bikini","swimsuit","body");
 
 
         englishDictionary.put(ProductType.Tops, topsValues);
@@ -180,11 +180,9 @@ public class ItemClassificationService {
                     productType = ProductType.Lingerie;
                 }
 
-                if (swimwearKey && topsKey){
+                if (swimwearKey && (topsKey || lingerieKey)){
                     productType = ProductType.Swimwear;
                 }
-
-
             }
         }
         itemTags.category = category;

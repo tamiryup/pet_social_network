@@ -43,9 +43,6 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
-        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
-		ItemClassificationService.ItemTags res = this.classificationService.classify("Missguided underwire bikini top in leopard print",dict);
-        System.out.println(res);
 	}
 
 
