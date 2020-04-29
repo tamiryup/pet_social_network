@@ -11,6 +11,8 @@ import io.getstream.core.exceptions.StreamException;
 import io.getstream.core.models.Activity;
 import io.getstream.core.models.FollowRelation;
 import io.getstream.core.options.Pagination;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 public class StreamService {
+
+    private final Logger logger = LoggerFactory.getLogger(StreamService.class);
 
     @Autowired
     StreamClientProvider streamClientProvider;
@@ -44,6 +48,17 @@ public class StreamService {
         return activity;
     }
 
+    private Activity createSaveActivity(long userId, Post post) {
+        Activity activity = Activity.builder()
+                .actor("" + userId)
+                .verb("save")
+                .object("" + post.getId())
+                .foreignID("" + post.getId())
+                .time(post.getCreateDate())
+                .build();
+        return activity;
+    }
+
     public void uploadActivity(Post post) {
         try {
             FlatFeed feed = streamClient.flatFeed("user", "" + post.getUserId());
@@ -55,7 +70,28 @@ public class StreamService {
         } catch (ExecutionException | InterruptedException e) {
             throw new CustomStreamException("Problem with stream 'Future' Calculation");
         }
+    }
 
+    public void saveItem(long userId, Post post) {
+        try {
+            FlatFeed feed = streamClient.flatFeed("saved", "" + userId);
+            Activity saveActivity = createSaveActivity(userId, post);
+            Activity response = feed.addActivity(saveActivity).get();
+            logger.info("saved activity: " + response);
+        } catch (StreamException e) {
+            throw new CustomStreamException(e.getMessage());
+        } catch (ExecutionException | InterruptedException e) {
+            throw new CustomStreamException("Problem with stream 'Future' Calculation");
+        }
+    }
+
+    public void unsaveItem(long userId, Post post) {
+        try {
+            FlatFeed savedFeed = streamClient.flatFeed("saved", "" + userId);
+            savedFeed.removeActivityByForeignID("" + post.getId());
+        } catch (StreamException e) {
+            throw new CustomStreamException(e.getMessage());
+        }
     }
 
     public void removeActivity(Post post) {
@@ -102,6 +138,10 @@ public class StreamService {
 
     public List<Activity> getStreamUserFeed(long userId, int offset, int limit) {
         return getFeedActivities(userId, offset, limit, "user");
+    }
+
+    public List<Activity> getStreamSavedFeed(long userId, int offset, int limit) {
+        return getFeedActivities(userId, offset, limit, "saved");
     }
 
     private List<Activity> getFeedActivities(long userId, int offset, int limit, String feedSlug) {

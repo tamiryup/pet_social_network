@@ -8,6 +8,7 @@ import com.tamir.followear.services.ExchangeRateService;
 import com.tamir.followear.services.ItemClassificationService;
 import com.tamir.followear.services.PostService;
 import com.tamir.followear.services.ScrapingService;
+import com.tamir.followear.stream.StreamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class FollowearApplication implements CommandLineRunner {
     PostService postService;
 
 	@Autowired
-    ExchangeRateService exchangeRateService;
+    StreamService streamService;
 
 	@Autowired
     ScrapingService scrapingService;

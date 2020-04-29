@@ -87,6 +87,16 @@ public class SocialController {
         return feedResult;
     }
 
+    @PostMapping("saved-feed")
+    @ResponseBody
+    public FeedResultDTO getSavedFeed(@PathVariable long id, @RequestParam int offset,
+                                      @RequestBody Optional<FilteringDTO> filters) {
+        logger.info("starting getSavedFeed input userId: {}, offset: {}, filters: {}",
+                id, offset, filters);
+        FeedResultDTO feedResult = feedService.getSavedFeed(id, offset, filters);
+        return feedResult;
+    }
+
     @PostMapping("explore-feed")
     @ResponseBody
     public FeedResultDTO getExploreFeed(@PathVariable long id, @RequestBody Optional<FilteringDTO> filters) {
@@ -177,5 +187,19 @@ public class SocialController {
     public void unlike(@PathVariable long id, @RequestParam long postId) {
         logger.info("starting unlike input userId: {}, postId: {}", id, postId);
         likeService.unlike(id, postId);
+    }
+
+    @PostMapping("save-item")
+    @ResponseBody
+    public void saveItem(@PathVariable long id, @RequestParam long postId) {
+        logger.info("starting saveItem input userId: {}, postId: {}", id, postId);
+        postService.saveItem(id, postId);
+    }
+
+    @PostMapping("unsave-item")
+    @ResponseBody
+    public void unsaveItem(@PathVariable long id, @RequestParam long postId) {
+        logger.info("starting unsaveItem input userId: {}, postId: {}", id, postId);
+        postService.unsaveItem(id, postId);
     }
 }

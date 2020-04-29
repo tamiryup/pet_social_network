@@ -59,8 +59,7 @@ public class FeedService {
         List<Activity> streamFeed;
         int numFeedRequests = 0;
         List<TimelineFeedPostDTO> feedPostDTOS = new ArrayList<>();
-        int streamFeedRequestLimit = filters.isPresent() ?
-                CommonBeanConfig.getMaxStreamActivitiesPerFeedRequest() : CommonBeanConfig.getNumPostsPerFeedRequest();
+        int streamFeedRequestLimit = getStreamFeedRequestLimit(filters);
 
         while (numFeedRequests < CommonBeanConfig.getStreamFeedRequestsLimit()
                 && feedPostDTOS.size() < CommonBeanConfig.getNumPostsPerFeedRequest()) {
@@ -84,11 +83,11 @@ public class FeedService {
             List<Long> storesIds = posts.stream().map(Post::getStoreId).collect(Collectors.toList());
             Map<Long, Store> storeMap = storeService.makeMapFromIds(storesIds);
 
-            for(Post post : posts) {
+            for (Post post : posts) {
                 User user = userMap.get(post.getUserId());
                 Store store = storeMap.get(post.getStoreId());
 
-                if(user == null) {
+                if (user == null) {
                     logger.error("Post's userId does not exist in database");
                     continue;
                 }
@@ -101,7 +100,7 @@ public class FeedService {
             offset += streamFeed.size();
             numFeedRequests++;
 
-            if(!filters.isPresent()) {
+            if (!filters.isPresent()) {
                 break;
             }
 
@@ -118,8 +117,7 @@ public class FeedService {
         List<Activity> streamFeed;
         int numFeedRequests = 0;
         List<UserFeedPostDTO> feedPostDTOS = new ArrayList<>();
-        int streamFeedRequestLimit = filters.isPresent() ?
-                CommonBeanConfig.getMaxStreamActivitiesPerFeedRequest() : CommonBeanConfig.getNumPostsPerFeedRequest();
+        int streamFeedRequestLimit = getStreamFeedRequestLimit(filters);
 
         while (numFeedRequests < CommonBeanConfig.getStreamFeedRequestsLimit()
                 && feedPostDTOS.size() < CommonBeanConfig.getNumPostsPerFeedRequest()) {
@@ -127,34 +125,81 @@ public class FeedService {
             try {
                 streamFeed = streamService.getStreamUserFeed(userId, offset, streamFeedRequestLimit);
             } catch (NoMoreActivitiesException e) { // catch no more activities when filtering
-                if(feedPostDTOS.size() == 0){
+                if (feedPostDTOS.size() == 0) {
                     throw e;
                 }
                 break; // return the feed result since there are no more activities
             }
-            List<Long> objects = StreamHelper.extractObjectsFromActivities(streamFeed);
-            List<Post> posts = postService.findAllById(objects);
-            posts = filterPosts(posts, filters);
 
-            List<Long> storesIds = posts.stream().map(Post::getStoreId).collect(Collectors.toList());
-            Map<Long, Store> storeMap = storeService.makeMapFromIds(storesIds);
-
-            for(Post post : posts) {
-                Store store = storeMap.get(post.getStoreId());
-                feedPostDTOS.add(new UserFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                        post.getDescription(), post.getLink(), post.getFormattedPrice(), store.getWebsite(),
-                        post.getThumbnail()));
-            }
+            addActivitiesToUserFeedList(streamFeed, feedPostDTOS, filters);
 
             offset += streamFeed.size(); //increment the offset for the next request
             numFeedRequests++;
 
-            if(!filters.isPresent()) {
+            if (!filters.isPresent()) {
                 break;
             }
         }
 
         return new FeedResultDTO(feedPostDTOS, offset);
+    }
+
+    public FeedResultDTO getSavedFeed(long userId, int offset, Optional<FilteringDTO> filters) {
+        if (!userService.existsById(userId)) {
+            throw new InvalidUserException();
+        }
+
+        List<Activity> streamFeed;
+        int numFeedRequests = 0;
+        List<UserFeedPostDTO> feedPostDTOS = new ArrayList<>();
+        int streamFeedRequestLimit = getStreamFeedRequestLimit(filters);
+
+        while (numFeedRequests < CommonBeanConfig.getStreamFeedRequestsLimit()
+                && feedPostDTOS.size() < CommonBeanConfig.getNumPostsPerFeedRequest()) {
+
+            try {
+                streamFeed = streamService.getStreamSavedFeed(userId, offset, streamFeedRequestLimit);
+            } catch (NoMoreActivitiesException e) { // catch no more activities when filtering
+                if (feedPostDTOS.size() == 0) {
+                    throw e;
+                }
+                break; // return the feed result since there are no more activities
+            }
+
+            addActivitiesToUserFeedList(streamFeed, feedPostDTOS, filters);
+
+            offset += streamFeed.size(); //increment the offset for the next request
+            numFeedRequests++;
+
+            if (!filters.isPresent()) {
+                break;
+            }
+        }
+
+        return new FeedResultDTO(feedPostDTOS, offset);
+    }
+
+    private void addActivitiesToUserFeedList(List<Activity> streamFeed, List<UserFeedPostDTO> feedPostDTOS,
+                                             Optional<FilteringDTO> filters) {
+        List<Long> objects = StreamHelper.extractObjectsFromActivities(streamFeed);
+        List<Post> posts = postService.findAllById(objects);
+        posts = filterPosts(posts, filters);
+
+        List<Long> storesIds = posts.stream().map(Post::getStoreId).collect(Collectors.toList());
+        Map<Long, Store> storeMap = storeService.makeMapFromIds(storesIds);
+
+        for (Post post : posts) {
+            Store store = storeMap.get(post.getStoreId());
+            feedPostDTOS.add(new UserFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
+                    post.getDescription(), post.getLink(), post.getFormattedPrice(), store.getWebsite(),
+                    post.getThumbnail()));
+        }
+    }
+
+    private int getStreamFeedRequestLimit(Optional<FilteringDTO> filters) {
+        return filters.isPresent() ?
+                CommonBeanConfig.getMaxStreamActivitiesPerFeedRequest() :
+                CommonBeanConfig.getNumPostsPerFeedRequest();
     }
 
     public FeedResultDTO getExploreFeed(Optional<FilteringDTO> filters) {
@@ -163,7 +208,7 @@ public class FeedService {
     }
 
     public FeedResultDTO getExploreFeed(long userId, Optional<FilteringDTO> filters) {
-        if(!userService.existsById(userId)) {
+        if (!userService.existsById(userId)) {
             throw new InvalidUserException();
         }
 
@@ -175,7 +220,7 @@ public class FeedService {
         explorePosts = filterPosts(explorePosts, filters);
 
         List<ExplorePostDTO> explorePostDTOS = new ArrayList<>();
-        for(Post post : explorePosts) {
+        for (Post post : explorePosts) {
             ExplorePostDTO dto = new ExplorePostDTO(post.getId(), post.getUserId(),
                     post.getImageAddr(), post.getDescription());
             explorePostDTOS.add(dto);
@@ -185,7 +230,7 @@ public class FeedService {
     }
 
     private List<Post> filterPosts(List<Post> posts, Optional<FilteringDTO> filters) {
-        if(!filters.isPresent()) {
+        if (!filters.isPresent()) {
             return posts;
         }
 
@@ -199,31 +244,31 @@ public class FeedService {
     /**
      * checks if the post passes the filters
      *
-     * @param post The post to filter
+     * @param post    The post to filter
      * @param filters The filtering rules
      * @return true - iff the post fits the filters
      */
     private boolean filterPost(Post post, FilteringDTO filters) {
 
         //check category
-        if(filters.getCategory() != null && post.getCategory() != filters.getCategory()) {
+        if (filters.getCategory() != null && post.getCategory() != filters.getCategory()) {
             return false;
         }
 
         //check product type
-        if(!CollectionUtils.isEmpty(filters.getProductTypes())
+        if (!CollectionUtils.isEmpty(filters.getProductTypes())
                 && !filters.getProductTypes().contains(post.getProductType())) {
             return false;
         }
 
         //check designer
-        if(!CollectionUtils.isEmpty(filters.getDesigners())
+        if (!CollectionUtils.isEmpty(filters.getDesigners())
                 && !filters.getDesigners().contains(post.getDesigner())) {
             return false;
         }
 
         //check stores
-        if(!CollectionUtils.isEmpty(filters.getStores())
+        if (!CollectionUtils.isEmpty(filters.getStores())
                 && !filters.getStores().contains(post.getStoreId())) {
             return false;
         }
@@ -233,12 +278,12 @@ public class FeedService {
                 price : currencyConverter.convert(post.getCurrency(), Currency.ILS, price);
 
         //check min price
-        if(filters.getMinPrice() != 0 &&  priceInILS < filters.getMinPrice()) {
+        if (filters.getMinPrice() != 0 && priceInILS < filters.getMinPrice()) {
             return false;
         }
 
         //check max price
-        if(filters.getMaxPrice() != 0 && priceInILS > filters.getMaxPrice()){
+        if (filters.getMaxPrice() != 0 && priceInILS > filters.getMaxPrice()) {
             return false;
         }
 
@@ -276,7 +321,7 @@ public class FeedService {
     }
 
     public List<DiscoverPeopleDTO> getDiscoverPeople(long userId) {
-        if(!userService.existsById(userId)){
+        if (!userService.existsById(userId)) {
             throw new InvalidUserException();
         }
 
@@ -287,11 +332,11 @@ public class FeedService {
     private List<DiscoverPeopleDTO> mapUserListToDiscoverPeople(List<User> exploreUsers) {
         List<DiscoverPeopleDTO> discoverPeopleFeed = new ArrayList<>();
 
-        for(User user : exploreUsers) {
+        for (User user : exploreUsers) {
             List<BasicPostDTO> items =
                     postService.moreFromUser(user.getId(), 0, 4);// 0 to not exclude any post
 
-            if(items.size() < 2) {
+            if (items.size() < 2) {
                 continue; //do not show users with less than 2 posts in discover people
             }
 
