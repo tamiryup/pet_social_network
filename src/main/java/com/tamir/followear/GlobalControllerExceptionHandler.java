@@ -152,7 +152,8 @@ public class GlobalControllerExceptionHandler {
     @ResponseBody
     public ErrorMessage handleInvalidUsernameException(InvalidUsernameException e) {
         ErrorMessage error = new ErrorMessage("Invalid Username",
-                "username must contain only numbers and english letters");
+                "username must contain only numbers and english letters" +
+                        " - no spaces or special letters allowed");
         return error;
     }
 
