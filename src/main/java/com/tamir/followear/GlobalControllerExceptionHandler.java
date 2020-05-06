@@ -183,6 +183,14 @@ public class GlobalControllerExceptionHandler {
         return error;
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(SaveException.class)
+    @ResponseBody
+    public ErrorMessage handleSaveException(SaveException e) {
+        ErrorMessage error = new ErrorMessage("Save Exception", e.getMessage());
+        return error;
+    }
+
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(ExchangeRateException.class)
     @ResponseBody

@@ -257,17 +257,4 @@ public class PostService {
         streamService.hideActivity(userId, post);
     }
 
-    public void saveItem(long userId, long postId) {
-        if(!userService.existsById(userId))
-            throw new InvalidUserException();
-        Post post = findById(postId);
-        streamService.saveItem(userId, post);
-    }
-
-    public void unsaveItem(long userId, long postId) {
-        if(!userService.existsById(userId))
-            throw new InvalidUserException();
-        Post post = findById(postId);
-        streamService.unsaveItem(userId, post);
-    }
 }

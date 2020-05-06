@@ -2,6 +2,7 @@ package com.tamir.followear.stream;
 
 import com.tamir.followear.CommonBeanConfig;
 import com.tamir.followear.entities.Post;
+import com.tamir.followear.entities.Save;
 import com.tamir.followear.exceptions.NoMoreActivitiesException;
 import com.tamir.followear.exceptions.CustomStreamException;
 import com.tamir.followear.helpers.StreamHelper;
@@ -48,13 +49,13 @@ public class StreamService {
         return activity;
     }
 
-    private Activity createSaveActivity(long userId, Post post) {
+    private Activity createSaveActivity(long userId, long postId, Save save) {
         Activity activity = Activity.builder()
                 .actor("" + userId)
                 .verb("save")
-                .object("" + post.getId())
-                .foreignID("" + post.getId())
-                .time(post.getCreateDate())
+                .object("" + postId)
+                .foreignID("" + postId)
+                .time(save.getDate())
                 .build();
         return activity;
     }
@@ -72,10 +73,10 @@ public class StreamService {
         }
     }
 
-    public void saveItem(long userId, Post post) {
+    public void saveItem(long userId, long postId, Save save) {
         try {
             FlatFeed feed = streamClient.flatFeed("saved", "" + userId);
-            Activity saveActivity = createSaveActivity(userId, post);
+            Activity saveActivity = createSaveActivity(userId, postId, save);
             Activity response = feed.addActivity(saveActivity).get();
             logger.info("saved activity: " + response);
         } catch (StreamException e) {
@@ -85,10 +86,10 @@ public class StreamService {
         }
     }
 
-    public void unsaveItem(long userId, Post post) {
+    public void unsaveItem(long userId, long postId) {
         try {
             FlatFeed savedFeed = streamClient.flatFeed("saved", "" + userId);
-            savedFeed.removeActivityByForeignID("" + post.getId());
+            savedFeed.removeActivityByForeignID("" + postId);
         } catch (StreamException e) {
             throw new CustomStreamException(e.getMessage());
         }

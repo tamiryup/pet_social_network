@@ -32,6 +32,9 @@ public class SocialController {
     LikeService likeService;
 
     @Autowired
+    SaveService saveService;
+
+    @Autowired
     ExploreService exploreService;
 
     @Autowired
@@ -193,13 +196,20 @@ public class SocialController {
     @ResponseBody
     public void saveItem(@PathVariable long id, @RequestParam long postId) {
         logger.info("starting saveItem input userId: {}, postId: {}", id, postId);
-        postService.saveItem(id, postId);
+        saveService.saveItem(id, postId);
     }
 
     @PostMapping("unsave-item")
     @ResponseBody
     public void unsaveItem(@PathVariable long id, @RequestParam long postId) {
         logger.info("starting unsaveItem input userId: {}, postId: {}", id, postId);
-        postService.unsaveItem(id, postId);
+        saveService.unsaveItem(id, postId);
+    }
+
+    @GetMapping("did-save-item")
+    @ResponseBody
+    public boolean didSave(@PathVariable long id, @RequestParam long postId) {
+        logger.info("starting didSave input userId: {}, postId: {}", id, postId);
+        return saveService.didSaveItem(id, postId);
     }
 }
