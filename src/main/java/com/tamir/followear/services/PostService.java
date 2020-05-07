@@ -74,6 +74,15 @@ public class PostService {
         return postRepo.existsById(id);
     }
 
+    public long getPostUserId(long id) {
+        Post post = findById(id);
+        if(post == null) {
+            return -1;
+        }
+
+        return post.getUserId();
+    }
+
     /**
      * finds all posts with ids from the list of ids (plus duplicates)
      *

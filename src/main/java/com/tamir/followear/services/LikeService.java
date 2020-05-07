@@ -16,13 +16,16 @@ import javax.transaction.Transactional;
 public class LikeService {
 
     @Autowired
-    LikeRepository likeRepo;
+    private LikeRepository likeRepo;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    PostService postService;
+    private PostService postService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public boolean didLike(long userId, long postId) {
         return likeRepo.existsById(new LikeKey(userId, postId));
@@ -38,6 +41,7 @@ public class LikeService {
 
         Like like = likeRepo.save(new Like(userId, postId));
         postService.incNumLikes(postId);
+        notificationService.sendLikeNotification(userId, postId);
         return like;
     }
 

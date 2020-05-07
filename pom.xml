@@ -133,6 +133,13 @@
             <version>2.9.10.4</version>
         </dependency>
 
+        <!-- Firebase -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>6.12.2</version>
+        </dependency>
+
     </dependencies>
 
     <!-- <dependencyManagement>
