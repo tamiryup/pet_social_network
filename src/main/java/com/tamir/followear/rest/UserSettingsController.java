@@ -4,6 +4,7 @@ import com.tamir.followear.dto.ChangePasswordDTO;
 import com.tamir.followear.dto.UserInfoDTO;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.exceptions.InvalidUserException;
+import com.tamir.followear.services.UserDeviceService;
 import com.tamir.followear.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,9 @@ public class UserSettingsController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    UserDeviceService userDeviceService;
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/current-settings")
@@ -75,6 +79,20 @@ public class UserSettingsController {
                                HttpServletRequest servletRequest) {
         logger.info("starting changePassword input userId: {}, changePasswordReq: {}", id, changePasswordDTO);
         userService.changePassword(id, changePasswordDTO, servletRequest);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/register-device")
+    public void registerDevice(@PathVariable long id, @RequestParam String registrationToken) {
+        logger.info("starting registerDevice input userId: {}, registrationToken: {}", id, registrationToken);
+        userDeviceService.addUserDevice(id, registrationToken);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/unregister-device")
+    public void unregisterDevice(@PathVariable long id, @RequestParam String registrationToken) {
+        logger.info("starting unregisterDevice input userId: {}, registrationToken: {}", id, registrationToken);
+        userDeviceService.removeUserDevice(id, registrationToken);
     }
 
 }
