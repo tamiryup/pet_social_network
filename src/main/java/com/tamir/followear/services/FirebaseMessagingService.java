@@ -29,7 +29,7 @@ public class FirebaseMessagingService implements NotificationService {
     @PostConstruct
     private void init() throws IOException {
         FileInputStream serviceAccount = new FileInputStream(
-                "/Users/tamir/Documents/followear/followear-70ac3-firebase-adminsdk-gpdix-0706e2e63f.json");
+                "src/main/resources/followear-70ac3-firebase-adminsdk-gpdix-0706e2e63f.json");
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
