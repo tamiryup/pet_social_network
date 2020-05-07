@@ -1,6 +1,7 @@
 package com.tamir.followear.services;
 
 import com.tamir.followear.entities.Follow;
+import com.tamir.followear.entities.UserDevice;
 import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.exceptions.NoFollowKeyException;
 import com.tamir.followear.jpaKeys.FollowKey;
@@ -13,6 +14,7 @@ import javax.transaction.Transactional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,12 +30,29 @@ public class FollowService {
     @Autowired
     private StreamService streamService;
 
+    @Autowired
+    private NotificationService notificationService;
+
+    public Follow findById(FollowKey key) {
+        Optional<Follow> optFollow =  followRepo.findById(key);
+        if(!optFollow.isPresent()) {
+            return null;
+        }
+
+        return optFollow.get();
+    }
+
     public Follow follow(long masterId, long slaveId) {
         if (!userService.existsById(slaveId) || !userService.existsById(masterId))
             throw new InvalidUserException();
+        if(isFollowing(masterId, slaveId))
+            return findById(new FollowKey(masterId, slaveId));
+
         streamService.follow(masterId, slaveId);
         Follow follow = new Follow(masterId, slaveId);
         follow = followRepo.save(follow);
+        notificationService.sendFollowNotification(masterId, slaveId);
+
         return follow;
     }
 
@@ -42,6 +61,7 @@ public class FollowService {
             throw new InvalidUserException();
         if (!isFollowing(masterId, slaveId))
             throw new NoFollowKeyException();
+
         streamService.unfollow(masterId, slaveId);
         FollowKey key = new FollowKey(masterId, slaveId);
         followRepo.deleteById(key);
