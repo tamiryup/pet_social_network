@@ -116,6 +116,14 @@ public class UserService {
         return userMap;
     }
 
+    public String getUsernameById(long id) {
+        User user = findById(id);
+        if(user == null)
+            return null;
+
+        return user.getUsername();
+    }
+
     public String updateProfilePictureAddrById(long id, String profilePictureAddr) {
         User user = findById(id);
         if (user == null) {

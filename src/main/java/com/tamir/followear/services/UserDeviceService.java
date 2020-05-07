@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -22,6 +24,10 @@ public class UserDeviceService {
 
     public boolean existsById(UserDeviceKey key) {
         return userDeviceRepo.existsById(key);
+    }
+
+    public List<UserDevice> findByUserId(long userId) {
+        return userDeviceRepo.findByUserId(userId);
     }
 
     public UserDevice findById(UserDeviceKey key) {
@@ -54,5 +60,14 @@ public class UserDeviceService {
             return;
 
         userDeviceRepo.deleteById(new UserDeviceKey(userId, registrationToken));
+    }
+
+    public List<String> getUserRegistrationTokens(long userId) {
+        List<UserDevice> userDeviceList = findByUserId(userId);
+        List<String> registrationTokens = userDeviceList.stream()
+                .map(UserDevice::getRegistrationToken)
+                .collect(Collectors.toList());
+
+        return registrationTokens;
     }
 }
