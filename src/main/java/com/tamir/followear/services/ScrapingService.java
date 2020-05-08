@@ -251,26 +251,10 @@ public class ScrapingService {
         }
         Element descriptionDiv = document.select(" p.ProductInformation77__name").first();
         String description = descriptionDiv.text();
-        if (!this.isStringOnlyAlphabet(description)){
-            description = "";
-        }
-        try {
-            price = document.select("span.PriceWithSchema9__exchange").text();
-
-        }
-        catch(NullPointerException e){
-            e.printStackTrace();
-        }
-        if (price!=null) {
-
-            priceSymbol = this.getNetaporterPriceSymbol(price);
-            price = price.replaceAll("\\D+","");
-        }else{
-            price = driver.findElement(By.xpath("//span[@itemprop='price']"))
+        price = driver.findElement(By.xpath("//span[@itemprop='price']"))
                 .getAttribute("content");
-            priceSymbol = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
+        priceSymbol = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
                   .getAttribute("content");
-        }
 
         ItemPriceCurr itemPriceCurr = priceTag(priceSymbol);
         Currency currency = itemPriceCurr.currency;
