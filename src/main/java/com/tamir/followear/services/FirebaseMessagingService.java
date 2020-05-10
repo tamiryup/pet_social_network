@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @Service
@@ -28,8 +28,8 @@ public class FirebaseMessagingService implements NotificationService {
 
     @PostConstruct
     private void init() throws IOException {
-        FileInputStream serviceAccount = new FileInputStream(
-                "src/main/resources/followear-70ac3-firebase-adminsdk-gpdix-0706e2e63f.json");
+        InputStream serviceAccount = FirebaseMessagingService.class.
+                getResourceAsStream("/credentials/followear-70ac3-firebase-adminsdk-gpdix-0706e2e63f.json");
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
