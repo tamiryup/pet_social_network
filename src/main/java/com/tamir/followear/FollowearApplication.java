@@ -1,5 +1,6 @@
 package com.tamir.followear;
 
+import com.amazonaws.services.s3.transfer.Upload;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
@@ -17,6 +18,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.Arrays;
+
 
 @SpringBootApplication
 public class FollowearApplication implements CommandLineRunner {
@@ -42,6 +44,14 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
+//        Map<String, ProductType> engDict = classificationService.getHebrewDict();
+//        ItemClassificationService.ItemTags itemTags = classificationService.classify("סנדלי עור", engDict);
+//        System.out.println(itemTags);
+
+        UploadItemDTO res = this.scrapingService.extractItem("https://www.net-a-porter.com/en-gb/shop/product/givenchy/square-frame-tortoiseshell-acetate-sunglasses/1250658");
+        System.out.println(res);
+
+
 	}
 
 
