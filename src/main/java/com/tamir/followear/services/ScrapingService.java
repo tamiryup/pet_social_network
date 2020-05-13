@@ -227,7 +227,6 @@ public class ScrapingService {
         links.remove(1);
         links.remove(3);
 
-        //Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
 
@@ -369,7 +368,6 @@ public class ScrapingService {
         String imageAddr = links.get(0);
         links.remove(0);
 
-        //Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
@@ -619,7 +617,6 @@ public class ScrapingService {
         int startIndex = endIndex - 11;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
 
-        //Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
@@ -653,7 +650,6 @@ public class ScrapingService {
         int startIndex = endIndex - 11;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
 
-        //Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
