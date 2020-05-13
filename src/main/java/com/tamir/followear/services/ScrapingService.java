@@ -36,6 +36,7 @@ import com.tamir.followear.enums.Currency;
 
 @Service
 public class ScrapingService {
+    Boolean israeliWebsite = false;
 
     @Autowired
     StoreService storeService;
@@ -226,8 +227,9 @@ public class ScrapingService {
         links.remove(1);
         links.remove(3);
 
-        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
 
@@ -277,8 +279,7 @@ public class ScrapingService {
             imageAddr = links.get(0);
         }
         links.remove(0);
-
-        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
@@ -351,7 +352,7 @@ public class ScrapingService {
         String imageAddr = links.get(0);
         links.remove(0);
 
-        Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
@@ -457,7 +458,7 @@ public class ScrapingService {
             break;
         }
 
-        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
@@ -513,19 +514,10 @@ public class ScrapingService {
         imgSrc = "https:" + imgSrc;
         String correctImgSrc = imgSrc.replace(".webp",".jpg");
         links.add(correctImgSrc);
-
-        Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
-        if (productType == ProductType.Default) {
-            dict = classificationService.getEnglishDict();
-            itemTags = classificationService.classify(description, dict);
-            category = itemTags.getCategory();
-            productType = itemTags.getProductType();
-        }
-
-
         return new UploadItemDTO(correctImageAddr, productPageLink, description,
                 price, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
@@ -535,6 +527,7 @@ public class ScrapingService {
         String result = productPageLink.replaceFirst("/share/", "/il/en/");
 
         if(StringHelper.doesContainHebrew(productPageLink)) {
+            this.israeliWebsite = true;
             int startIndex = result.lastIndexOf('/') + 1;
             int htmlStringIndex = result.indexOf(".html");
             int endIndex = result.lastIndexOf("-p", htmlStringIndex);
@@ -549,6 +542,7 @@ public class ScrapingService {
         ProductType productType;
         productPageLink = correctZaraLink(productPageLink);
         driver.get(productPageLink);
+        Map<String, ProductType> dict;
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select(" h1.product-name").first();
         String description = descriptionDiv.text();
@@ -568,13 +562,12 @@ public class ScrapingService {
         int endIndex = productPageLink.indexOf("html");
         int startIndex = endIndex - 9;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
-
-        Map<ProductType, List<String>> dict = classificationService.getHebrewDict();
-        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
-        if (itemTags.getProductType() == ProductType.Default) {
+        if (this.israeliWebsite){
+            dict = classificationService.getHebrewDict();
+        }else {
             dict = classificationService.getEnglishDict();
-            itemTags = classificationService.classify(description, dict);
         }
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
 
@@ -608,7 +601,7 @@ public class ScrapingService {
         int startIndex = endIndex - 11;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
 
-        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
@@ -641,7 +634,7 @@ public class ScrapingService {
         int startIndex = endIndex - 11;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
 
-        Map<ProductType, List<String>> dict = classificationService.getEnglishDict();
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
         productType = itemTags.getProductType();

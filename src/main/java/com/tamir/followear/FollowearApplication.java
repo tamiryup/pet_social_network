@@ -1,18 +1,13 @@
 package com.tamir.followear;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
-import com.tamir.followear.repositories.UserDeviceRepository;
-import com.tamir.followear.services.*;
-import com.tamir.followear.stream.StreamService;
+import com.tamir.followear.services.ItemClassificationService;
+import com.tamir.followear.services.NotificationService;
+import com.tamir.followear.services.PostService;
+import com.tamir.followear.services.ScrapingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +15,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.Arrays;
+
 
 @SpringBootApplication
 public class FollowearApplication implements CommandLineRunner {
