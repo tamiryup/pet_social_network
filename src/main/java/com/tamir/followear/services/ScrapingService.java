@@ -234,7 +234,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeID, designer, imgExtension, productID, links, category, productType);
+                price, "", currency, storeID, designer, imgExtension, productID, links, category, productType);
 
     }
 
@@ -285,7 +285,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
     String getNetaporterPriceSymbol(String price) {
@@ -358,7 +358,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
 
@@ -464,7 +464,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
     private UploadItemDTO sheinDTO(String productPageLink, long storeId, WebDriver driver) {
@@ -519,7 +519,7 @@ public class ScrapingService {
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
         return new UploadItemDTO(correctImageAddr, productPageLink, description,
-                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
 
@@ -572,7 +572,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
     private UploadItemDTO hmDTO(String productPageLink, long storeId, WebDriver driver) {
@@ -607,7 +607,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
 
     }
 
@@ -640,7 +640,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
 }

@@ -16,6 +16,7 @@ public class UploadItemDTO {
     private String link;
     private String description;
     private String price;
+    private String salePrice;
     private Currency currency;
     private long storeId;
     private String designer;
