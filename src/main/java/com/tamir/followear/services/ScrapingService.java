@@ -126,12 +126,14 @@ public class ScrapingService {
             productPageLink = correctLink(productPageLink);
             website = getDomainName(productPageLink);
 
+
         } catch (URISyntaxException e) {
             throw new BadLinkException("Invalid link");
         }
         try {
             driver = getDriver();
-            storeId = getStoreID(website);
+            //storeId = getStoreID(website);
+            storeId = 8;
             switch (website) {
                 case "asos.com":
                     itemDTO = asosDTO(productPageLink, storeId, driver);
@@ -156,6 +158,18 @@ public class ScrapingService {
                     break;
                 case "shopbop.com":
                     itemDTO = shopBopDTO(productPageLink, storeId, driver);
+                    break;
+                case "revolve.com":
+                    itemDTO = revolveDTO(productPageLink, storeId, driver);
+                    break;
+                case "factory54.co.il":
+                    itemDTO = factoryDTO(productPageLink, storeId, driver);
+                    break;
+                case "topshop.com":
+                    itemDTO = topshopDTO(productPageLink, storeId, driver);
+                    break;
+                case "mytheresa.com":
+                    itemDTO = mytheresaDTO(productPageLink, storeId, driver);
                     break;
                 default:
                     throw new BadLinkException("This website is not supported");
@@ -642,5 +656,155 @@ public class ScrapingService {
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
+
+
+    private UploadItemDTO revolveDTO(String productPageLink, long storeId, WebDriver driver) {
+        Category category;
+        ProductType productType;
+        driver.get(productPageLink);
+        String fullPrice;
+        Document document = Jsoup.parse(driver.getPageSource());
+        Element descriptionDiv = document.select("h1.product-name--lg.u-text-transform--none.u-margin-t--none.u-margin-b--sm").first();
+        String description = descriptionDiv.text();
+        String designer = null;
+        Element priceSpan = document.select("span#retailPrice").first();
+        String discountedSpan = document.select("span#markdownPrice").first().text();
+        if (discountedSpan!=null){
+            fullPrice = discountedSpan;
+        }else{
+            fullPrice = priceSpan.text();
+        }
+        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
+        Currency currency = itemPriceCurr.currency;
+        String price = itemPriceCurr.price;
+        Elements elem = document.select("img.slideshow__pager-img");
+        List<String> links = elem.eachAttr("src");
+        for (int i = 0; i < links.size(); i++) {
+            links.set(i, links.get(i).replace("/dt/","/z/"));
+        }
+        String imageAddr = links.get(0);
+        String imgExtension = "jpg";
+        links.remove(0);
+        int startIndex = productPageLink.indexOf("/dp/");
+        int endIndex = productPageLink.length();
+        String productID = productPageLink.substring(startIndex+4,endIndex-1);
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
+
+        return new UploadItemDTO(imageAddr, productPageLink, description,
+                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+    }
+
+    private UploadItemDTO factoryDTO(String productPageLink, long storeId, WebDriver driver) {
+        Category category;
+        ProductType productType;
+        driver.get(productPageLink);
+        String fullPrice;
+        Document document = Jsoup.parse(driver.getPageSource());
+        Element descriptionDiv = document.select("p.product_note").first();
+        String description = descriptionDiv.text();
+        String designer = document.select("h1#manufacturer_header a").attr("title");
+        Element priceSpan = document.select("span.price").first();
+        String discountedSpan = document.select("span.final-price").first().text();
+        if (discountedSpan!=null){
+            fullPrice = discountedSpan;
+        }else{
+            fullPrice = priceSpan.text();
+        }
+        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
+        Currency currency = itemPriceCurr.currency;
+        String price = itemPriceCurr.price;
+        Elements elem = document.select(".zoomWindow");
+        List<String> links=null;
+        String imageAddr = driver.findElement(By.xpath("//div[@class='zoomWindow']"))
+                .getCssValue("background-image");
+        String imgExtension = "jpg";
+        String productID = driver.findElement(By.xpath("//input[@id='product-id']"))
+                .getAttribute("value");
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
+
+        return new UploadItemDTO(imageAddr, productPageLink, description,
+                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+    }
+
+    private UploadItemDTO topshopDTO(String productPageLink, long storeId, WebDriver driver) {
+        Category category;
+        ProductType productType;
+        driver.get(productPageLink);
+        String fullPrice;
+        Document document = Jsoup.parse(driver.getPageSource());
+        Element descriptionDiv = document.select(".product-name").first();
+        String description = descriptionDiv.text();
+        String designer = null;
+        Element priceSpan = null;;
+        try {
+            priceSpan = document.select("p.special-price.1 span.price").first();
+        }catch(NullPointerException e){
+
+        }
+        if (priceSpan==null){
+            priceSpan = document.select("span.price").first();
+        }
+
+        fullPrice = priceSpan.text();
+        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
+        Currency currency = itemPriceCurr.currency;
+        String price = itemPriceCurr.price;
+        Elements elem = document.select(".zoomWindow");
+        List<String>links = new ArrayList<>();
+        links.add(document.select("div#image-zoom-2 img").attr("src"));
+        String imageAddr = document.select("div#image-zoom-0 img").attr("src");
+        String imgExtension = "jpg";
+        String productID = driver.findElement(By.xpath("//input[@name='form_key']"))
+                .getAttribute("value");
+        Map<String, ProductType> dict = classificationService.getHebrewDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
+
+        return new UploadItemDTO(imageAddr, productPageLink, description,
+                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+    }
+
+    private UploadItemDTO mytheresaDTO(String productPageLink, long storeId, WebDriver driver) {
+        Category category;
+        ProductType productType;
+        driver.get(productPageLink);
+        String fullPrice;
+        Document document = Jsoup.parse(driver.getPageSource());
+        Element descriptionDiv = document.select("div.product-name").first();
+        String description = descriptionDiv.text();
+        String designer = document.select("div.product-designer").first().text();
+        String priceSpan = null;;
+        String productID = driver.findElement(By.xpath("//input[@name='product']"))
+                .getAttribute("value");
+        try {
+            priceSpan = document.select("span#product-price-"+productID+"price").first().text();
+        }catch(NullPointerException e){
+            priceSpan = document.select(".price-box span#product-price-"+productID).first().text();
+        }
+        ItemPriceCurr itemPriceCurr = priceTag(priceSpan);
+        Currency currency = itemPriceCurr.currency;
+        String price = itemPriceCurr.price;
+        List<String>links = new ArrayList<>();
+        links.add(document.select("img#image-1").attr("src"));
+        links.set(0, "https:" + links.get(0));
+        String imageAddr = "https:" + document.select("img#image-0").attr("src");
+        String imgExtension = "jpg";
+
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
+
+        return new UploadItemDTO(imageAddr, productPageLink, description,
+                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+    }
+
 
 }
