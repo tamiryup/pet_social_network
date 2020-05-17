@@ -43,7 +43,7 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
-		UploadItemDTO res = this.scrapingService.extractItem("https://www.asos.com/nike-training/nike-training-one-leggings-in-colour-block-blue/prd/13617365?clr=lime-green&colourWayId=16551937&SearchQuery=&cid=27171");
+		UploadItemDTO res = this.scrapingService.extractItem("https://www.asos.com/missguided/missguided-twist-front-jumper-in-lime-green/prd/12436674?clr=green&colourWayId=16448213&SearchQuery=&cid=2893");
 		System.out.println(res);
 	}
 

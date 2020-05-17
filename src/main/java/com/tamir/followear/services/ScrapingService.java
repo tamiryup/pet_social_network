@@ -223,7 +223,6 @@ public class ScrapingService {
             endIndex = beginIndex + 8;
         }
         productID = productPageLink.substring(beginIndex, endIndex);
-
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Elements descriptionDiv = document.select("div.product-hero");
@@ -261,7 +260,6 @@ public class ScrapingService {
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, salePrice, currency, storeID, designer, imgExtension, productID, links, category, productType);
-
     }
 
     private UploadItemDTO netaporterDTO(String productPageLink, long storeId, WebDriver driver) {
