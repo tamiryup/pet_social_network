@@ -2,6 +2,7 @@ package com.tamir.followear.rest;
 
 import com.tamir.followear.dto.*;
 import com.tamir.followear.services.FeedService;
+import com.tamir.followear.services.LikeService;
 import com.tamir.followear.services.ScrapingService;
 import com.tamir.followear.services.UserService;
 import org.openqa.selenium.WebDriver;
@@ -26,6 +27,9 @@ public class GeneralController {
     FeedService feedService;
 
     @Autowired
+    LikeService likeService;
+
+    @Autowired
     ScrapingService scrapingService;
 
     @GetMapping("search")
@@ -33,6 +37,13 @@ public class GeneralController {
     public List<SearchDTO> search(@RequestParam String query) {
         logger.info("starting search input query: {}", query);
         return userService.searchAutocomplete(query);
+    }
+
+    @GetMapping("like-list")
+    @ResponseBody
+    public List<FeedFollowDTO> likeList(@RequestParam long postId) {
+        logger.info("starting likeList input postId: {}", postId);
+        return likeService.likeList(postId, 15);
     }
 
     @GetMapping("discover-people")

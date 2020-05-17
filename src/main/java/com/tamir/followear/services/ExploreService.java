@@ -86,7 +86,7 @@ public class ExploreService {
         List<Long> exploreUsersIds = CollectionsHelper
                 .mergeListsAlternativelyNoDuplicates(popularUsersIds, relevantUsersIds);
 
-        List<User> exploreUsers = userService.findAllById(exploreUsersIds);
+        List<User> exploreUsers = userService.findAllByIdWithDuplicates(exploreUsersIds);
 
         return exploreUsers;
     }
@@ -99,7 +99,7 @@ public class ExploreService {
      */
     public List<User> getExploreUsers() {
         List<Long> popularUsersIds = popularUsers.get();
-        List<User> exploreUsers = userService.findAllById(popularUsersIds);
+        List<User> exploreUsers = userService.findAllByIdWithDuplicates(popularUsersIds);
         return exploreUsers;
     }
 

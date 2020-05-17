@@ -305,7 +305,7 @@ public class FeedService {
     }
 
     private List<FeedFollowDTO> getFeedFollowDTOsFromIds(List<Long> ids) {
-        List<User> users = userService.findAllById(ids);
+        List<User> users = userService.findAllByIdWithDuplicates(ids);
         List<FeedFollowDTO> dtos = new ArrayList<>();
         for (User user : users) {
             FeedFollowDTO dto = new FeedFollowDTO(user.getId(), user.getUsername(),

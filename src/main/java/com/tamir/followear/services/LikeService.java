@@ -1,6 +1,8 @@
 package com.tamir.followear.services;
 
+import com.tamir.followear.dto.FeedFollowDTO;
 import com.tamir.followear.entities.Like;
+import com.tamir.followear.entities.User;
 import com.tamir.followear.exceptions.InvalidPostException;
 import com.tamir.followear.exceptions.InvalidUserException;
 import com.tamir.followear.exceptions.LikeException;
@@ -10,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -55,5 +60,24 @@ public class LikeService {
 
         likeRepo.deleteById(new LikeKey(userId, postId));
         postService.decNumLikes(postId);
+    }
+
+    public List<FeedFollowDTO> likeList(long postId, int limit) {
+        if(!postService.existsById(postId))
+            throw new InvalidPostException();
+
+        List<Like> likes = likeRepo.findByPostIdWithLimit(postId, limit);
+        List<Long> userIds = likes.stream().map(Like::getUserId).collect(Collectors.toList());
+        List<User> users = userService.findAllById(userIds);
+
+
+        List<FeedFollowDTO> resultList = new ArrayList<>();
+        for(User user : users) {
+            FeedFollowDTO dto = new FeedFollowDTO(user.getId(), user.getUsername(),
+                    user.getFullName(), user.getProfileImageAddr());
+            resultList.add(dto);
+        }
+
+        return resultList;
     }
 }

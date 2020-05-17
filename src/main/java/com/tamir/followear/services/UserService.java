@@ -81,6 +81,10 @@ public class UserService {
         return user.get();
     }
 
+    public List<User> findAllById(List<Long> ids) {
+        return Lists.newArrayList(userRepo.findAllById(ids));
+    }
+
     /**
      * finds all users with ids from the list of ids (plus duplicates)
      *
@@ -89,7 +93,7 @@ public class UserService {
      * in case there is a duplicate id. The list returns the users in the same order
      * as the ids received.
      */
-    public List<User> findAllById(List<Long> ids) {
+    public List<User> findAllByIdWithDuplicates(List<Long> ids) {
         List<User> userList = Lists.newArrayList(userRepo.findAllById(ids));
         List<User> userListPlusDuplicates = new ArrayList<>();
         for (long id : ids) {
