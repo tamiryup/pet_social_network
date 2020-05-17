@@ -42,8 +42,6 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
-		UploadItemDTO res = this.scrapingService.extractItem("https://www.mytheresa.com/en-de/acne-studios-raya-mohair-and-wool-blend-cardigan-813323.html?catref=category");
-		System.out.println(res);
 	}
 
 
