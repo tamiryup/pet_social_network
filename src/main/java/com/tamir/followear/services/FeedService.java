@@ -93,8 +93,8 @@ public class FeedService {
                 }
 
                 feedPostDTOS.add(new TimelineFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                        post.getDescription(), post.getLink(), post.getFormattedPrice(), store.getWebsite(),
-                        user.getProfileImageAddr(), user.getUsername(), post.getThumbnail()));
+                        post.getDescription(), post.getLink(), post.getFormattedPrice(), post.getFormattedSalePrice(),
+                        store.getWebsite(), user.getProfileImageAddr(), user.getUsername(), post.getThumbnail()));
             }
 
             offset += streamFeed.size();
@@ -191,8 +191,8 @@ public class FeedService {
         for (Post post : posts) {
             Store store = storeMap.get(post.getStoreId());
             feedPostDTOS.add(new UserFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                    post.getDescription(), post.getLink(), post.getFormattedPrice(), store.getWebsite(),
-                    post.getThumbnail()));
+                    post.getDescription(), post.getLink(), post.getFormattedPrice(), post.getFormattedSalePrice(),
+                    store.getWebsite(), post.getThumbnail()));
         }
     }
 

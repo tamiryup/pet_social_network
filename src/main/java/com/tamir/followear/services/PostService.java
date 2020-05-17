@@ -109,6 +109,27 @@ public class PostService {
             throw new PostAlreadyExistsException();
     }
 
+    private void handleItemPrice(UploadItemDTO item) {
+        String price = StringHelper.removeCommas(item.getPrice()); //save price without commas
+        String salePrice = StringHelper.removeCommas(item.getSalePrice());
+        if(item.getCurrency() == Currency.EUR) { //save price in ILS if currency is EUR
+            double priceAsEur = Double.valueOf(price);
+            double priceAsIls = currConverterService.convert(Currency.EUR, Currency.ILS, priceAsEur);
+            price = "" + priceAsIls;
+
+            if(!salePrice.equals("")) {
+                double salePriceAsEur = Double.valueOf(salePrice);
+                double salePriceAsIls = currConverterService.convert(Currency.EUR, Currency.ILS, salePriceAsEur);
+                salePrice =  "" + salePriceAsIls;
+            }
+
+            item.setCurrency(Currency.ILS);
+        }
+
+        item.setPrice(price);
+        item.setSalePrice(salePrice);
+    }
+
     public Post uploadItemPost(long userId, UploadItemDTO item) throws IOException {
         validateUploadItem(userId, item);
 
@@ -127,16 +148,10 @@ public class PostService {
         }
         String thumbnail = (thumbnailAddresses.size() > 0) ? thumbnailAddresses.get(0) : null;
 
-        String price = StringHelper.removeCommas(item.getPrice()); //save price without commas
-        if(item.getCurrency() == Currency.EUR) { //save price in ILS if currency is EUR
-            double priceAsEur = Double.valueOf(price);
-            double priceAsIls = currConverterService.convert(Currency.EUR, Currency.ILS, priceAsEur);
-            item.setCurrency(Currency.ILS);
-            price = "" + priceAsIls;
-        }
+        handleItemPrice(item);
 
         Post post = new Post(userId, item.getStoreId(), imageAddr, item.getDescription(), item.getLink(),
-                price, item.getCurrency(), item.getDesigner(), item.getProductId(),
+                item.getPrice(), item.getSalePrice(), item.getCurrency(), item.getDesigner(), item.getProductId(),
                 thumbnail, item.getCategory(), item.getProductType());
         post = create(post);
 
@@ -169,8 +184,8 @@ public class PostService {
 
         PostInfoDTO postInfo = new PostInfoDTO(post.getId(), post.getUserId(), post.getStoreId(),
                 user.getProfileImageAddr(), user.getUsername(), post.getImageAddr(), post.getDescription(),
-                post.getFormattedPrice(), store.getLogoAddr(), store.getName(), store.getWebsite(),
-                post.getThumbnail(), post.getLink(), post.getNumViews(), post.getNumLikes());
+                post.getFormattedPrice(), post.getFormattedSalePrice(), store.getLogoAddr(), store.getName(),
+                store.getWebsite(), post.getThumbnail(), post.getLink(), post.getNumViews(), post.getNumLikes());
 
         return postInfo;
     }

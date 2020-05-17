@@ -18,6 +18,7 @@ public class PostInfoDTO {
     private String postImageAddr;
     private String description;
     private String price; //already formatted
+    private String salePrice; //already formatted
     private String storeLogoAddr;
     private String storeName;
     private String website; //already formatted

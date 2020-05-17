@@ -49,6 +49,9 @@ public class Post {
 
     private String price;
 
+    @Column(columnDefinition = "varchar(255) default ''")
+    private String salePrice;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 8)
     private Currency currency;
@@ -86,12 +89,13 @@ public class Post {
     }
 
     public Post(long userId, long storeId, String imageAddr, String description, String link, String price,
-                Currency currency, String designer, String productId, String thumbnail,
+                String salePrice, Currency currency, String designer, String productId, String thumbnail,
                 Category category, ProductType productType){
         this(userId, imageAddr, description);
         this.storeId = storeId;
         this.link = link;
         this.price = price;
+        this.salePrice = salePrice;
         this.currency = currency;
         this.designer = designer;
         this.productId = productId;
@@ -100,9 +104,20 @@ public class Post {
         this.productType = productType;
     }
 
-    public String getFormattedPrice() {
-        double priceDoubleValue = Double.valueOf(this.price);
+    private String formattedPrice(String price) {
+        if(price.equals(""))
+            return "";
+
+        double priceDoubleValue = Double.valueOf(price);
         return this.currency.getSign() + StringHelper.formatDouble(priceDoubleValue);
+    }
+
+    public String getFormattedPrice() {
+        return formattedPrice(this.price);
+    }
+
+    public String getFormattedSalePrice() {
+        return formattedPrice(this.salePrice);
     }
 
     @Override
