@@ -231,7 +231,7 @@ public class ScrapingService {
         String salePrice="";
         Currency currency = Currency.GBP;
         try {
-            price = document.select("span.product-prev-price").first().text();
+            price = document.selectFirst("span.product-prev-price[data-id='previous-price']").text();
             ItemPriceCurr itemPriceCurr = priceTag(price);
             price = itemPriceCurr.price;
             salePrice = document.select("span.current-price.product-price-discounted").first().text();
