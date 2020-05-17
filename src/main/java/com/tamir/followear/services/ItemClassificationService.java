@@ -104,7 +104,7 @@ public class ItemClassificationService {
         List<String> shoesValues = Arrays.asList("נעל", "espadrilles", "סנדלי", "נעלי",
                 "קבקבי", "סנדל", "מגפ", "מגף");
         List<String> bagValues = Arrays.asList("תיק","bag","פאוץ'");
-        List<String> coatsAndJacketsValues = Arrays.asList("ג'קט", "קרדיגן", "מעיל", "וסט", "ז'קט");
+        List<String> coatsAndJacketsValues = Arrays.asList("ג'קט", "קרדיגן", "מעיל", "וסט", "ז'קט","בלייזר");
         List<String> swimwearValues = Arrays.asList("ים", "bikini","ביקיני");
         List<String> accessoriesValues = Arrays.asList("תכשיט","מגבת","שיער","צמיד", "משקפי שמש", "משקפיים","משקפים","מזוודת", "חגורה","חגורת", "כובע", "ארנק","גרבי", "מטפחת", "צעיף","עגילים", "עגיל", "נרתיק","עגילי","מחרוזת","שרשרת","שרשראות","קשת");
         List<String> lingerieValues = Arrays.asList("חזיה","תחתונים","תחתון","תחתוני","חזיית");

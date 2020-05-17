@@ -132,7 +132,8 @@ public class ScrapingService {
         }
         try {
             driver = getDriver();
-            storeId = getStoreID(website);
+            //storeId = getStoreID(website);
+            storeId = 8;
             switch (website) {
                 case "asos.com":
                     itemDTO = asosDTO(productPageLink, storeId, driver);
@@ -227,11 +228,23 @@ public class ScrapingService {
         Document document = Jsoup.parse(driver.getPageSource());
         Elements descriptionDiv = document.select("div.product-hero");
         String description = descriptionDiv.select("h1").text();
-        Element priceSpan = document.select("span.current-price").first();
-        String fullPrice = priceSpan.text();
-        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
-        Currency currency = itemPriceCurr.currency;
-        String price = itemPriceCurr.price;
+        String price="";
+        String salePrice="";
+        Currency currency = Currency.GBP;
+        try {
+            price = document.select("span.product-prev-price").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("span.current-price.product-price-discounted").first().text();
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            currency = itemPriceCurrSale.currency;
+            salePrice = itemPriceCurrSale.price;
+        }catch(NullPointerException e){
+            price = document.select("span.current-price").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
+        }
         Elements imagesDiv = document.select("div.fullImageContainer");
         Elements images = imagesDiv.select("img");
         String imgExtension = "jpg";
@@ -247,7 +260,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, "", currency, storeID, designer, imgExtension, productID, links, category, productType);
+                price, salePrice, currency, storeID, designer, imgExtension, productID, links, category, productType);
 
     }
 
@@ -256,6 +269,7 @@ public class ScrapingService {
         Category category;
         ProductType productType;
         String price=null;
+        String salePrice="";
         String priceSymbol;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
@@ -298,7 +312,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
     String getNetaporterPriceSymbol(String price) {
@@ -419,42 +433,30 @@ public class ScrapingService {
         Category category;
         ProductType productType;
         String fullPrice=null;
+        String salePrice="";
+        String price="";
         Element descriptionDiv=null;
-
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
-        try{
-            descriptionDiv = document.select("span._b4693b._a32b92").first();
-        }
-        catch(NullPointerException e){
-            e.printStackTrace();
-        }
-
-        if (descriptionDiv == null){
-            try {
-                descriptionDiv = document.select("span._d85b45._1851d6").first();
-            }
-            catch(NullPointerException e){
-                e.printStackTrace();
-            }
-        }
+        descriptionDiv = document.select("span._d85b45._1851d6").first();
         String description = descriptionDiv.text();
         Element designerDiv = document.select("span._e87472._346238._e4b5ec").first();
         String designer = designerDiv.text();
-        // first try to see if item is on-sale
+        Currency currency = Currency.USD;
         try {
-            fullPrice = document.select("strong._e806a1._366381._d85b45").first().text();
+            price = document.select("span._89a1d3._b764f1").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("strong._e806a1._366381._d85b45").first().text();
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            currency = itemPriceCurrSale.currency;
+            salePrice = itemPriceCurrSale.price;
+        }catch(NullPointerException e){
+            price = document.select("span._e806a1._d85b45").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
         }
-        catch(NullPointerException e){
-
-        }
-        // if full price is null item isn't on-sale
-        if (fullPrice == null){
-            fullPrice = document.select("span._e806a1._d85b45").first().text();
-        }
-        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
-        Currency currency = itemPriceCurr.currency;
-        String price = itemPriceCurr.price;
         Elements imagesDiv = document.select("picture._492380._f8a733");
         Elements imageElements = imagesDiv.select("img");
         List<String> links = imageElements.eachAttr("src");
@@ -476,7 +478,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price,salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
     private UploadItemDTO sheinDTO(String productPageLink, long storeId, WebDriver driver) {
@@ -484,31 +486,30 @@ public class ScrapingService {
         Category category;
         ProductType productType;
         String price = null;
-        ItemPriceCurr itemPriceCurr = null;
         List<String> links = new ArrayList<>();
-        Currency currency;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select("div.product-intro__head-name").first();
         String description = descriptionDiv.text();
         String designer = null;
-        Element discountedPriceSpan=null;
+        String salePrice="";
+        Currency currency = Currency.USD;
         try {
-             discountedPriceSpan = document.select("div.product-intro__head-price span.discount").first();
+            price = document.select("div.product-intro__head-price del.del-price").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("div.product-intro__head-price span.discount").first().text();
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            currency = itemPriceCurrSale.currency;
+            salePrice = itemPriceCurrSale.price;
+        }catch(NullPointerException e){
+            price = document.select("div.product-intro__head-price span.original").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
         }
-        catch(NullPointerException e){}
-        Element originalPrice = document.select("div.product-intro__head-price span.original").first();
-        if (discountedPriceSpan != null) {
-            price = discountedPriceSpan.text();
-        } else {
-            price = originalPrice.text();
-        }
-        itemPriceCurr = priceTag(price);
-        currency = itemPriceCurr.currency;
-        price = itemPriceCurr.price;
 
         Element imageDiv = document.select("div.swiper-slide.product-intro__main-item.cursor-zoom-in.swiper-slide-active").first().attr("data-swiper-slide-index","0");
-
         String imageAddr = imageDiv.select("img.j-verlok-lazy.loaded").attr("src");
         imageAddr = "https:" + imageAddr;
         String correctImageAddr = imageAddr.replace(".webp",".jpg");
@@ -531,7 +532,7 @@ public class ScrapingService {
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
         return new UploadItemDTO(correctImageAddr, productPageLink, description,
-                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price,salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
 
@@ -561,10 +562,23 @@ public class ScrapingService {
         description = description.replace("פרטי", "");
         Element priceSpan = document.select("div.price._product-price span").first();
         String fullPrice = priceSpan.text();
-        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
-        Currency currency = itemPriceCurr.currency;
-        String price = itemPriceCurr.price;
-        Element fullDescriptionDiv = document.select("p.description").first();
+        String salePrice="";
+        String price="";
+        Currency currency = Currency.USD;
+        try {
+            price = document.select("div.price._product-price span.line-through").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("div.price._product-price span.sale.discount-percentage").first().text();
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            currency = itemPriceCurrSale.currency;
+            salePrice = itemPriceCurrSale.price;
+        }catch(NullPointerException e){
+            price = document.select("div.price._product-price span").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
+        }
         String designer = "";
         String imgExtension = "jpg";
         Elements elem = document.select("div.media-wrap.image-wrap a");
@@ -584,7 +598,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
     private UploadItemDTO hmDTO(String productPageLink, long storeId, WebDriver driver) {
@@ -632,11 +646,23 @@ public class ScrapingService {
         Element descriptionDiv = document.select(" div#product-title").first();
         String description = descriptionDiv.text();
         String designer = document.select("span.brand-name").first().text();
-        Element priceSpan = document.select("span.pdp-price").first();
-        String fullPrice = priceSpan.text();
-        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
-        Currency currency = itemPriceCurr.currency;
-        String price = itemPriceCurr.price;
+        String salePrice="";
+        String price="";
+        Currency currency = Currency.USD;
+        try {
+            price = document.select("span.retail-price").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("span.pdp-price").first().text();
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            currency = itemPriceCurrSale.currency;
+            salePrice = itemPriceCurrSale.price;
+        }catch(NullPointerException e){
+            price = document.select("span.pdp-price").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
+        }
         Elements elem = document.select("img.display-image");
         List<String> links = elem.eachAttr("src");
         String imageAddr = links.get(0);
@@ -652,7 +678,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
 
@@ -660,20 +686,23 @@ public class ScrapingService {
         Category category;
         ProductType productType;
         driver.get(productPageLink);
-        String fullPrice;
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select("h1.product-name--lg.u-text-transform--none.u-margin-t--none.u-margin-b--sm").first();
         String description = descriptionDiv.text();
         String designer = null;
-        String priceSpan;
-        try {
-            priceSpan = document.select("span#markdownPrice").first().text();
-        }catch(NullPointerException e){
-            priceSpan = document.select("span#retailPrice").first().text();
-        }
-        ItemPriceCurr itemPriceCurr = priceTag(priceSpan);
+        String salePrice="";
+        String price="";
+        price = document.select("span#retailPrice").first().text();
+        ItemPriceCurr itemPriceCurr = priceTag(price);
         Currency currency = itemPriceCurr.currency;
-        String price = itemPriceCurr.price;
+        price = itemPriceCurr.price;
+
+        salePrice = document.select("span#markdownPrice").first().text();
+        ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+        salePrice = itemPriceCurrSale.price;
+        if (salePrice.equalsIgnoreCase(price)){
+            salePrice = "";
+        }
         Elements elem = document.select("img.slideshow__pager-img");
         List<String> links = elem.eachAttr("src");
         for (int i = 0; i < links.size(); i++) {
@@ -696,27 +725,34 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price,salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
     private UploadItemDTO factoryDTO(String productPageLink, long storeId, WebDriver driver) {
         Category category;
         ProductType productType;
         driver.get(productPageLink);
-        String fullPrice;
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select("p.product_note").first();
         String description = descriptionDiv.text();
         String designer = document.select("h1#manufacturer_header a").attr("title");
-        String priceSpan;
+        String salePrice="";
+        String price="";
+        Currency currency = Currency.USD;
         try {
-            priceSpan = document.select("span.final-price").first().text();
+            price = document.select("p.old-price span.price").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("span.final-price").first().text();
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            currency = itemPriceCurrSale.currency;
+            salePrice = itemPriceCurrSale.price;
         }catch(NullPointerException e){
-            priceSpan = document.select("span.price").first().text();
+            price = document.select("span.price").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
         }
-        ItemPriceCurr itemPriceCurr = priceTag(priceSpan);
-        Currency currency = itemPriceCurr.currency;
-        String price = itemPriceCurr.price;
         Elements elem = document.select(".zoomWindow");
         List<String> links=null;
         String imageAddr = driver.findElement(By.xpath("//div[@class='zoomWindow']"))
@@ -733,30 +769,37 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
     private UploadItemDTO topshopDTO(String productPageLink, long storeId, WebDriver driver) {
         Category category;
         ProductType productType;
         driver.get(productPageLink);
-        String fullPrice;
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select(".product-name").first();
         String description = descriptionDiv.text();
         String designer = null;
-        String priceSpan;
+        String price="";
+        String salePrice="";
+        Currency currency = Currency.USD;
+        try {
+            price = document.select("p.old-price span.price").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("p.special-price.1 span.price").first().text();
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            currency = itemPriceCurrSale.currency;
+            salePrice = itemPriceCurrSale.price;
+        }catch(NullPointerException e){
+            price = document.select("span.regular-price span.price").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
+        }
+
         String productID = driver.findElement(By.xpath("//input[@name='form_key']"))
                 .getAttribute("value");
-        try {
-            priceSpan = document.select("p.special-price.1 span.price").first().text();
-        }catch(NullPointerException e){
-            priceSpan = document.select("span.regular-price span.price").first().text();
-        }
-        ItemPriceCurr itemPriceCurr = priceTag(priceSpan);
-        Currency currency = itemPriceCurr.currency;
-        String price = itemPriceCurr.price;
-        Elements elem = document.select(".zoomWindow");
         List<String>links = new ArrayList<>();
         links.add(document.select("div#image-zoom-2 img").attr("src"));
         String imageAddr = document.select("div#image-zoom-0 img").attr("src");
@@ -768,14 +811,13 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price,salePrice ,currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
     private UploadItemDTO mytheresaDTO(String productPageLink, long storeId, WebDriver driver) {
         Category category;
         ProductType productType;
         driver.get(productPageLink);
-        String fullPrice;
         Document document = Jsoup.parse(driver.getPageSource());
         Element descriptionDiv = document.select("div.product-name").first();
         String description = descriptionDiv.text();
@@ -783,14 +825,24 @@ public class ScrapingService {
         String priceSpan = null;;
         String productID = driver.findElement(By.xpath("//input[@name='product']"))
                 .getAttribute("value");
+        String price="";
+        String salePrice="";
+        Currency currency = Currency.USD;
         try {
-            priceSpan = document.select("span#product-price-"+productID+"price").first().text();
+            price = document.select("span#old-price-"+productID).first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("p.special-price span#product-price-"+productID).first().text();
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            currency = itemPriceCurrSale.currency;
+            salePrice = itemPriceCurrSale.price;
         }catch(NullPointerException e){
-            priceSpan = document.select("p.special-price span#product-price-"+productID).first().text();
+            price =  document.select("span#product-price-"+productID).first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
         }
-        ItemPriceCurr itemPriceCurr = priceTag(priceSpan);
-        Currency currency = itemPriceCurr.currency;
-        String price = itemPriceCurr.price;
+
         List<String>links = new ArrayList<>();
         links.add(document.select("img#image-1").attr("src"));
         links.set(0, "https:" + links.get(0));
@@ -803,7 +855,7 @@ public class ScrapingService {
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price, salePrice,currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
 
