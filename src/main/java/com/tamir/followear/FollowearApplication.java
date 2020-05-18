@@ -43,8 +43,6 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		logger.info("start execution");
-		UploadItemDTO res = this.scrapingService.extractItem("https://www.farfetch.com/il/shopping/women/bottega-veneta-quilted-pumps-item-15413038.aspx?storeid=10853");
-		System.out.println(res);
 	}
 
 

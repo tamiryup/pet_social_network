@@ -431,17 +431,16 @@ public class ScrapingService {
 
 
     private UploadItemDTO farfetchDTO(String productPageLink, long storeId, WebDriver driver) {
+        driver.get(productPageLink);
+        Document document = Jsoup.parse(driver.getPageSource());
         String productID = driver.findElement(By.xpath("//meta[@itemprop='productID']")).getAttribute("content");
-        System.out.println(productID);
-//        if (productID == null){
-//            throw new BadLinkException("This isn't a product page");
-//        }
+        if (productID == null){
+            throw new BadLinkException("This isn't a product page");
+        }
         Category category;
         ProductType productType;
         String salePrice="";
         String price="";
-        driver.get(productPageLink);
-        Document document = Jsoup.parse(driver.getPageSource());
         String description = document.select("span._d85b45._1851d6").first().text();
         String designer = document.select("span._e87472._346238._e4b5ec").first().text();
         Currency currency = Currency.USD;
@@ -465,9 +464,6 @@ public class ScrapingService {
         String imageAddr = links.get(0);
         links.remove(0);
         String imgExtension = "jpg";
-
-
-
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
