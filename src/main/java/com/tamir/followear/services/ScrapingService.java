@@ -351,7 +351,7 @@ public class ScrapingService {
         if (("גברים".equals(productPageType)) || ("נשים".equals(productPageType))){
 
         }else{
-            throw new BadLinkException("This product can't be shared");
+            throw new BadLinkException("This product isn't a fashion item");
         }
         String productID = document.select(".price-box.price-final_price").first().attr(
                 "data-product-id");
