@@ -132,8 +132,7 @@ public class ScrapingService {
         }
         try {
             driver = getDriver();
-            //storeId = getStoreID(website);
-            storeId = 8;
+            storeId = getStoreID(website);
             switch (website) {
                 case "asos.com":
                     itemDTO = asosDTO(productPageLink, storeId, driver);
@@ -338,51 +337,56 @@ public class ScrapingService {
 
 
     private UploadItemDTO terminalxDTO(String productPageLink, long storeId, WebDriver driver) {
-        String productID = null;
+
         Category category;
         ProductType productType;
-        String regexPattern = "x\\d{9}";
-        Pattern MY_PATTERN = Pattern.compile(regexPattern);
-        Matcher m = MY_PATTERN.matcher(productPageLink);
-        int beginIndex = 1;
-        int endIndex = 10;
-
-        while (m.find()) {
-            String s = m.group(0);
-            productID = s;
-            break;
-        }
-        if (productID == null) {
-            throw new BadLinkException("This is not a product page");
-        } else {
-            productID = productID.substring(beginIndex, endIndex);
-        }
-
         driver.get(productPageLink);
+        String price="";
+        String salePrice="";
+        Currency currency = Currency.ILS;
         Document document = Jsoup.parse(driver.getPageSource());
-        Element descriptionDiv = document.select("span.base.attribute_name").first();
-        String description = descriptionDiv.text();
-        Element priceSpan = document.select("span.price").first();
-        String fullPrice = priceSpan.text();
-        ItemPriceCurr itemPriceCurr = priceTag(fullPrice);
-        Currency currency = itemPriceCurr.currency;
-        String price = itemPriceCurr.price;
-        Element designerDiv = document.select("div.product-item-brand a").first();
-        String designer = designerDiv.text();
-        Elements imagesDiv = document.select("div#preview.magnifier-preview");
-        Elements imageElements = imagesDiv.select("img");
-        List<String> links = imageElements.eachAttr("src");
-        String imgExtension = "jpg";
-        String imageAddr = links.get(0);
-        links.remove(0);
+        String description = driver.findElement(By.xpath("//span[@itemprop='name']")).getText();
+        String productPageType = document.select(".product-item-brand").first().attr(
+                "data-div-top");
+        if (("גברים".equals(productPageType)) || ("נשים".equals(productPageType))){
 
-        Map<String, ProductType> dict = classificationService.getEnglishDict();
+        }else{
+            throw new BadLinkException("This product can't be shared");
+        }
+        String productID = document.select(".price-box.price-final_price").first().attr(
+                "data-product-id");
+
+        try {
+            price = document.select("span#old-price-"+productID).first().attr("data-price-amount");
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("span#product-price-"+productID).first().attr("data-price-amount");
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            salePrice = itemPriceCurrSale.price;
+        }catch(NullPointerException e){
+            price =  document.select("span#product-price-"+productID).first().attr("data-price-amount");
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+        }
+
+        String designer = document.select("div.product-item-brand a").first().text();
+        Elements imagesDiv = document.select("img.fotorama__img");
+        List<String> allThumbnailsLinks = imagesDiv.eachAttr("src");
+        String imgExtension = "jpg";
+        String imageAddr = allThumbnailsLinks.get(0);
+        allThumbnailsLinks.remove(0);
+        List<String> links = new ArrayList<>();
+        if (allThumbnailsLinks.size()>1){
+            links.add(allThumbnailsLinks.get(1));
+        }
+
+        Map<String, ProductType> dict = classificationService.getHebrewDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
+                price,salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
 
@@ -427,19 +431,19 @@ public class ScrapingService {
 
 
     private UploadItemDTO farfetchDTO(String productPageLink, long storeId, WebDriver driver) {
-        String productID = null;
+        String productID = driver.findElement(By.xpath("//meta[@itemprop='productID']")).getAttribute("content");
+        System.out.println(productID);
+//        if (productID == null){
+//            throw new BadLinkException("This isn't a product page");
+//        }
         Category category;
         ProductType productType;
-        String fullPrice=null;
         String salePrice="";
         String price="";
-        Element descriptionDiv=null;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
-        descriptionDiv = document.select("span._d85b45._1851d6").first();
-        String description = descriptionDiv.text();
-        Element designerDiv = document.select("span._e87472._346238._e4b5ec").first();
-        String designer = designerDiv.text();
+        String description = document.select("span._d85b45._1851d6").first().text();
+        String designer = document.select("span._e87472._346238._e4b5ec").first().text();
         Currency currency = Currency.USD;
         try {
             price = document.select("span._89a1d3._b764f1").first().text();
@@ -461,14 +465,8 @@ public class ScrapingService {
         String imageAddr = links.get(0);
         links.remove(0);
         String imgExtension = "jpg";
-        Pattern MY_PATTERN = Pattern.compile("\\d+");
-        Matcher m = MY_PATTERN.matcher(productPageLink);
 
-        while (m.find()) {
-            String s = m.group(0);
-            productID = s;
-            break;
-        }
+
 
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
