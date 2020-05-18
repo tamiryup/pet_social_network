@@ -79,9 +79,9 @@ public class ItemClassificationService {
                 "hoodie", "sweatshirt","sweater","t-shirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit", "shirt", "hoodie");
         List<String> dressValues = Arrays.asList("dress", "skirt","culottes","skorts");
         List<String> pantsValues = Arrays.asList("pants", "trousers",
-                "legging","leggings", "short", "jeans","shorts");
+                "legging","leggings", "short", "jeans","shorts","rise");
         List<String> shoesValues = Arrays.asList("shoes", "espadrilles","mules","pumps","slides","boot","loafers",
-                "heel", "trainers", "slippers", "sandals","stilletos","toe", "runner", "slider", "sneakers","flats");
+                "heel", "trainers", "slippers", "sandals","stilletos","toe", "runner", "slider","sliders", "sneakers","flats");
         List<String> coatsAndJacketsValues = Arrays.asList("vest", "blazer", "cardigan",
                 "coat", "jacket", "waistcoat", "pullover", "parka", "poncho", "bomber", "suit",
                 "duster", "kimono", "wrap");
@@ -104,7 +104,7 @@ public class ItemClassificationService {
         List<String> shoesValues = Arrays.asList("נעל", "espadrilles", "סנדלי", "נעלי",
                 "קבקבי", "סנדל", "מגפ", "מגף");
         List<String> bagValues = Arrays.asList("תיק","bag","פאוץ'");
-        List<String> coatsAndJacketsValues = Arrays.asList("ג'קט", "קרדיגן", "מעיל", "וסט", "ז'קט");
+        List<String> coatsAndJacketsValues = Arrays.asList("ג'קט", "קרדיגן", "מעיל", "וסט", "ז'קט","בלייזר");
         List<String> swimwearValues = Arrays.asList("ים", "bikini","ביקיני");
         List<String> accessoriesValues = Arrays.asList("תכשיט","מגבת","שיער","צמיד", "משקפי שמש", "משקפיים","משקפים","מזוודת", "חגורה","חגורת", "כובע", "ארנק","גרבי", "מטפחת", "צעיף","עגילים", "עגיל", "נרתיק","עגילי","מחרוזת","שרשרת","שרשראות","קשת");
         List<String> lingerieValues = Arrays.asList("חזיה","תחתונים","תחתון","תחתוני","חזיית");
@@ -149,21 +149,28 @@ public class ItemClassificationService {
             }
             if (key == ProductType.Pants) {
                 pantsKey = true;
+                productType = ProductType.Pants;
             }
             if (key == ProductType.JacketsOrCoats) {
                 jacketsOrCoatsKey = true;
+                productType = ProductType.JacketsOrCoats;
             }
+
             if (key == ProductType.Tops) {
                 topsKey = true;
+                productType = ProductType.Tops;
             }
             if (key == ProductType.DressesOrSkirts) {
                 dressesOrSkirts = true;
+                productType = ProductType.DressesOrSkirts;
             }
             if (key == productType.Lingerie){
                 lingerieKey = true;
+                productType = ProductType.Lingerie;
             }
             if (key == ProductType.Swimwear){
                 swimwearKey = true;
+                productType = ProductType.Swimwear;
             }
         }
         if (pantsKey && (jacketsOrCoatsKey || topsKey || dressesOrSkirts)) {
