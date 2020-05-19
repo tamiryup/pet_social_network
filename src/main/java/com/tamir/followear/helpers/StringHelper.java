@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class StringHelper {
 
-    public static boolean isEmail(String str){
+    public static boolean isEmail(String str) {
         Pattern pattern = Pattern.compile("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}");
         Matcher mat = pattern.matcher(str);
         return mat.matches();
@@ -31,6 +31,22 @@ public class StringHelper {
 
     public static boolean doesContainHebrew(String str) {
         return str.matches(".*[א-ת]+.*");
+    }
+
+    /**
+     * Replaces all occurrences of char1 with char2
+     * and the other way around
+     */
+    public static String replaceBothWays(String str, char char1, char char2) {
+        StringBuilder sb = new StringBuilder(str);
+        for (int i = 0; i < str.length(); i++) {
+            if (sb.charAt(i) == char1) {
+                sb.setCharAt(i, char2);
+            } else if (sb.charAt(i) == char2) {
+                sb.setCharAt(i, char1);
+            }
+        }
+        return sb.toString();
     }
 
 }

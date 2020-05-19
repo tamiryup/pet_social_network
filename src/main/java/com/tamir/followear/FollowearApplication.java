@@ -5,6 +5,7 @@ import com.tamir.followear.entities.Post;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
+import com.tamir.followear.helpers.StringHelper;
 import com.tamir.followear.services.ItemClassificationService;
 import com.tamir.followear.services.NotificationService;
 import com.tamir.followear.services.PostService;

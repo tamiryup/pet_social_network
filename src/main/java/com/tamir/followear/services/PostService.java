@@ -133,6 +133,8 @@ public class PostService {
     public Post uploadItemPost(long userId, UploadItemDTO item) throws IOException {
         validateUploadItem(userId, item);
 
+        logger.info("in uploadItemPost input item: {}", item);
+
         List<String> thumbnails = item.getThumbnails();
 
         ImageType imageType = ImageType.PostImage;
