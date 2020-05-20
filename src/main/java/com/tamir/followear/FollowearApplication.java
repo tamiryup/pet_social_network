@@ -1,5 +1,7 @@
 package com.tamir.followear;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Post;
 import com.tamir.followear.enums.Category;
@@ -17,7 +19,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 
 @SpringBootApplication

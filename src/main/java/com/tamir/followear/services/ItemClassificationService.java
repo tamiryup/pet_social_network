@@ -1,13 +1,22 @@
 package com.tamir.followear.services;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tamir.followear.AWS.s3.S3Service;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.ProductType;
 import lombok.Getter;
 import lombok.ToString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +24,25 @@ import java.util.Map;
 @Service
 public class ItemClassificationService {
 
+    private final Logger logger = LoggerFactory.getLogger(ItemClassificationService.class);
+
+    @Autowired
+    S3Service s3Service;
+
     @Getter
     Map<String, ProductType> hebrewDict;
 
     @Getter
     Map<String, ProductType> englishDict;
+
+    @Value("${spring.profiles}")
+    private String activeProfile;
+
+    @Value("${fw.classification.english-dict}")
+    private String englishDictKey;
+
+    @Value("${fw.classification.hebrew-dict}")
+    private String hebrewDictKey;
 
 
     @PostConstruct
@@ -41,74 +64,71 @@ public class ItemClassificationService {
     }
 
 
-    private Map<String, ProductType> insertIntoDict (List<String> topsValues,List<String> dressValues,List<String> pantsValues,List<String> shoesValues,List<String> coatsAndJacketsValues,List<String> bagValues,List<String> lingerieValues,List<String> accessoriesValues,List<String> swimwearValues ){
-        Map<String, ProductType> englishDictionary = new HashMap<>();
-        for (String top: topsValues){
-            englishDictionary.put(top, ProductType.Tops);
+    private Map<String, ProductType> insertIntoDict(Map<ProductType, List<String>> map) {
+        Map<String, ProductType> finalDict = new HashMap<>();
+
+        for(ProductType productType : map.keySet()) {
+            List<String> productTypeValues = map.get(productType);
+            for(String value : productTypeValues) {
+                finalDict.put(value, productType);
+            }
         }
-        for (String dress: dressValues){
-            englishDictionary.put(dress, ProductType.DressesOrSkirts);
-        }
-        for (String pants: pantsValues){
-            englishDictionary.put(pants, ProductType.Pants);
-        }
-        for (String shoe: shoesValues){
-            englishDictionary.put(shoe, ProductType.Shoes);
-        }
-        for (String jacket: coatsAndJacketsValues){
-            englishDictionary.put(jacket, ProductType.JacketsOrCoats);
-        }
-        for (String bag: bagValues){
-            englishDictionary.put(bag, ProductType.Bags);
-        }
-        for (String lingerie: lingerieValues){
-            englishDictionary.put(lingerie, ProductType.Lingerie);
-        }
-        for (String accessorie: accessoriesValues){
-            englishDictionary.put(accessorie, ProductType.Accessories);
-        }
-        for (String swimwear: swimwearValues){
-            englishDictionary.put(swimwear, ProductType.Swimwear);
-        }
-        return englishDictionary;
+
+        return finalDict;
     }
 
-    private Map<String, ProductType> createEnglishDict () {
-        List<String> topsValues = Arrays.asList("top", "tee", "sweater", "jumper", "shirt", "tank",
-                "cami", "bodysuit", "blouse", "bandeau", "vest", "singlet", "body",
-                "hoodie", "sweatshirt","sweater","t-shirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit", "shirt", "hoodie");
-        List<String> dressValues = Arrays.asList("dress", "skirt","culottes","skorts");
-        List<String> pantsValues = Arrays.asList("pants", "trousers",
-                "legging","leggings", "short", "jeans","shorts","rise");
-        List<String> shoesValues = Arrays.asList("shoes", "espadrilles","mules","pumps","slides","boot","loafers",
-                "heel", "trainers", "slippers", "sandals","stilletos","toe", "runner", "slider","sliders", "sneakers","flats");
-        List<String> coatsAndJacketsValues = Arrays.asList("vest", "blazer", "cardigan",
-                "coat", "jacket", "waistcoat", "pullover", "parka", "poncho", "bomber", "suit",
-                "duster", "kimono", "wrap");
-        List<String> bagValues = Arrays.asList("bag", "tote",
-                "clutch", "crossbody", "cross-body", "wallet", "backpack", "satchel", "handbag",
-                "basket", "clutch-bag","pouch");
-        List<String> lingerieValues = Arrays.asList("bra","thong","camisole","briefs","robe","chemise");
-        List<String> accessoriesValues = Arrays.asList("gloves","turban","hair","beanie","sunglasses","sunglases","scarf","belt","hat","headband","case","cardholder","necklace","earrings","choker","ring","bracelet", "wallet","cap","visor","cuff","watch","earmuffs","beret","fedora","fascinator");
-        List<String> swimwearValues = Arrays.asList("bikini","swimsuit","body");
+    private InputStream getDictStream(String dictKey) {
+        try {
+            if (activeProfile.equals("local")) {
+                return new FileInputStream(dictKey);
+            }
+        } catch (FileNotFoundException e) {
+            logger.error("local file not found");
+            e.printStackTrace();
+        }
 
-        return insertIntoDict(topsValues,dressValues,pantsValues,shoesValues,coatsAndJacketsValues,bagValues,lingerieValues,accessoriesValues,swimwearValues);
+        return s3Service.getFileAsStream(dictKey);
+    }
+
+    private Map<String, ProductType> createEnglishDict() {
+        InputStream jsonSource = getDictStream(englishDictKey);
+        TypeReference<HashMap<ProductType, List<String>>> typeRef =
+                new TypeReference<HashMap<ProductType, List<String>>>() {};
+
+        Map<ProductType, List<String>> map = new HashMap<>();
+        try {
+             map = new ObjectMapper().readValue(jsonSource, typeRef);
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return insertIntoDict(map);
 
     }
 
 
     private Map<String, ProductType> createHebrewDict() {
-        List<String> topsValues = Arrays.asList("טי-שירט","שירט", "אוברול", "חולצת","חולצה","גופיית", "גופייה", "סווטשירט", "סוודר", "טופ", "גוף","top");
-        List<String> dressValues = Arrays.asList("שמלת", "שמלה","חצאית");
-        List<String> pantsValues = Arrays.asList("ג'ינס", "שורטס", "טייץ", "מכנסיים","מכנס","מכנס-חצאית","מכנסי","leggings");
-        List<String> shoesValues = Arrays.asList("נעל", "espadrilles", "סנדלי", "נעלי",
-                "קבקבי", "סנדל", "מגפ", "מגף");
-        List<String> bagValues = Arrays.asList("תיק","bag","פאוץ'");
-        List<String> coatsAndJacketsValues = Arrays.asList("ג'קט", "קרדיגן", "מעיל", "וסט", "ז'קט","בלייזר");
-        List<String> swimwearValues = Arrays.asList("ים", "bikini","ביקיני");
-        List<String> accessoriesValues = Arrays.asList("תכשיט","מגבת","שיער","צמיד", "משקפי שמש", "משקפיים","משקפים","מזוודת", "חגורה","חגורת", "כובע", "ארנק","גרבי", "מטפחת", "צעיף","עגילים", "עגיל", "נרתיק","עגילי","מחרוזת","שרשרת","שרשראות","קשת");
-        List<String> lingerieValues = Arrays.asList("חזיה","תחתונים","תחתון","תחתוני","חזיית");
-        return insertIntoDict(topsValues,dressValues,pantsValues,shoesValues,coatsAndJacketsValues,bagValues,lingerieValues,accessoriesValues,swimwearValues);
+        InputStream jsonSource = getDictStream(hebrewDictKey);
+        TypeReference<HashMap<ProductType, List<String>>> typeRef =
+                new TypeReference<HashMap<ProductType, List<String>>>() {};
+
+
+        Map<ProductType, List<String>> map = new HashMap<>();
+        try {
+            map = new ObjectMapper().readValue(jsonSource, typeRef);
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return insertIntoDict(map);
     }
 
     public ItemTags classify(String productDescription, Map<String, ProductType> dict) {
@@ -125,10 +145,10 @@ public class ItemClassificationService {
         Boolean lingerieKey = false;
         Boolean swimwearKey = false;
         Boolean bagsKey = false;
-        for (String str: desc){
+        for (String str : desc) {
 
             ProductType key = dict.get(str);
-            if(key == null) {
+            if (key == null) {
                 continue;
             }
 
@@ -164,11 +184,11 @@ public class ItemClassificationService {
                 dressesOrSkirts = true;
                 productType = ProductType.DressesOrSkirts;
             }
-            if (key == productType.Lingerie){
+            if (key == productType.Lingerie) {
                 lingerieKey = true;
                 productType = ProductType.Lingerie;
             }
-            if (key == ProductType.Swimwear){
+            if (key == ProductType.Swimwear) {
                 swimwearKey = true;
                 productType = ProductType.Swimwear;
             }
@@ -184,32 +204,32 @@ public class ItemClassificationService {
                 productType = ProductType.DressesOrSkirts;
             }
         }
-        if (accessoriesKey && (dressesOrSkirts || topsKey || jacketsOrCoatsKey || shoesKey || pantsKey)){
+        if (accessoriesKey && (dressesOrSkirts || topsKey || jacketsOrCoatsKey || shoesKey || pantsKey)) {
             category = Category.Clothing;
             if (dressesOrSkirts) {
                 productType = ProductType.DressesOrSkirts;
             }
-            if(topsKey){
+            if (topsKey) {
                 productType = productType.Tops;
             }
             if (jacketsOrCoatsKey) {
                 productType = ProductType.JacketsOrCoats;
             }
-            if (shoesKey){
+            if (shoesKey) {
                 productType = ProductType.Shoes;
             }
-            if (pantsKey){
+            if (pantsKey) {
                 productType = ProductType.Pants;
             }
         }
-        if (lingerieKey){
+        if (lingerieKey) {
             productType = ProductType.Lingerie;
         }
 
-        if (swimwearKey && (topsKey || lingerieKey)){
+        if (swimwearKey && (topsKey || lingerieKey)) {
             productType = ProductType.Swimwear;
         }
-        if (swimwearKey && bagsKey){
+        if (swimwearKey && bagsKey) {
             category = Category.Bags;
             productType = ProductType.Bags;
         }

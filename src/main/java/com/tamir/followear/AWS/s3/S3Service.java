@@ -115,5 +115,10 @@ public class S3Service {
         }
     }
 
+    public InputStream getFileAsStream(String key) {
+        S3Object s3Object = s3Client.getObject(bucketName, key);
+        return s3Object.getObjectContent();
+    }
+
 
 }

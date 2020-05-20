@@ -1,0 +1,19 @@
+{
+    "Tops": ["top", "tee", "sweater", "jumper", "shirt", "tank",
+        "cami", "bodysuit", "blouse", "bandeau", "vest", "singlet", "body",
+        "hoodie", "sweatshirt","sweater","t-shirt", "pullover", "turtleneck", "polo", "tunic", "jumpsuit", "shirt", "hoodie"],
+    "DressesOrSkirts": ["dress", "skirt","culottes","skorts"],
+    "Pants": ["pants", "trousers", "legging","leggings", "short", "jeans","shorts","rise"],
+    "Shoes": ["shoes", "espadrilles","mules","pumps","slides","boot","loafers",
+        "heel", "trainers", "slippers", "sandals","stilletos","toe", "runner", "slider","sliders", "sneakers","flats"],
+    "JacketsOrCoats": ["vest", "blazer", "cardigan",
+        "coat", "jacket", "waistcoat", "pullover", "parka", "poncho", "bomber", "suit",
+        "duster", "kimono", "wrap"],
+    "Bags": ["bag", "tote", "clutch", "crossbody", "cross-body", "wallet", "backpack", "satchel", "handbag",
+        "basket", "clutch-bag","pouch"],
+    "Lingerie": ["bra", "thong", "camisole","briefs","robe","chemise"],
+    "Accessories": ["gloves", "turban", "hair", "beanie", "sunglasses", "sunglases", "scarf", "belt", "hat",
+         "headband", "case", "cardholder", "necklace", "earrings", "choker", "ring", "bracelet", "wallet", "cap",
+          "visor", "cuff", "watch", "earmuffs", "beret", "fedora", "fascinator"],
+    "Swimwear": ["bikini", "swimsuit", "body"]
+}
