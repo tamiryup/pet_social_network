@@ -80,6 +80,7 @@ public class FirebaseMessagingService implements NotificationService {
         String body = likingUserUsername + " liked an item you uploaded";
 
         MulticastMessage.Builder messageBuilder = buildNotificationMessage(likedUserId, body);
+        messageBuilder.putData("postId", "" + likedPostId);
         if(messageBuilder == null) {
             return;
         }
