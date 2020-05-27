@@ -65,6 +65,7 @@ public class FirebaseMessagingService implements NotificationService {
         String body = slaveUsername + " started following you";
 
         MulticastMessage.Builder messageBuilder = buildNotificationMessage(masterId, body);
+        messageBuilder.putData("type", "follow");
         if(messageBuilder == null) {
             return;
         }
@@ -80,6 +81,7 @@ public class FirebaseMessagingService implements NotificationService {
         String body = likingUserUsername + " liked an item you uploaded";
 
         MulticastMessage.Builder messageBuilder = buildNotificationMessage(likedUserId, body);
+        messageBuilder.putData("type", "like");
         messageBuilder.putData("postId", "" + likedPostId);
         if(messageBuilder == null) {
             return;
