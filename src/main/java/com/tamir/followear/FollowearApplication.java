@@ -7,11 +7,16 @@ import com.tamir.followear.entities.Post;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
+import com.tamir.followear.helpers.FileHelper;
 import com.tamir.followear.helpers.StringHelper;
 import com.tamir.followear.services.ItemClassificationService;
 import com.tamir.followear.services.NotificationService;
 import com.tamir.followear.services.PostService;
 import com.tamir.followear.services.ScrapingService;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +24,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.File;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +50,9 @@ public class FollowearApplication implements CommandLineRunner {
 
 	@Autowired
     NotificationService notificationService;
+
+    @Autowired
+    private OkHttpClientProvider okHttpClientProvider;
 
 	@Override
 	public void run(String... args) throws Exception {

@@ -1,5 +1,11 @@
 package com.tamir.followear.helpers;
 
+import com.tamir.followear.OkHttpClientProvider;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedInputStream;
@@ -9,6 +15,8 @@ import java.io.InputStream;
 import java.net.URL;
 
 public class FileHelper {
+
+    private static OkHttpClient okHttpClient = new OkHttpClient();
 
     public static File multipartToFile(MultipartFile multipartFile) throws IOException {
         File convFile = new File(multipartFile.getOriginalFilename());
@@ -21,8 +29,13 @@ public class FileHelper {
     }
 
     public static InputStream urlToInputStream(String url) throws IOException {
-        BufferedInputStream in = new BufferedInputStream(
-                new URL(url).openStream());
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        Response response = okHttpClient.newCall(request).execute();
+        ResponseBody responseBody = response.body();
+        BufferedInputStream in = new BufferedInputStream(responseBody.byteStream());
 
         return in;
     }

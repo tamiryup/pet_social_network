@@ -23,9 +23,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -161,12 +165,12 @@ public class ScrapingService {
                 case "revolve.com":
                     itemDTO = revolveDTO(productPageLink, storeId, driver);
                     break;
-                case "factory54.co.il":
-                    itemDTO = factoryDTO(productPageLink, storeId, driver);
-                    break;
-                case "topshop.com":
-                    itemDTO = topshopDTO(productPageLink, storeId, driver);
-                    break;
+//                case "factory54.co.il":
+//                    itemDTO = factoryDTO(productPageLink, storeId, driver);
+//                    break;
+//                case "topshop.com":
+//                    itemDTO = topshopDTO(productPageLink, storeId, driver);
+//                    break;
                 case "mytheresa.com":
                     itemDTO = mytheresaDTO(productPageLink, storeId, driver);
                     break;
@@ -735,6 +739,7 @@ public class ScrapingService {
         String salePrice = "";
         String price = "";
         Currency currency = Currency.USD;
+
         try {
             price = document.select("p.old-price span.price").first().text();
             ItemPriceCurr itemPriceCurr = priceTag(price);
@@ -749,8 +754,9 @@ public class ScrapingService {
             currency = itemPriceCurr.currency;
             price = itemPriceCurr.price;
         }
+
         Elements elem = document.select(".zoomWindow");
-        List<String> links = null;
+        List<String> links = new ArrayList<>();
         String imageAddr = driver.findElement(By.xpath("//div[@class='zoomWindow']"))
                 .getCssValue("background-image");
         int beginIndex = 5;
