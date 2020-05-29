@@ -50,8 +50,17 @@ public class FirebaseMessagingService implements NotificationService {
                 .setBody(message)
                 .build();
 
+        //set aps so ap is awaken when notifications are received
+        Aps aps = Aps.builder()
+                .setContentAvailable(true)
+                .build();
+        ApnsConfig apnsConfig = ApnsConfig.builder()
+                .setAps(aps)
+                .build();
+
         return MulticastMessage.builder()
                 .setNotification(notification)
+                .setApnsConfig(apnsConfig)
                 .addAllTokens(registrationTokens);
     }
 
@@ -65,10 +74,10 @@ public class FirebaseMessagingService implements NotificationService {
         String body = slaveUsername + " started following you";
 
         MulticastMessage.Builder messageBuilder = buildNotificationMessage(masterId, body);
-        messageBuilder.putData("type", "follow");
         if(messageBuilder == null) {
             return;
         }
+        messageBuilder.putData("type", "follow");
 
         MulticastMessage message = messageBuilder.build();
         sendMulticastMessage(message);
@@ -81,11 +90,11 @@ public class FirebaseMessagingService implements NotificationService {
         String body = likingUserUsername + " liked an item you uploaded";
 
         MulticastMessage.Builder messageBuilder = buildNotificationMessage(likedUserId, body);
-        messageBuilder.putData("type", "like");
-        messageBuilder.putData("postId", "" + likedPostId);
         if(messageBuilder == null) {
             return;
         }
+        messageBuilder.putData("type", "like");
+        messageBuilder.putData("postId", "" + likedPostId);
 
         MulticastMessage message = messageBuilder.build();
         sendMulticastMessage(message);
