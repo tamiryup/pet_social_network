@@ -746,7 +746,7 @@ public class ScrapingService {
             price = itemPriceCurr.price;
         }
         Elements elem = document.select(".zoomWindow");
-        List<String> links=null;
+        List<String> links= new ArrayList<>();
         String imageAddr = driver.findElement(By.xpath("//div[@class='zoomWindow']"))
                 .getCssValue("background-image");
         int beginIndex = 5;
@@ -790,13 +790,13 @@ public class ScrapingService {
             price = itemPriceCurr.price;
         }
 
-        String productID = driver.findElement(By.xpath("//input[@name='form_key']"))
-                .getAttribute("value");
+        String productID = document.select(".product-view.initialised-validation").attr("id");
+        productID = productID.replaceAll("[^0-9]", "");
         List<String>links = new ArrayList<>();
-        links.add(document.select("div#image-zoom-2 img").attr("src"));
-        String imageAddr = document.select("div#image-zoom-0 img").attr("src");
+        String thumbnail = document.select("img#image-1").attr("src");
+        links.add(thumbnail);
+        String imageAddr = document.select("img#image-0").attr("src");
         String imgExtension = "jpg";
-
         Map<String, ProductType> dict = classificationService.getHebrewDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
