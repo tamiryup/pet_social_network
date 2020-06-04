@@ -174,6 +174,9 @@ public class ScrapingService {
                 case "mytheresa.com":
                     itemDTO = mytheresaDTO(productPageLink, storeId, driver);
                     break;
+                case "theoutnet.com":
+                    itemDTO = outnetDTO(productPageLink, storeId, driver);
+                    break;
                 default:
                     throw new BadLinkException("This website is not supported");
             }
@@ -315,6 +318,58 @@ public class ScrapingService {
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
+
+    private UploadItemDTO outnetDTO(String productPageLink, long storeId, WebDriver driver) {
+        String productID;
+        Category category;
+        ProductType productType;
+        String price=null;
+        String salePrice="";
+        String priceSymbol;
+        driver.get(productPageLink);
+        Document document = Jsoup.parse(driver.getPageSource());
+        productID = driver.findElement(By.xpath("//meta[@itemprop='productID']"))
+                .getAttribute("content");
+        if (productID == null){
+            throw new BadLinkException("This is not a product page");
+        }
+        price = driver.findElement(By.xpath("//span[@itemprop='price']"))
+                    .getAttribute("content");
+        Element descriptionDiv = document.select(" p.ProductInformation77__name").first();
+        String description = descriptionDiv.text();
+        priceSymbol = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
+                .getAttribute("content");
+        ItemPriceCurr itemPriceCurr = priceTag(priceSymbol);
+        Currency currency = itemPriceCurr.currency;
+
+
+        String designer = driver.findElement(By.xpath("//meta[@itemprop='name']"))
+                .getAttribute("content");
+        String imageAddr = "";
+        String imgExtension = "jpg";
+        Elements imageDiv = document.select(".Image17__imageContainer.ImageCarousel77__thumbnailImage");
+        Elements imageElements = imageDiv.select("img");
+        List<String> links = imageElements.eachAttr("src");
+
+        int size = links.size();
+        if (size > 1) {
+            for (int i = 0; i < 2; i++) {
+                links.set(i, "https:"+links.get(i));
+            }
+            imageAddr = links.get(0);
+            links.remove(0);
+            links = links.subList(0, 1);
+        }
+
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
+
+        return new UploadItemDTO(imageAddr, productPageLink, description,
+                price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
+    }
+
 
     String getNetaporterPriceSymbol(String price) {
         String priceSymbol = "$";
