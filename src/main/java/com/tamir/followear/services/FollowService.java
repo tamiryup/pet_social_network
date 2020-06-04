@@ -48,9 +48,9 @@ public class FollowService {
         if(isFollowing(masterId, slaveId))
             return findById(new FollowKey(masterId, slaveId));
 
-        streamService.follow(masterId, slaveId);
         Follow follow = new Follow(masterId, slaveId);
         follow = followRepo.save(follow);
+        streamService.follow(masterId, slaveId);
         notificationService.sendFollowNotification(masterId, slaveId);
 
         return follow;

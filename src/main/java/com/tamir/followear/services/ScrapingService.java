@@ -168,9 +168,9 @@ public class ScrapingService {
 //                case "factory54.co.il":
 //                    itemDTO = factoryDTO(productPageLink, storeId, driver);
 //                    break;
-//                case "topshop.com":
-//                    itemDTO = topshopDTO(productPageLink, storeId, driver);
-//                    break;
+                case "topshop.com":
+                    itemDTO = topshopDTO(productPageLink, storeId, driver);
+                    break;
                 case "mytheresa.com":
                     itemDTO = mytheresaDTO(productPageLink, storeId, driver);
                     break;
@@ -800,13 +800,13 @@ public class ScrapingService {
             price = itemPriceCurr.price;
         }
 
-        String productID = driver.findElement(By.xpath("//input[@name='form_key']"))
-                .getAttribute("value");
-        List<String> links = new ArrayList<>();
-        links.add(document.select("div#image-zoom-2 img").attr("src"));
-        String imageAddr = document.select("div#image-zoom-0 img").attr("src");
+        String productID = document.select(".product-view.initialised-validation").attr("id");
+        productID = productID.replaceAll("[^0-9]", "");
+        List<String>links = new ArrayList<>();
+        String thumbnail = document.select("img#image-1").attr("src");
+        links.add(thumbnail);
+        String imageAddr = document.select("img#image-0").attr("src");
         String imgExtension = "jpg";
-
         Map<String, ProductType> dict = classificationService.getHebrewDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
