@@ -214,6 +214,7 @@ public class ScrapingService {
         Category category;
         ProductType productType;
         String designer = null;
+        String imageAddr;
         int endIndex;
         int beginIndex = productPageLink.indexOf("/prd/");
         if (beginIndex == -1) {
@@ -254,9 +255,14 @@ public class ScrapingService {
         Elements images = imagesDiv.select("img");
         String imgExtension = "jpg";
         List<String> links = images.eachAttr("src");
-        String imageAddr = links.get(1);
-        links.remove(1);
-        links.remove(3);
+
+        if(links.size() > 1) {
+            imageAddr = links.get(1);
+            links.remove(1);
+        } else {
+            imageAddr = links.get(0);
+            links.remove(0);
+        }
 
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
