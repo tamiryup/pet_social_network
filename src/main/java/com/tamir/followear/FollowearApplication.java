@@ -57,8 +57,6 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 	    logger.info("start execution");
-	    UploadItemDTO res = this.scrapingService.extractItem("https://www.farfetch.com/il/shopping/women/balmain-decorative-button-belted-jacket-item-15028950.aspx?storeid=9383");
-	    System.out.println(res);
 	}
 
 
