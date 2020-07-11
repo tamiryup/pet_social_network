@@ -237,22 +237,7 @@ public class ScrapingService {
         String price = "";
         String salePrice = "";
         Currency currency = Currency.GBP;
-        try {
-            price = document.selectFirst("span.product-prev-price[data-id='previous-price']").text();
-            ItemPriceCurr itemPriceCurr = priceTag(price);
-            price = itemPriceCurr.price;
-            salePrice = document.select("span.current-price.product-price-discounted").first().text();
-            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
-            currency = itemPriceCurrSale.currency;
-            salePrice = itemPriceCurrSale.price;
-        } catch (NullPointerException e) {
-            price = document.select("span.current-price").first().text();
-            ItemPriceCurr itemPriceCurr = priceTag(price);
-            currency = itemPriceCurr.currency;
-            price = itemPriceCurr.price;
-        }
-        Elements imagesDiv = document.select("div.fullImageContainer");
-        Elements images = imagesDiv.select("img");
+        Elements images = document.select("img.gallery-image");
         String imgExtension = "jpg";
         List<String> links = images.eachAttr("src");
 
@@ -269,6 +254,25 @@ public class ScrapingService {
 
         category = itemTags.getCategory();
         productType = itemTags.getProductType();
+
+        try {
+            price = document.selectFirst("span.product-prev-price[data-id='previous-price']").text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("span.current-price.product-price-discounted").first().text();
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            currency = itemPriceCurrSale.currency;
+            salePrice = itemPriceCurrSale.price;
+        } catch (NullPointerException e) {
+            price = driver.findElement(By.xpath(
+                    "//span[contains(@class,'current-price')]"))
+                    .getAttribute("innerHTML");
+            price = price.replace(",","");
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
+        }
+
 
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, salePrice, currency, storeID, designer, imgExtension, productID, links, category, productType);
