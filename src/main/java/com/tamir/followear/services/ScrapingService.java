@@ -343,10 +343,14 @@ public class ScrapingService {
         if (productID == null){
             throw new BadLinkException("This is not a product page");
         }
-        price = driver.findElement(By.xpath("//span[@itemprop='price']"))
+        salePrice = driver.findElement(By.xpath("//span[@itemprop='price']"))
                     .getAttribute("content");
-        Element descriptionDiv = document.select(" p.ProductInformation77__name").first();
-        String description = descriptionDiv.text();
+        try {
+            price = document.select(" s.PriceWithSchema9__wasPrice").first().text();
+            price = price.replaceAll("[^0-9]", "");
+        }catch (NullPointerException e) {
+        }
+        String description = document.select(" p.ProductInformation79__name").first().text();
         priceSymbol = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
                 .getAttribute("content");
         ItemPriceCurr itemPriceCurr = priceTag(priceSymbol);
@@ -357,7 +361,7 @@ public class ScrapingService {
                 .getAttribute("content");
         String imageAddr = "";
         String imgExtension = "jpg";
-        Elements imageDiv = document.select(".Image17__imageContainer.ImageCarousel77__thumbnailImage");
+        Elements imageDiv = document.select(".Image17__imageContainer.ImageCarousel79__thumbnailImage");
         Elements imageElements = imageDiv.select("img");
         List<String> links = imageElements.eachAttr("src");
 
