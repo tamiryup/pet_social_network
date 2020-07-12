@@ -504,14 +504,14 @@ public class ScrapingService {
     private UploadItemDTO farfetchDTO(String productPageLink, long storeId, WebDriver driver) {
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
-        String productID = driver.findElement(By.xpath("//meta[@itemprop='productID']")).getAttribute("content");
-        if (productID == null) {
-            throw new BadLinkException("This isn't a product page");
-        }
         Category category;
         ProductType productType;
         String salePrice = "";
         String price = "";
+        String productID = driver.findElement(By.xpath("//meta[@itemprop='productID']")).getAttribute("content");
+        if (productID == null) {
+            throw new BadLinkException("This isn't a product page");
+        }
         String description = document.select("span._d85b45._1851d6").first().text();
         String designer = document.select("span._e87472._346238._e4b5ec").first().text();
         Currency currency = Currency.USD;
