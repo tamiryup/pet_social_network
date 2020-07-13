@@ -210,26 +210,29 @@ public class ScrapingService {
 
 
     private UploadItemDTO asosDTO(String productPageLink, long storeID, WebDriver driver) {
-        String productID;
+        String productID = "";
         Category category;
         ProductType productType;
         String designer = null;
         String imageAddr;
-        int endIndex;
+        int endIndex = 0;
         int beginIndex = productPageLink.indexOf("/prd/");
         if (beginIndex == -1) {
             beginIndex = productPageLink.indexOf("/grp/");
             if (beginIndex == -1) {
                 throw new BadLinkException("This is not a product page");
-            } else {
-                beginIndex = beginIndex + 5;
-                endIndex = beginIndex + 5;
             }
         } else {
             beginIndex = beginIndex + 5;
-            endIndex = beginIndex + 8;
+            for (int i = beginIndex; i < productPageLink.length(); i++){
+               if (Character.isDigit(productPageLink.charAt(i))){
+                   endIndex = i;
+               }else{
+                   break;
+               }
+            }
         }
-        productID = productPageLink.substring(beginIndex, endIndex);
+        productID = productPageLink.substring(beginIndex, endIndex+1);
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Elements descriptionDiv = document.select("div.product-hero");
