@@ -621,30 +621,36 @@ public class ScrapingService {
         ProductType productType;
         productPageLink = correctZaraLink(productPageLink);
         driver.get(productPageLink);
-        Map<String, ProductType> dict;
         Document document = Jsoup.parse(driver.getPageSource());
+        Map<String, ProductType> dict;
         Element descriptionDiv = document.select(" h1.product-name").first();
         String description = descriptionDiv.text();
         description = description.replace("פרטי", "");
-        Element priceSpan = document.select("div.price._product-price span").first();
-        String fullPrice = priceSpan.text();
+//        Element priceSpan = document.select("div.price._product-price span").first();
+//        String fullPrice = priceSpan.text();
+//        String fullPrice = document.select("span.main-price").text();
         String salePrice = "";
         String price = "";
         Currency currency = Currency.USD;
         try {
-            price = document.select("div.price._product-price span.line-through").first().text();
+            price = document.select("span.line-through").first().text();
             ItemPriceCurr itemPriceCurr = priceTag(price);
             price = itemPriceCurr.price;
-            salePrice = document.select("div.price._product-price span.sale.discount-percentage").first().text();
+            salePrice = document.select("span.sale.discount-percentage").first().text();
             ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
             currency = itemPriceCurrSale.currency;
             salePrice = itemPriceCurrSale.price;
         } catch (NullPointerException e) {
-            price = document.select("div.price._product-price span").first().text();
+//            price = document.select("span.main-price").first().text();
+//            ItemPriceCurr itemPriceCurr = priceTag(price);
+//            currency = itemPriceCurr.currency;
+//            price = itemPriceCurr.price;
+        }try{
+            price = document.select("span.main-price").first().text();
             ItemPriceCurr itemPriceCurr = priceTag(price);
             currency = itemPriceCurr.currency;
             price = itemPriceCurr.price;
-        }
+        }catch (NullPointerException e) {}
         String designer = "";
         String imgExtension = "jpg";
         Elements elem = document.select("div.media-wrap.image-wrap a");
