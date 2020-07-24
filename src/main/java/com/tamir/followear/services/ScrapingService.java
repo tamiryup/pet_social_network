@@ -40,7 +40,6 @@ import com.tamir.followear.enums.Currency;
 
 @Service
 public class ScrapingService {
-    Boolean israeliWebsite = false;
 
     @Autowired
     StoreService storeService;
@@ -129,8 +128,6 @@ public class ScrapingService {
         try {
             productPageLink = correctLink(productPageLink);
             website = getDomainName(productPageLink);
-
-
         } catch (URISyntaxException e) {
             throw new BadLinkException("Invalid link");
         }
@@ -606,7 +603,6 @@ public class ScrapingService {
         String result = productPageLink.replaceFirst("/share/", "/il/en/");
 
         if (StringHelper.doesContainHebrew(productPageLink)) {
-            this.israeliWebsite = true;
             int startIndex = result.lastIndexOf('/') + 1;
             int htmlStringIndex = result.indexOf(".html");
             int endIndex = result.lastIndexOf("-p", htmlStringIndex);
@@ -620,6 +616,7 @@ public class ScrapingService {
         Category category;
         ProductType productType;
         productPageLink = correctZaraLink(productPageLink);
+        LOGGER.info("zara productPageLink is: {}", productPageLink);
         driver.get(productPageLink);
         Map<String, ProductType> dict;
         Document document = Jsoup.parse(driver.getPageSource());
@@ -654,7 +651,7 @@ public class ScrapingService {
         int endIndex = productPageLink.indexOf("html");
         int startIndex = endIndex - 9;
         String productID = productPageLink.substring(startIndex, endIndex - 1);
-        if (this.israeliWebsite) {
+        if (StringHelper.doesContainHebrew(description)) {
             dict = classificationService.getHebrewDict();
         } else {
             dict = classificationService.getEnglishDict();
