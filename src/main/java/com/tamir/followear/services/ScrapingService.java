@@ -1,5 +1,7 @@
 package com.tamir.followear.services;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.Category;
@@ -8,12 +10,15 @@ import com.tamir.followear.exceptions.BadLinkException;
 import com.tamir.followear.exceptions.ScrapingError;
 import com.tamir.followear.helpers.StringHelper;
 import lombok.ToString;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
@@ -221,15 +226,15 @@ public class ScrapingService {
             }
         } else {
             beginIndex = beginIndex + 5;
-            for (int i = beginIndex; i < productPageLink.length(); i++){
-               if (Character.isDigit(productPageLink.charAt(i))){
-                   endIndex = i;
-               }else{
-                   break;
-               }
+            for (int i = beginIndex; i < productPageLink.length(); i++) {
+                if (Character.isDigit(productPageLink.charAt(i))) {
+                    endIndex = i;
+                } else {
+                    break;
+                }
             }
         }
-        productID = productPageLink.substring(beginIndex, endIndex+1);
+        productID = productPageLink.substring(beginIndex, endIndex + 1);
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         Elements descriptionDiv = document.select("div.product-hero");
@@ -241,7 +246,7 @@ public class ScrapingService {
         String imgExtension = "jpg";
         List<String> links = images.eachAttr("src");
 
-        if(links.size() > 1) {
+        if (links.size() > 1) {
             imageAddr = links.get(1);
             links.remove(1);
         } else {
@@ -267,7 +272,7 @@ public class ScrapingService {
             price = driver.findElement(By.xpath(
                     "//span[contains(@class,'current-price')]"))
                     .getAttribute("innerHTML");
-            price = price.replace(",","");
+            price = price.replace(",", "");
             ItemPriceCurr itemPriceCurr = priceTag(price);
             currency = itemPriceCurr.currency;
             price = itemPriceCurr.price;
@@ -333,22 +338,22 @@ public class ScrapingService {
         String productID;
         Category category;
         ProductType productType;
-        String price=null;
-        String salePrice="";
+        String price = null;
+        String salePrice = "";
         String priceSymbol;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
         productID = driver.findElement(By.xpath("//meta[@itemprop='productID']"))
                 .getAttribute("content");
-        if (productID == null){
+        if (productID == null) {
             throw new BadLinkException("This is not a product page");
         }
         salePrice = driver.findElement(By.xpath("//span[@itemprop='price']"))
-                    .getAttribute("content");
+                .getAttribute("content");
         try {
             price = document.select(" s.PriceWithSchema9__wasPrice").first().text();
             price = price.replaceAll("[^0-9]", "");
-        }catch (NullPointerException e) {
+        } catch (NullPointerException e) {
         }
         String description = document.select(" p.ProductInformation79__name").first().text();
         priceSymbol = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
@@ -368,7 +373,7 @@ public class ScrapingService {
         int size = links.size();
         if (size > 1) {
             for (int i = 0; i < 2; i++) {
-                links.set(i, "https:"+links.get(i));
+                links.set(i, "https:" + links.get(i));
             }
             imageAddr = links.get(0);
             links.remove(0);
@@ -623,8 +628,6 @@ public class ScrapingService {
         Element descriptionDiv = document.select(" h1.product-name").first();
         String description = descriptionDiv.text();
         description = description.replace("פרטי", "");
-        Element priceSpan = document.select("div.price._product-price span").first();
-        String fullPrice = priceSpan.text();
         String salePrice = "";
         String price = "";
         Currency currency = Currency.USD;
@@ -637,10 +640,19 @@ public class ScrapingService {
             currency = itemPriceCurrSale.currency;
             salePrice = itemPriceCurrSale.price;
         } catch (NullPointerException e) {
-            price = document.select("div.price._product-price span").first().text();
-            ItemPriceCurr itemPriceCurr = priceTag(price);
+            String scriptTag = driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
+            int priceCurrencyIndex = scriptTag.indexOf("priceCurrency");
+
+            int beginPriceIndex = scriptTag.indexOf("price", priceCurrencyIndex + 1) + 9;
+            int endPriceIndex = beginPriceIndex; // 9 is number of characters from the word price to its value.
+            while (Character.isDigit(scriptTag.charAt(endPriceIndex))) {
+                endPriceIndex++;
+            }
+            endPriceIndex--;
+            ItemPriceCurr itemPriceCurr = priceTag(scriptTag.substring(priceCurrencyIndex + 17, priceCurrencyIndex + 20));
             currency = itemPriceCurr.currency;
-            price = itemPriceCurr.price;
+            price = scriptTag.substring(beginPriceIndex, endPriceIndex + 1);
+
         }
         String designer = "";
         String imgExtension = "jpg";
@@ -871,7 +883,7 @@ public class ScrapingService {
 
         String productID = document.select(".product-view.initialised-validation").attr("id");
         productID = productID.replaceAll("[^0-9]", "");
-        List<String>links = new ArrayList<>();
+        List<String> links = new ArrayList<>();
         String thumbnail = document.select("img#image-1").attr("src");
         links.add(thumbnail);
         String imageAddr = document.select("img#image-0").attr("src");
