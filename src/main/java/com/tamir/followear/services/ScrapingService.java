@@ -643,25 +643,17 @@ public class ScrapingService {
             currency = itemPriceCurrSale.currency;
             salePrice = itemPriceCurrSale.price;
         } catch (NullPointerException e) {
-            price =driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
-            int priceCurrencyIndex = price.indexOf("price");
-            int beginPriceIndex = price.indexOf("price",priceCurrencyIndex+1);
-            int endPriceIndex=0;
-            for (int i = beginPriceIndex+9; i < price.substring(beginPriceIndex).length(); i++) {
-                if (Character.isDigit(price.charAt(i))){
-                    endPriceIndex = i;
-                }else {
-                    break;
-                }
+            String scriptTag =driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
+            int priceCurrencyIndex = scriptTag.indexOf("priceCurrency");
+            int beginPriceIndex = scriptTag.indexOf("price",priceCurrencyIndex+1);
+            int endPriceIndex= beginPriceIndex+9; // 9 is number of characters from the word price to its value.
+            while(Character.isDigit(scriptTag.charAt(endPriceIndex))){
+                endPriceIndex++;
             }
-            if(priceCurrencyIndex>0) {
-                ItemPriceCurr itemPriceCurr = priceTag(price.substring(priceCurrencyIndex + 17, priceCurrencyIndex + 20));
-                currency = itemPriceCurr.currency;
-            }
-            if (endPriceIndex < price.length() && endPriceIndex > beginPriceIndex){
-                price = price.substring(beginPriceIndex + 9, endPriceIndex + 1);
+            ItemPriceCurr itemPriceCurr = priceTag(scriptTag.substring(priceCurrencyIndex + 17, priceCurrencyIndex + 20));
+            currency = itemPriceCurr.currency;
+            price = scriptTag.substring(beginPriceIndex + 9, endPriceIndex + 1);
 
-            }
         }
         String designer = "";
         String imgExtension = "jpg";
