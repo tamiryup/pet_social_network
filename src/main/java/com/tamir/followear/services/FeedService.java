@@ -273,6 +273,11 @@ public class FeedService {
             return false;
         }
 
+        //check that the post has a price
+        if(post.getPrice() == "") {
+            return false;
+        }
+
         double price = Double.valueOf(post.getPrice());
         double priceInILS = post.getCurrency() == Currency.ILS ?
                 price : currencyConverter.convert(post.getCurrency(), Currency.ILS, price);
