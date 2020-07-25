@@ -654,13 +654,8 @@ public class ScrapingService {
                     break;
                 }
             }
-            try {
+            if (endPriceIndex < price.length() && endPriceIndex > beginPriceIndex){
                 price = price.substring(beginPriceIndex + 9, endPriceIndex + 1);
-            }catch (NullPointerException err){
-
-            }
-
-            if (price.length() > 0) {
                 ItemPriceCurr itemPriceCurr = priceTag(price);
                 currency = itemPriceCurr.currency;
                 price = itemPriceCurr.price;
