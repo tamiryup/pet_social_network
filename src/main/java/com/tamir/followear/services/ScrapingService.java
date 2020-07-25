@@ -1,5 +1,7 @@
 package com.tamir.followear.services;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.Category;
@@ -8,12 +10,15 @@ import com.tamir.followear.exceptions.BadLinkException;
 import com.tamir.followear.exceptions.ScrapingError;
 import com.tamir.followear.helpers.StringHelper;
 import lombok.ToString;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
@@ -626,8 +631,6 @@ public class ScrapingService {
         Element descriptionDiv = document.select(" h1.product-name").first();
         String description = descriptionDiv.text();
         description = description.replace("פרטי", "");
-        Element priceSpan = document.select("div.price._product-price span").first();
-        String fullPrice = priceSpan.text();
         String salePrice = "";
         String price = "";
         Currency currency = Currency.USD;
@@ -640,10 +643,28 @@ public class ScrapingService {
             currency = itemPriceCurrSale.currency;
             salePrice = itemPriceCurrSale.price;
         } catch (NullPointerException e) {
-            price = document.select("div.price._product-price span").first().text();
-            ItemPriceCurr itemPriceCurr = priceTag(price);
-            currency = itemPriceCurr.currency;
-            price = itemPriceCurr.price;
+            price =driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
+            int priceCurrencyIndex = price.indexOf("price");
+            int beginPriceIndex = price.indexOf("price",priceCurrencyIndex+1);
+            int endPriceIndex=0;
+            for (int i = beginPriceIndex+9; i < price.substring(beginPriceIndex).length(); i++) {
+                if (Character.isDigit(price.charAt(i))){
+                    endPriceIndex = i;
+                }else {
+                    break;
+                }
+            }
+            try {
+                price = price.substring(beginPriceIndex + 9, endPriceIndex + 1);
+            }catch (NullPointerException err){
+
+            }
+
+            if (price.length() > 0) {
+                ItemPriceCurr itemPriceCurr = priceTag(price);
+                currency = itemPriceCurr.currency;
+                price = itemPriceCurr.price;
+            }
         }
         String designer = "";
         String imgExtension = "jpg";
