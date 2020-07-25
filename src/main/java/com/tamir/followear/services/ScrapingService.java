@@ -654,11 +654,13 @@ public class ScrapingService {
                     break;
                 }
             }
+            if(priceCurrencyIndex>0) {
+                ItemPriceCurr itemPriceCurr = priceTag(price.substring(priceCurrencyIndex + 17, priceCurrencyIndex + 20));
+                currency = itemPriceCurr.currency;
+            }
             if (endPriceIndex < price.length() && endPriceIndex > beginPriceIndex){
                 price = price.substring(beginPriceIndex + 9, endPriceIndex + 1);
-                ItemPriceCurr itemPriceCurr = priceTag(price);
-                currency = itemPriceCurr.currency;
-                price = itemPriceCurr.price;
+
             }
         }
         String designer = "";
