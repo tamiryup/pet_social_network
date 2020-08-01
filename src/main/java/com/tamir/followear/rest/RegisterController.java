@@ -79,6 +79,13 @@ public class RegisterController {
         registrationService.logout(request, response);
     }
 
+    @GetMapping("/code-login")
+    @ResponseBody
+    public AuthResultDTO codeLogin(HttpServletResponse response, @RequestParam String code) {
+        logger.info("starting code login");
+        return registrationService.codeLogin(response, code);
+    }
+
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/reset-password")
     public void resetPassword(@RequestParam String username) {

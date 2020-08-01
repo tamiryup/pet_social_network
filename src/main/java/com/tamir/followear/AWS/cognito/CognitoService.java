@@ -5,13 +5,16 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProvider;
 import com.amazonaws.services.cognitoidp.AWSCognitoIdentityProviderClientBuilder;
 import com.amazonaws.services.cognitoidp.model.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tamir.followear.AWS.MyAWSCredentials;
+import com.tamir.followear.OkHttpClientProvider;
 import com.tamir.followear.dto.ChangePasswordDTO;
 import com.tamir.followear.exceptions.CognitoException;
 import com.tamir.followear.exceptions.InvalidPassword;
 import com.tamir.followear.exceptions.NoAuthException;
 import com.tamir.followear.helpers.HttpHelper;
 import lombok.NoArgsConstructor;
+import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +38,9 @@ public class CognitoService {
 
     @Autowired
     private MyAWSCredentials myAWSCreds;
+
+    @Autowired
+    private OkHttpClientProvider okHttpClientProvider;
 
     private AWSCognitoIdentityProvider cognitoProvider;
 
@@ -109,6 +116,78 @@ public class CognitoService {
         return attributes;
     }
 
+    public AuthenticationResultType performCodeGrantFlow(String code) {
+        try {
+            OkHttpClient client = okHttpClientProvider.getClient();
+
+            MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
+            RequestBody body = RequestBody.create(mediaType,
+                    "grant_type=authorization_code&client_id=k60gq4qju60fgadkps8obq59h&" +
+                            "code=" + code + "&redirect_uri=https%3A%2F%2Fwww.followear.com&undefined=");
+            Request request = new Request.Builder()
+                    .url("https://localauth.followear.com/oauth2/token")
+                    .post(body)
+                    .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                    .addHeader("cache-control", "no-cache")
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if(response.code() != 200) {
+                throw new CognitoException("Code grant flow failed with response code " + response.code());
+            }
+
+            return httpResponseToAuthResult(response);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new CognitoException(e.getMessage());
+        }
+    }
+
+    private AuthenticationResultType httpResponseToAuthResult(Response response) throws IOException {
+        ResponseBody responseBody = response.body();
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> map = mapper.readValue(responseBody.string(), Map.class);
+
+        AuthenticationResultType authResultType = new AuthenticationResultType()
+                .withIdToken((String) map.get("id_token"))
+                .withAccessToken((String) map.get("access_token"))
+                .withRefreshToken((String) map.get("refresh_token"))
+                .withExpiresIn((Integer) map.get("expires_in"))
+                .withTokenType((String) map.get("token_type"));
+
+        return authResultType;
+    }
+
+    public GetUserResult getUser(String accessToekn) {
+        GetUserRequest getUserRequest = new GetUserRequest()
+                .withAccessToken(accessToekn);
+
+        GetUserResult getUserResult = cognitoProvider.getUser(getUserRequest);
+        return getUserResult;
+    }
+
+    public void updateCustomIdAndPreferredUsername(String accessToken, String preferredUsername, long customId) {
+        List<AttributeType> attributes = new ArrayList<>();
+
+        AttributeType attributeTypePreferredUsername = new AttributeType()
+                .withName("preferred_username")
+                .withValue(preferredUsername);
+        attributes.add(attributeTypePreferredUsername);
+
+        AttributeType attributeTypeCustomId = new AttributeType()
+                .withName("custom:id")
+                .withValue("" + customId);
+        attributes.add(attributeTypeCustomId);
+
+        UpdateUserAttributesRequest updateAttrRequest = new UpdateUserAttributesRequest()
+                .withAccessToken(accessToken)
+                .withUserAttributes(attributes);
+
+        cognitoProvider.updateUserAttributes(updateAttrRequest);
+        markEmailAsVerified(preferredUsername);
+    }
 
     public AuthenticationResultType performAuth(String username, String password) {
 
@@ -196,6 +275,22 @@ public class CognitoService {
         attributes.add(attributeTypeEmail);
 
         //mark email as verified
+        AttributeType attributeTypeEmailVerification = new AttributeType();
+        attributeTypeEmailVerification.setName("email_verified");
+        attributeTypeEmailVerification.setValue("true");
+        attributes.add(attributeTypeEmailVerification);
+
+        request.setUserAttributes(attributes);
+        request.setUsername(username);
+        request.setUserPoolId(cogPoolId);
+
+        cognitoProvider.adminUpdateUserAttributes(request);
+    }
+
+    public void markEmailAsVerified(String username) {
+        AdminUpdateUserAttributesRequest request = new AdminUpdateUserAttributesRequest();
+
+        List<AttributeType> attributes = new ArrayList<>();
         AttributeType attributeTypeEmailVerification = new AttributeType();
         attributeTypeEmailVerification.setName("email_verified");
         attributeTypeEmailVerification.setValue("true");

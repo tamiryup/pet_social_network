@@ -36,6 +36,7 @@ public class User {
 
     private String username;
     private String fullName;
+
     @Setter
     private String profileImageAddr;
 
