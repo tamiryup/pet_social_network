@@ -13,6 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -515,28 +516,28 @@ public class ScrapingService {
         if (productID == null) {
             throw new BadLinkException("This isn't a product page");
         }
-        String description = document.select("span._d85b45._1851d6").first().text();
-        String designer = document.select("span._e87472._346238._e4b5ec").first().text();
+
+        String description = driver.findElement(By.xpath("//meta[@itemprop='name']")).getAttribute("content");
+        String designer = driver.findElement(By.xpath("//a[@data-tstid='cardInfo-title']")).getAttribute("aria-label");
         Currency currency = Currency.USD;
         try {
-            price = document.select("span._89a1d3._b764f1").first().text();
+            salePrice = driver.findElement(By.xpath("//strong[@data-tstid='priceInfo-onsale']")).getText();
+            salePrice = salePrice.replaceAll("[^0-9\\,\\.]", "");
+            price = driver.findElement(By.xpath("//span[@data-tstid='priceInfo-original']")).getText();
             ItemPriceCurr itemPriceCurr = priceTag(price);
             price = itemPriceCurr.price;
-            salePrice = document.select("strong._e806a1._366381._d85b45").first().text();
-            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            String stringCurrency = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']")).getAttribute("content");
+            ItemPriceCurr itemPriceCurrSale = priceTag(stringCurrency);
             currency = itemPriceCurrSale.currency;
-            salePrice = itemPriceCurrSale.price;
-        } catch (NullPointerException e) {
-            price = document.select("span._e806a1._0f635f").first().text();
-            ItemPriceCurr itemPriceCurr = priceTag(price);
+        } catch (NoSuchElementException e) {
+            price = driver.findElement(By.xpath("//meta[@itemprop='price']")).getAttribute("content");
+            String stringCurrency = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']")).getAttribute("content");
+            ItemPriceCurr itemPriceCurr = priceTag(stringCurrency);
             currency = itemPriceCurr.currency;
-            price = itemPriceCurr.price;
         }
-        Elements imagesDiv = document.select("picture._492380._f8a733");
-        Elements imageElements = imagesDiv.select("img");
-        List<String> links = imageElements.eachAttr("src");
-        String imageAddr = links.get(0);
-        links.remove(0);
+        List<String> links = new ArrayList<>();
+        String imageAddr = driver.findElement(By.xpath("//img[@data-test='imagery-img0']")).getAttribute("src");
+        links.add(driver.findElement(By.xpath("//img[@data-test='imagery-img1']")).getAttribute("src"));
         String imgExtension = "jpg";
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
