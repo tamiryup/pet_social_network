@@ -514,8 +514,17 @@ public class ScrapingService {
         ProductType productType;
         String salePrice = "";
         String price = "";
-        String productID = driver.findElement(By.xpath("//meta[@itemprop='productID']")).getAttribute("content");
-        if (productID == null) {
+        String productID="";
+        try {
+            productID = driver.findElement(By.xpath("//meta[@itemprop='productID']")).getAttribute("content");
+        }catch (NoSuchElementException e) {
+           int productIdEndIndex = productPageLink.indexOf(".aspx");
+            if (productIdEndIndex != -1) {
+                int productIdBeginIndex = productIdEndIndex - 8;
+                productID = productPageLink.substring(productIdBeginIndex,productIdEndIndex);
+            }
+       }
+            if (productID.length()<1) {
             throw new BadLinkException("This isn't a product page");
         }
 
@@ -528,6 +537,7 @@ public class ScrapingService {
             price = driver.findElement(By.xpath("//span[@data-tstid='priceInfo-original']")).getText();
             ItemPriceCurr itemPriceCurr = priceTag(price);
             price = itemPriceCurr.price;
+            //salePrice = driver.findElement(By.xpath("//meta[@itemprop='price']")).getAttribute("content");
             String stringCurrency = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']")).getAttribute("content");
             ItemPriceCurr itemPriceCurrSale = priceTag(stringCurrency);
             currency = itemPriceCurrSale.currency;
@@ -536,10 +546,14 @@ public class ScrapingService {
             String stringCurrency = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']")).getAttribute("content");
             ItemPriceCurr itemPriceCurr = priceTag(stringCurrency);
             currency = itemPriceCurr.currency;
+           // price = itemPriceCurr.price;
         }
-        List<String> links = new ArrayList<>();
-        String imageAddr = driver.findElement(By.xpath("//img[@data-test='imagery-img0']")).getAttribute("src");
-        links.add(driver.findElement(By.xpath("//img[@data-test='imagery-img1']")).getAttribute("src"));
+        Elements imagesDiv = document.select("picture._492380._f8a733");
+        Elements imageElements = imagesDiv.select("img");
+        List<String> links = imageElements.eachAttr("src");
+        String imageAddr = links.get(0);
+        links.remove(0);
+
         String imgExtension = "jpg";
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
