@@ -199,7 +199,13 @@ public class UserService {
             throw new InvalidUsernameException();
         }
 
-        //TODO: implement this
+        try {
+            cognitoService.updatePreferredUsername(user.getUsername(), username);
+        } catch (Exception e) {
+            throw new CognitoException(e.getMessage());
+        }
+
+        userRepo.updateUsernameById(id, username);
     }
 
     public void changePassword(long id, ChangePasswordDTO changePasswordDTO, HttpServletRequest servletRequest) {

@@ -168,27 +168,6 @@ public class CognitoService {
         return getUserResult;
     }
 
-    public void updateCustomIdAndPreferredUsername(String accessToken, String preferredUsername, long customId) {
-        List<AttributeType> attributes = new ArrayList<>();
-
-        AttributeType attributeTypePreferredUsername = new AttributeType()
-                .withName("preferred_username")
-                .withValue(preferredUsername);
-        attributes.add(attributeTypePreferredUsername);
-
-        AttributeType attributeTypeCustomId = new AttributeType()
-                .withName("custom:id")
-                .withValue("" + customId);
-        attributes.add(attributeTypeCustomId);
-
-        UpdateUserAttributesRequest updateAttrRequest = new UpdateUserAttributesRequest()
-                .withAccessToken(accessToken)
-                .withUserAttributes(attributes);
-
-        cognitoProvider.updateUserAttributes(updateAttrRequest);
-        markEmailAsVerified(preferredUsername);
-    }
-
     public AuthenticationResultType performAuth(String username, String password) {
 
         AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest();
@@ -262,6 +241,36 @@ public class CognitoService {
 
         confForgotPasswordRes = cognitoProvider.confirmForgotPassword(confirmForgotPasswordReq);
         return confForgotPasswordRes;
+    }
+
+    public void updateCustomIdAndPreferredUsername(String accessToken, String preferredUsername, long customId) {
+        List<AttributeType> attributes = new ArrayList<>();
+
+        AttributeType attributeTypePreferredUsername = new AttributeType()
+                .withName("preferred_username")
+                .withValue(preferredUsername);
+        attributes.add(attributeTypePreferredUsername);
+
+        AttributeType attributeTypeCustomId = new AttributeType()
+                .withName("custom:id")
+                .withValue("" + customId);
+        attributes.add(attributeTypeCustomId);
+
+        UpdateUserAttributesRequest updateAttrRequest = new UpdateUserAttributesRequest()
+                .withAccessToken(accessToken)
+                .withUserAttributes(attributes);
+
+        cognitoProvider.updateUserAttributes(updateAttrRequest);
+        markEmailAsVerified(preferredUsername);
+    }
+
+    public void updatePreferredUsername(String username, String preferredUsername) {
+        AdminUpdateUserAttributesRequest updateAttrReq = new AdminUpdateUserAttributesRequest()
+                .withUserPoolId(cogPoolId)
+                .withUsername(username)
+                .withUserAttributes(new AttributeType().withName("preferred_username").withValue(preferredUsername));
+
+        cognitoProvider.adminUpdateUserAttributes(updateAttrReq);
     }
 
     public void updadeEmailAttribute(String username, String email) {
