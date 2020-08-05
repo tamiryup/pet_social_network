@@ -2,6 +2,7 @@ package com.tamir.followear.services;
 
 import com.amazonaws.services.cognitoidp.model.AttributeType;
 import com.amazonaws.services.cognitoidp.model.GetUserResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.tamir.followear.AWS.cognito.CognitoService;
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -136,9 +138,15 @@ public class UserService {
         if (user == null) {
             throw new InvalidUserException();
         }
+
         String lastAddr = user.getProfileImageAddr();
         user.setProfileImageAddr(profilePictureAddr);
         update(user);
+
+        if (!lastAddr.equals(CommonBeanConfig.getDefaultProfileImageAddr())) {
+            s3Service.deleteByKey(lastAddr);
+        }
+
         return lastAddr;
     }
 
@@ -149,10 +157,19 @@ public class UserService {
         ImageType imageType = ImageType.ProfileImage;
         String extension = FileHelper.getMultipartFileExtension(image);
         String addr = s3Service.uploadImage(imageType, image, extension);
-        String lastAddr = updateProfilePictureAddrById(id, addr);
-        if (!lastAddr.equals(CommonBeanConfig.getDefaultProfileImageAddr())) {
-            s3Service.deleteByKey(lastAddr);
+        updateProfilePictureAddrById(id, addr);
+        return addr;
+    }
+
+    public String updateProfileImage(long id, String url) throws IOException {
+        if(!existsById(id)) {
+            throw new InvalidUserException();
         }
+        ImageType imageType = ImageType.ProfileImage;
+        String extension = "jpg";
+        InputStream inputStream = FileHelper.urlToInputStream(url);
+        String addr = s3Service.uploadImage(imageType, inputStream, extension);
+        updateProfilePictureAddrById(id, addr);
         return addr;
     }
 
@@ -236,7 +253,7 @@ public class UserService {
     /**
      * saves a new user to the base based on cognito attributes
      */
-    public User initUserFromCognitoAttr(Map<String, String> attributesMap, String cogUsername) {
+    public User createUserFromCognitoAttr(Map<String, String> attributesMap, String cogUsername) {
 
         if(attributesMap.containsKey("custom:id")) {
             return findById(Long.parseLong(attributesMap.get("custom:id")));
@@ -250,7 +267,22 @@ public class UserService {
 
         User user = new User(email, username, fullName, birthDate);
         user = create(user);
+
+        try {
+            setProfilePictureFromFacebook(user.getId(), attributesMap.get("picture"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return user;
+    }
+
+    public String setProfilePictureFromFacebook(long id, String cognitoPictureString) throws IOException{
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Map<String, String>> map = mapper.readValue(cognitoPictureString, Map.class);
+        String profileImageUrl = map.get("data").get("url");
+        String addr = updateProfileImage(id, profileImageUrl);
+        return addr;
     }
 
     public String usernameFromFullName(String fullName) {

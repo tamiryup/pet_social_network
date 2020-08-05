@@ -123,7 +123,7 @@ public class CognitoService {
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
             RequestBody body = RequestBody.create(mediaType,
                     "grant_type=authorization_code&client_id=k60gq4qju60fgadkps8obq59h&" +
-                            "code=" + code + "&redirect_uri=https%3A%2F%2Fwww.followear.com&undefined=");
+                            "code=" + code + "&redirect_uri=https%3A%2F%2Fwww.followear.com");
             Request request = new Request.Builder()
                     .url("https://localauth.followear.com/oauth2/token")
                     .post(body)

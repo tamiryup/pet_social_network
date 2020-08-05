@@ -99,7 +99,7 @@ public class RegistrationService {
         GetUserResult userResult = cognitoService.getUser(authResult.getAccessToken());
         List<AttributeType> attributes = userResult.getUserAttributes();
         Map<String, String> attributesMap = AWSHelper.createMapFromAttributeTypes(attributes);
-        User user = userService.initUserFromCognitoAttr(attributesMap, userResult.getUsername());
+        User user = userService.createUserFromCognitoAttr(attributesMap, userResult.getUsername());
 
         if(!attributesMap.containsKey("custom:id")) { //if user signs up for the first time
             try {
