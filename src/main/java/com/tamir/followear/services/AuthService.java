@@ -92,7 +92,7 @@ public abstract class AuthService {
                     return claimsSet;
                 } catch (InvalidToken invalidToken) {
                     LOGGER.error("problems with refresh token");
-                    throw new NoAuthException();
+                    throw new NoAuthException("Invalid Token: " + invalidToken.getMessage());
                 }
 
             } catch (AWSCognitoIdentityProviderException notAuthEx) {

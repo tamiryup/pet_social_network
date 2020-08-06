@@ -1,24 +1,12 @@
 package com.tamir.followear;
 
-import com.amazonaws.services.cognitoidp.model.AdminUpdateUserAttributesRequest;
-import com.amazonaws.services.cognitoidp.model.AdminUpdateUserAttributesResult;
-import com.amazonaws.services.cognitoidp.model.AttributeType;
-import com.amazonaws.services.cognitoidp.model.GetUserResult;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tamir.followear.AWS.cognito.CognitoService;
 import com.tamir.followear.dto.UploadItemDTO;
-import com.tamir.followear.entities.Post;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
-import com.tamir.followear.helpers.FileHelper;
-import com.tamir.followear.helpers.StringHelper;
-import com.tamir.followear.services.*;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
+import com.tamir.followear.services.PostService;
+import com.tamir.followear.services.ScrapingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +14,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 
 @SpringBootApplication
@@ -51,12 +34,6 @@ public class FollowearApplication implements CommandLineRunner {
 
 	@Autowired
     CognitoService cognitoService;
-
-	@Autowired
-    RegistrationService registrationService;
-
-	@Autowired
-    UserService userService;
 
 	@Override
 	public void run(String... args) throws Exception {
