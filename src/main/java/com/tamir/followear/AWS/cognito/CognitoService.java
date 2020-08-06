@@ -50,8 +50,14 @@ public class CognitoService {
     @Value("${fw.cognito.pool-id}")
     private String cogPoolId;
 
+    @Value("${fw.cognito.domain}")
+    private String cognitoDomain;
+
     @Value("${spring.profiles}")
     private String env;
+
+    @Value("${fw.server.url}")
+    private String serverUrl;
 
     @PostConstruct
     private void init() {
@@ -117,15 +123,19 @@ public class CognitoService {
     }
 
     public AuthenticationResultType performCodeGrantFlow(String code) {
+        if(env.equals("local")) {
+            serverUrl = "localhost:4200";
+        }
+
         try {
             OkHttpClient client = okHttpClientProvider.getClient();
 
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
             RequestBody body = RequestBody.create(mediaType,
-                    "grant_type=authorization_code&client_id=k60gq4qju60fgadkps8obq59h&" +
-                            "code=" + code + "&redirect_uri=https%3A%2F%2Fwww.followear.com");
+                    "grant_type=authorization_code&client_id=" + cogAppClientId + "&" +
+                            "code=" + code + "&redirect_uri=https://" + serverUrl);
             Request request = new Request.Builder()
-                    .url("https://localauth.followear.com/oauth2/token")
+                    .url("https://" + cognitoDomain + "/oauth2/token")
                     .post(body)
                     .addHeader("Content-Type", "application/x-www-form-urlencoded")
                     .addHeader("cache-control", "no-cache")
@@ -261,7 +271,6 @@ public class CognitoService {
                 .withUserAttributes(attributes);
 
         cognitoProvider.updateUserAttributes(updateAttrRequest);
-        markEmailAsVerified(preferredUsername);
     }
 
     public void updatePreferredUsername(String username, String preferredUsername) {

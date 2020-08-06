@@ -111,6 +111,10 @@ public class RegistrationService {
             }
         }
 
+        if(attributesMap.get("email_verified").equals("false")) {
+            cognitoService.markEmailAsVerified(user.getUsername());
+        }
+
         HttpHelper.setResponseCookies(response, authResult);
         HttpHelper.setUserIdCookie(response, user.getId());
         csrfService.setCsrfCookie(response);
