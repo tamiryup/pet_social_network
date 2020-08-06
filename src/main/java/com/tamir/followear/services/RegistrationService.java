@@ -6,6 +6,7 @@ import com.tamir.followear.dto.SignupRequestDTO;
 import com.tamir.followear.dto.AuthResultDTO;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.exceptions.*;
+import com.tamir.followear.helpers.AWSHelper;
 import com.tamir.followear.helpers.HttpHelper;
 import com.tamir.followear.helpers.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -88,6 +90,36 @@ public class RegistrationService {
         csrfService.setCsrfCookie(response);
 
         return authResultDTO;
+    }
+
+    public AuthResultDTO codeLogin(HttpServletResponse response, String code) {
+
+        AuthenticationResultType authResult = cognitoService.performCodeGrantFlow(code);
+
+        GetUserResult userResult = cognitoService.getUser(authResult.getAccessToken());
+        List<AttributeType> attributes = userResult.getUserAttributes();
+        Map<String, String> attributesMap = AWSHelper.createMapFromAttributeTypes(attributes);
+        User user = userService.createUserFromCognitoAttr(attributesMap, userResult.getUsername());
+
+        if(!attributesMap.containsKey("custom:id")) { //if user signs up for the first time
+            try {
+                cognitoService.updateCustomIdAndPreferredUsername(authResult.getAccessToken(),
+                        user.getUsername(), user.getId());
+            } catch (Exception e) {
+                userService.delete(user);
+                throw new CognitoException(e.getMessage());
+            }
+        }
+
+        if(attributesMap.get("email_verified").equals("false")) {
+            cognitoService.markEmailAsVerified(user.getUsername());
+        }
+
+        HttpHelper.setResponseCookies(response, authResult);
+        HttpHelper.setUserIdCookie(response, user.getId());
+        csrfService.setCsrfCookie(response);
+
+        return new AuthResultDTO(user);
     }
 
     public void logout(HttpServletRequest request, HttpServletResponse response) {

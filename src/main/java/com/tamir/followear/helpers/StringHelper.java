@@ -15,7 +15,7 @@ public class StringHelper {
     }
 
     public static boolean isValidUsername(String username) {
-        return username.matches("[a-zA-Z0-9]*");
+        return username.matches("[a-zA-Z0-9._]*");
     }
 
     public static String removeCommas(String str) {

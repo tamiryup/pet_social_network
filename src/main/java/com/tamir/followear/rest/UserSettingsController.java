@@ -74,6 +74,13 @@ public class UserSettingsController {
     }
 
     @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/update-username")
+    public void updateUsername(@PathVariable long id, @RequestParam("username") String username) {
+        logger.info("stating updateUsername input userId: {}, username: {}", id, username);
+        userService.updateUsernameById(id, username);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
     @PostMapping("/change-password")
     public void changePassword(@PathVariable long id, @RequestBody ChangePasswordDTO changePasswordDTO,
                                HttpServletRequest servletRequest) {

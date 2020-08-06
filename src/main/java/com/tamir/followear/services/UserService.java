@@ -1,5 +1,8 @@
 package com.tamir.followear.services;
 
+import com.amazonaws.services.cognitoidp.model.AttributeType;
+import com.amazonaws.services.cognitoidp.model.GetUserResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.tamir.followear.AWS.cognito.CognitoService;
@@ -10,10 +13,12 @@ import com.tamir.followear.dto.SearchDTO;
 import com.tamir.followear.entities.User;
 import com.tamir.followear.enums.ImageType;
 import com.tamir.followear.exceptions.*;
+import com.tamir.followear.helpers.AWSHelper;
 import com.tamir.followear.helpers.FileHelper;
-import com.tamir.followear.helpers.HttpHelper;
 import com.tamir.followear.helpers.StringHelper;
 import com.tamir.followear.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,15 +26,15 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.InputStream;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class UserService {
+
+    private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserRepository userRepo;
@@ -133,9 +138,15 @@ public class UserService {
         if (user == null) {
             throw new InvalidUserException();
         }
+
         String lastAddr = user.getProfileImageAddr();
         user.setProfileImageAddr(profilePictureAddr);
         update(user);
+
+        if (!lastAddr.equals(CommonBeanConfig.getDefaultProfileImageAddr())) {
+            s3Service.deleteByKey(lastAddr);
+        }
+
         return lastAddr;
     }
 
@@ -146,10 +157,19 @@ public class UserService {
         ImageType imageType = ImageType.ProfileImage;
         String extension = FileHelper.getMultipartFileExtension(image);
         String addr = s3Service.uploadImage(imageType, image, extension);
-        String lastAddr = updateProfilePictureAddrById(id, addr);
-        if (!lastAddr.equals(CommonBeanConfig.getDefaultProfileImageAddr())) {
-            s3Service.deleteByKey(lastAddr);
+        updateProfilePictureAddrById(id, addr);
+        return addr;
+    }
+
+    public String updateProfileImage(long id, String url) throws IOException {
+        if(!existsById(id)) {
+            throw new InvalidUserException();
         }
+        ImageType imageType = ImageType.ProfileImage;
+        String extension = "jpg";
+        InputStream inputStream = FileHelper.urlToInputStream(url);
+        String addr = s3Service.uploadImage(imageType, inputStream, extension);
+        updateProfilePictureAddrById(id, addr);
         return addr;
     }
 
@@ -186,6 +206,25 @@ public class UserService {
         userRepo.updateEmailById(id, email);
     }
 
+    public void updateUsernameById(long id, String username) {
+        User user = findById(id);
+        if(user == null) {
+            throw new InvalidUserException();
+        } else if (existsByUsername(username)) {
+            throw new UserCollisionException("username already exists");
+        } else if (!StringHelper.isValidUsername(username)) {
+            throw new InvalidUsernameException();
+        }
+
+        try {
+            cognitoService.updatePreferredUsername(user.getUsername(), username);
+        } catch (Exception e) {
+            throw new CognitoException(e.getMessage());
+        }
+
+        userRepo.updateUsernameById(id, username);
+    }
+
     public void changePassword(long id, ChangePasswordDTO changePasswordDTO, HttpServletRequest servletRequest) {
         if (!existsById(id)) {
             throw new InvalidUserException();
@@ -209,6 +248,59 @@ public class UserService {
         }
 
         return results;
+    }
+
+    /**
+     * saves a new user to the base based on cognito attributes
+     */
+    public User createUserFromCognitoAttr(Map<String, String> attributesMap, String cogUsername) {
+
+        if(attributesMap.containsKey("custom:id")) {
+            return findById(Long.parseLong(attributesMap.get("custom:id")));
+        }
+
+        String username = cogUsername;
+        String email = attributesMap.get("email");
+        String fullName = attributesMap.get("name");
+        Date birthDate = new Date(0);
+        username = usernameFromFullName(fullName);
+
+        User user = new User(email, username, fullName, birthDate);
+        user = create(user);
+
+        try {
+            setProfilePictureFromFacebook(user.getId(), attributesMap.get("picture"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return user;
+    }
+
+    public String setProfilePictureFromFacebook(long id, String cognitoPictureString) throws IOException{
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Map<String, String>> map = mapper.readValue(cognitoPictureString, Map.class);
+        String profileImageUrl = map.get("data").get("url");
+        String addr = updateProfileImage(id, profileImageUrl);
+        return addr;
+    }
+
+    public String usernameFromFullName(String fullName) {
+        String baseUsername = fullName.toLowerCase();
+        baseUsername = baseUsername.replaceAll(" ", ".");
+
+        String username = baseUsername;
+        int suffix = 0;
+        while(existsByUsername(username)) {
+            suffix++;
+            username = baseUsername + suffix;
+        }
+
+        if(suffix >= 5) {
+            logger.warn("Username suffix is bigger than 5! suffix value: " + suffix);
+        }
+
+        return username;
     }
 
 }
