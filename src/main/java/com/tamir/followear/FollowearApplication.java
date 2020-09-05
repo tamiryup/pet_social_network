@@ -38,6 +38,7 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 	    logger.info("start execution");
+	    this.scrapingService.extractItem("https://www.zara.com/il/en/quilted-dress-p00517700.html?v1=71096827&v2=1538251");
 	}
 
 	private void fillUpDatabase() throws Exception {
