@@ -5,6 +5,7 @@ import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
+import com.tamir.followear.services.AuthService;
 import com.tamir.followear.services.PostService;
 import com.tamir.followear.services.ScrapingService;
 import org.slf4j.Logger;
@@ -38,7 +39,6 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 	    logger.info("start execution");
-	    this.scrapingService.extractItem("https://www.zara.com/il/en/quilted-dress-p00517700.html?v1=71096827&v2=1538251");
 	}
 
 	private void fillUpDatabase() throws Exception {
