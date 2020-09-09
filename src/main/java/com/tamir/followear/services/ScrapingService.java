@@ -551,9 +551,10 @@ public class ScrapingService {
             currency = itemPriceCurr.currency;
            // price = itemPriceCurr.price;
         }
-        Elements imagesDiv = document.select("picture._492380._f8a733");
-        Elements imageElements = imagesDiv.select("img");
-        List<String> links = imageElements.eachAttr("src");
+//        Elements imagesDiv = document.select("picture._492380._f8a733");
+        Elements imagesDiv = document.select("picture img");
+        //Elements imageElements = imagesDiv.select("img");
+        List<String> links = imagesDiv.eachAttr("src");
         String imageAddr = links.get(0);
         links.remove(0);
 
