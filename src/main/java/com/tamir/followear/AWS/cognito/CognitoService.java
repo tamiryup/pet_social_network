@@ -130,6 +130,10 @@ public class CognitoService {
         try {
             OkHttpClient client = okHttpClientProvider.getClient();
 
+            if(serverUrl.equals("devenv.followear.com")) {
+                serverUrl = "localhost:4200";
+            }
+
             MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
             RequestBody body = RequestBody.create(mediaType,
                     "grant_type=authorization_code&client_id=" + cogAppClientId + "&" +
