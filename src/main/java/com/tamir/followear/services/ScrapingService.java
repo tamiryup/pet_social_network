@@ -290,6 +290,9 @@ public class ScrapingService {
         ProductType productType;
         String price = null;
         String salePrice = "";
+        String description = "";
+        String designer ="";
+        String imageAddr = "";
         String priceSymbol;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
@@ -298,8 +301,7 @@ public class ScrapingService {
         if (productID == null) {
             throw new BadLinkException("This is not a product page");
         }
-        Element descriptionDiv = document.select(" p.ProductInformation80__name").first();
-        String description = descriptionDiv.text();
+
         price = driver.findElement(By.xpath("//span[@itemprop='price']"))
                 .getAttribute("content");
         priceSymbol = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
@@ -307,14 +309,15 @@ public class ScrapingService {
 
         ItemPriceCurr itemPriceCurr = priceTag(priceSymbol);
         Currency currency = itemPriceCurr.currency;
-        Element designerDiv = document.select("h1.ProductInformation80__designer").first();
-        String designer = designerDiv.text();
-        String imageAddr = "";
-        String imgExtension = "jpg";
-        Elements imageDiv = document.select(".Image17__imageContainer.ImageCarousel80__thumbnailImage");
-        Elements imageElements = imageDiv.select("img");
-        List<String> links = imageElements.eachAttr("src");
 
+        List<WebElement> itemsProps = driver.findElements(By.xpath("//meta[@itemprop='name']"));
+        if (itemsProps.size()  >= 2){
+            designer = itemsProps.get(0).getAttribute("content");
+            description = itemsProps.get(1).getAttribute("content");
+        }
+        String imgExtension = "jpg";
+        Elements imageElements = document.select("picture img");
+        List<String> links = imageElements.eachAttr("src");
         int endOfThumbnails = 3;
         int size = links.size();
         int maxThumbnails = Math.min(endOfThumbnails, size);
@@ -548,9 +551,10 @@ public class ScrapingService {
             currency = itemPriceCurr.currency;
            // price = itemPriceCurr.price;
         }
-        Elements imagesDiv = document.select("picture._492380._f8a733");
-        Elements imageElements = imagesDiv.select("img");
-        List<String> links = imageElements.eachAttr("src");
+//        Elements imagesDiv = document.select("picture._492380._f8a733");
+        Elements imagesDiv = document.select("picture img");
+        //Elements imageElements = imagesDiv.select("img");
+        List<String> links = imagesDiv.eachAttr("src");
         String imageAddr = links.get(0);
         links.remove(0);
 
