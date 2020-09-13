@@ -274,7 +274,7 @@ public class FeedService {
         }
 
         //check that the post has a price
-        if(post.getPrice() == "") {
+        if(post.getPrice().equals("")) {
             logger.error("Post with id " + post.getId() + " has empty price");
             return false;
         }
