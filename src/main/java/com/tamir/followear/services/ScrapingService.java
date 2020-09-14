@@ -310,10 +310,16 @@ public class ScrapingService {
         ItemPriceCurr itemPriceCurr = priceTag(priceSymbol);
         Currency currency = itemPriceCurr.currency;
 
+
+        // extract designer and description
         List<WebElement> itemsProps = driver.findElements(By.xpath("//meta[@itemprop='name']"));
         if (itemsProps.size()  >= 2){
             designer = itemsProps.get(0).getAttribute("content");
             description = itemsProps.get(1).getAttribute("content");
+        }
+        // can't extract designer and description
+         else{
+            throw new BadLinkException("This is not a product page");
         }
         String imgExtension = "jpg";
         Elements imageElements = document.select("picture img");
@@ -518,6 +524,9 @@ public class ScrapingService {
         String salePrice = "";
         String price = "";
         String productID="";
+        String imageAddr="";
+        String firstThumbnailImage="";
+        List<String> links = new ArrayList<>(1);
         try {
             productID = driver.findElement(By.xpath("//meta[@itemprop='productID']")).getAttribute("content");
         }catch (NoSuchElementException e) {
@@ -549,15 +558,15 @@ public class ScrapingService {
             String stringCurrency = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']")).getAttribute("content");
             ItemPriceCurr itemPriceCurr = priceTag(stringCurrency);
             currency = itemPriceCurr.currency;
-           // price = itemPriceCurr.price;
         }
-//        Elements imagesDiv = document.select("picture._492380._f8a733");
-        Elements imagesDiv = document.select("picture img");
-        //Elements imageElements = imagesDiv.select("img");
-        List<String> links = imagesDiv.eachAttr("src");
-        String imageAddr = links.get(0);
-        links.remove(0);
-
+        try {
+            imageAddr = driver.findElement(By.xpath("//img[@data-index='0']")).getAttribute("src");
+            firstThumbnailImage = driver.findElement(By.xpath("//img[@data-index='1']")).getAttribute("src");
+        }catch (NoSuchElementException e){
+            imageAddr = driver.findElement(By.xpath("//img[@data-test='imagery-img0']")).getAttribute("src");
+            firstThumbnailImage = driver.findElement(By.xpath("//img[@data-test='imagery-img1']")).getAttribute("src");
+        }
+        links.add(firstThumbnailImage);
         String imgExtension = "jpg";
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
@@ -650,7 +659,7 @@ public class ScrapingService {
                 throw new BadLinkException("This item cannot be shared");
             }
         }
-        System.out.println(breadCrumbsElem);
+        //System.out.println(breadCrumbsElem);
         Element descriptionDiv = document.select(" h1.product-name").first();
         String description = descriptionDiv.text();
         description = description.replace("פרטי", "");
@@ -687,8 +696,11 @@ public class ScrapingService {
         String imageAddr = links.get(0);
         links.remove(0);
         int endIndex = productPageLink.indexOf("html");
-        int startIndex = endIndex - 9;
-        String productID = productPageLink.substring(startIndex, endIndex - 1);
+        int startIndex = endIndex - 10;
+        if (productPageLink.charAt(startIndex)!= 'p'){
+            throw new BadLinkException("This isn't a product page");
+        }
+        String productID = productPageLink.substring(startIndex+1, endIndex - 1);
         if (StringHelper.doesContainHebrew(description)) {
             dict = classificationService.getHebrewDict();
         } else {
