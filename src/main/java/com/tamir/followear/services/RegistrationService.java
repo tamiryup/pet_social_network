@@ -115,6 +115,15 @@ public class RegistrationService {
             cognitoService.markEmailAsVerified(user.getUsername());
         }
 
+        // refresh the tokens so the id token has the updated claims
+        if(!attributesMap.containsKey("custom:id")) {
+            try {
+                authResult = cognitoService.performRefresh(authResult.getRefreshToken());
+            } catch (AWSCognitoIdentityProviderException notAuthEx) {
+                throw new NoAuthException(notAuthEx.getMessage());
+            }
+        }
+
         HttpHelper.setResponseCookies(response, authResult);
         HttpHelper.setUserIdCookie(response, user.getId());
         csrfService.setCsrfCookie(response);
