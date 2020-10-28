@@ -365,7 +365,7 @@ public class ScrapingService {
             price = price.replaceAll("[^0-9]", "");
         } catch (NullPointerException e) {
         }
-        String description = document.select(" p.ProductInformation79__name").first().text();
+        String description = document.select(" p.ProductInformation82__name").first().text();
         priceSymbol = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
                 .getAttribute("content");
         ItemPriceCurr itemPriceCurr = priceTag(priceSymbol);
@@ -376,7 +376,7 @@ public class ScrapingService {
                 .getAttribute("content");
         String imageAddr = "";
         String imgExtension = "jpg";
-        Elements imageDiv = document.select(".Image17__imageContainer.ImageCarousel79__thumbnailImage");
+        Elements imageDiv = document.select(".Image17__imageContainer.ImageCarousel82__thumbnailImage");
         Elements imageElements = imageDiv.select("img");
         List<String> links = imageElements.eachAttr("src");
 
