@@ -594,12 +594,12 @@ public class ScrapingService {
             price = document.select("div.product-intro__head-price del.del-price").first().text();
             ItemPriceCurr itemPriceCurr = priceTag(price);
             price = itemPriceCurr.price;
-            salePrice = document.select("div.product-intro__head-price span.discount").first().text();
+            salePrice = document.select("div.product-intro__head-price .discount span").first().text();
             ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
             currency = itemPriceCurrSale.currency;
             salePrice = itemPriceCurrSale.price;
         } catch (NullPointerException e) {
-            price = document.select("div.product-intro__head-price span.original").first().text();
+            price = document.select("div.product-intro__head-price .original span").first().text();
             ItemPriceCurr itemPriceCurr = priceTag(price);
             currency = itemPriceCurr.currency;
             price = itemPriceCurr.price;
