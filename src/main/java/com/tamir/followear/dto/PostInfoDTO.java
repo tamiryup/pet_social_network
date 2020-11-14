@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter
@@ -23,8 +25,10 @@ public class PostInfoDTO {
     private String storeName;
     private String website; //already formatted
     private String thumbnailAddr;
+    private String selfThumbAddr;
     private String link;
     private long numViews;
     private long numLikes;
+    private Date uploadDate;
 
 }

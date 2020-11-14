@@ -18,13 +18,17 @@ public class UserFeedPostDTO extends FeedPostDTO {
 
     private String thumbnail;
 
+    private String selfThumb;
+
     public UserFeedPostDTO(long postId, long userId, String postImageAddr, String description,
-                           String link, String price, String salePrice, String website, String thumbnail) {
+                           String link, String price, String salePrice, String website, String thumbnail,
+                           String selfThumb) {
         super(postId, userId, postImageAddr, description);
         this.price = price;
         this.salePrice = salePrice;
         this.link = link;
         this.website = website;
         this.thumbnail = thumbnail;
+        this.selfThumb = selfThumb;
     }
 }

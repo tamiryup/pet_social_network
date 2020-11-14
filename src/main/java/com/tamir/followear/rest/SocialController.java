@@ -212,4 +212,21 @@ public class SocialController {
         logger.info("starting didSave input userId: {}, postId: {}", id, postId);
         return saveService.didSaveItem(id, postId);
     }
+
+    @PostMapping("upload-self-thumb")
+    @ResponseBody
+    public String uploadSelfThumb(@PathVariable long id, @RequestParam long postId,
+                                  @RequestParam("image") MultipartFile image) throws IOException {
+        logger.info("starting uploadSelfThumb input userId: {}, postId: {}", id, postId);
+        return postService.uploadSelfThumb(id, postId, image);
+    }
+
+    @PostMapping("remove-self-thumb")
+    @ResponseBody
+    public void removeSelfThumb(@PathVariable long id, @RequestParam long postId) {
+        logger.info("starting removeSelfThumb input userId: {}, postId: {}", id, postId);
+        postService.removeSelfThumb(id, postId);
+    }
+
+
 }

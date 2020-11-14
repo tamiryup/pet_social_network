@@ -63,6 +63,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query(value = "SELECT COUNT(*) FROM posts WHERE user_id = :userId AND store_id= :storeId" +
             " AND product_id = :productId LIMIT 1",
     nativeQuery = true)
-    int countByItem(@Param("userId") long userId,@Param("storeId") long storeId,
+    int countByItem(@Param("userId") long userId, @Param("storeId") long storeId,
                      @Param("productId") String productId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE Post post SET post.selfThumb = :selfThumb WHERE post.id = :postId")
+    void updateSelfThumbById(@Param("postId") long postId, @Param("selfThumb") String selfThumb);
 }

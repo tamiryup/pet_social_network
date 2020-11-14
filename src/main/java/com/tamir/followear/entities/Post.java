@@ -62,6 +62,9 @@ public class Post {
 
     private String thumbnail;
 
+    @Column(columnDefinition = "varchar(255) default ''")
+    private String selfThumb;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 50)
     private Category category;

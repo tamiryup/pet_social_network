@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -187,7 +188,8 @@ public class PostService {
         PostInfoDTO postInfo = new PostInfoDTO(post.getId(), post.getUserId(), post.getStoreId(),
                 user.getProfileImageAddr(), user.getUsername(), post.getImageAddr(), post.getDescription(),
                 post.getFormattedPrice(), post.getFormattedSalePrice(), store.getLogoAddr(), store.getName(),
-                store.getWebsite(), post.getThumbnail(), post.getLink(), post.getNumViews(), post.getNumLikes());
+                store.getWebsite(), post.getThumbnail(), post.getSelfThumb(), post.getLink(),
+                post.getNumViews(), post.getNumLikes(), post.getCreateDate());
 
         return postInfo;
     }
@@ -281,6 +283,40 @@ public class PostService {
             throw new InvalidUserException();
         Post post = findById(postId);
         streamService.hideActivity(userId, post);
+    }
+
+    public String uploadSelfThumb(long userId, long postId, MultipartFile image) throws IOException {
+        Post post = findById(postId);
+        String prevSelfThumb = post.getSelfThumb();
+
+        if(post == null)
+            throw new InvalidPostException();
+        if(post.getUserId() != userId)
+            throw new NoAuthException("this user does not own this post");
+        if(!prevSelfThumb.equals(""))
+            return prevSelfThumb;
+
+        ImageType imageType = ImageType.SelfImage;
+        String extension = FileHelper.getMultipartFileExtension(image);
+        String addr = s3Service.uploadImage(imageType, image, extension);
+        postRepo.updateSelfThumbById(postId, addr);
+
+        return addr;
+    }
+
+    public void removeSelfThumb(long userId, long postId) {
+        Post post = findById(postId);
+        String prevSelfThumb = post.getSelfThumb();
+
+        if(post == null)
+            throw new InvalidPostException();
+        if(post.getUserId() != userId)
+            throw new NoAuthException("this user does not own this post");
+        if(prevSelfThumb.equals(""))
+            return;
+
+        postRepo.updateSelfThumbById(postId, "");
+        s3Service.deleteByKey(prevSelfThumb);
     }
 
 }
