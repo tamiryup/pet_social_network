@@ -29,6 +29,6 @@ public class PostInfoDTO {
     private String link;
     private long numViews;
     private long numLikes;
-    private Date uploadDate;
+    private Date createDate;
 
 }

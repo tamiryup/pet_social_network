@@ -276,6 +276,7 @@ public class PostService {
 
         streamService.removeActivity(post);
         postRepo.deleteById(postId);
+        s3Service.deleteByKey(post.getSelfThumb());
     }
 
     public void hidePost(long userId, long postId) {
