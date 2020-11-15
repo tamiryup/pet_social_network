@@ -140,6 +140,7 @@ public class ScrapingService {
         try {
             driver = getDriver();
             storeId = getStoreID(website);
+
             switch (website) {
                 case "asos.com":
                     itemDTO = asosDTO(productPageLink, storeId, driver);
@@ -560,7 +561,7 @@ public class ScrapingService {
             currency = itemPriceCurr.currency;
         }
         try {
-            imageAddr = driver.findElement(By.xpath("//img[@data-index='0']")).getAttribute("src");
+            imageAddr = driver.findElement(By.xpath("//img[@data-index='0'][@data-tstid='slick-active']")).getAttribute("src");
             firstThumbnailImage = driver.findElement(By.xpath("//img[@data-index='1']")).getAttribute("src");
         }catch (NoSuchElementException e){
             imageAddr = driver.findElement(By.xpath("//img[@data-test='imagery-img0']")).getAttribute("src");
