@@ -169,9 +169,9 @@ public class ScrapingService {
                 case "revolve.com":
                     itemDTO = revolveDTO(productPageLink, storeId, driver);
                     break;
-//                case "factory54.co.il":
-//                    itemDTO = factoryDTO(productPageLink, storeId, driver);
-//                    break;
+                case "factory54.co.il":
+                    itemDTO = factoryDTO(productPageLink, storeId, driver);
+                    break;
                 case "topshop.com":
                     itemDTO = topshopDTO(productPageLink, storeId, driver);
                     break;
@@ -853,9 +853,10 @@ public class ScrapingService {
         ProductType productType;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
-        Element descriptionDiv = document.select("p.product_note").first();
-        String description = descriptionDiv.text();
+        String productID = driver.findElement(By.xpath("//input[@id='product-id']"))
+                .getAttribute("value");
         String designer = document.select("h1#manufacturer_header a").attr("title");
+        String description = document.select("p.product_note").first().text();
         String salePrice = "";
         String price = "";
         Currency currency = Currency.USD;
@@ -875,16 +876,11 @@ public class ScrapingService {
             price = itemPriceCurr.price;
         }
 
-        Elements elem = document.select(".zoomWindow");
+
         List<String> links = new ArrayList<>();
-        String imageAddr = driver.findElement(By.xpath("//div[@class='zoomWindow']"))
-                .getCssValue("background-image");
-        int beginIndex = 5;
-        int endIndex = imageAddr.length();
-        imageAddr = imageAddr.substring(beginIndex, endIndex - 2);
+        String imageAddr = document.select("img#image-main.main_img").attr("src");
         String imgExtension = "jpg";
-        String productID = driver.findElement(By.xpath("//input[@id='product-id']"))
-                .getAttribute("value");
+
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();

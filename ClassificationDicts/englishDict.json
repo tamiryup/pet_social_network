@@ -5,7 +5,7 @@
     "DressesOrSkirts": ["dress", "skirt","culottes","skorts"],
     "Pants": ["pants", "trousers", "legging","leggings", "short", "jeans","shorts","rise"],
     "Shoes": ["shoes", "espadrilles","mules","pumps","slides","boot","loafers",
-        "heel", "trainers", "slippers", "sandals","stilletos","toe", "runner", "slider","sliders", "sneakers","flats"],
+        "heel", "trainers", "slippers", "sandals","stilletos","toe", "runner", "slider","sliders", "sneakers","sneaker","flats"],
     "JacketsOrCoats": ["vest", "blazer", "cardigan",
         "coat", "jacket", "waistcoat", "pullover", "parka", "poncho", "bomber", "suit",
         "duster", "kimono", "wrap"],
