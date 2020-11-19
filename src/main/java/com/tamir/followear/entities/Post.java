@@ -89,6 +89,8 @@ public class Post {
         this.imageAddr = imageAddr;
         this.description = description;
         this.numViews = 0;
+        this.selfThumb = "";
+        this.salePrice = "";
     }
 
     public Post(long userId, long storeId, String imageAddr, String description, String link, String price,
