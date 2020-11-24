@@ -294,7 +294,7 @@ public class PostService {
             throw new InvalidPostException();
         if(post.getUserId() != userId)
             throw new NoAuthException("this user does not own this post");
-        if(!prevSelfThumb.equals(""))
+        if(prevSelfThumb == null || !prevSelfThumb.equals(""))
             return prevSelfThumb;
 
         ImageType imageType = ImageType.SelfImage;
