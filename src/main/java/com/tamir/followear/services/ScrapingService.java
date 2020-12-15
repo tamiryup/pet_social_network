@@ -879,7 +879,10 @@ public class ScrapingService {
 
         List<String> links = new ArrayList<>();
         String imageAddr = document.select("img#image-main.main_img").attr("src");
+        String imageThumbnail = driver.findElement(By.xpath("//a[@data-image-index='2']"))
+                .getAttribute("data-zoom-image");
         String imgExtension = "jpg";
+        links.add(imageThumbnail);
 
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
