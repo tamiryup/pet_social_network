@@ -223,7 +223,7 @@ public class FeedService {
         List<ExplorePostDTO> explorePostDTOS = new ArrayList<>();
         for (Post post : explorePosts) {
             ExplorePostDTO dto = new ExplorePostDTO(post.getId(), post.getUserId(),
-                    post.getImageAddr(), post.getDescription());
+                    post.getImageAddr(), post.getDescription(), post.getThumbnail(), post.getSelfThumb());
             explorePostDTOS.add(dto);
         }
 
