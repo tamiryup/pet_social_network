@@ -1,5 +1,6 @@
 package com.tamir.followear.services;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.tamir.followear.dto.UploadItemDTO;
@@ -12,6 +13,7 @@ import com.tamir.followear.helpers.StringHelper;
 import lombok.ToString;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -649,6 +651,8 @@ public class ScrapingService {
     private UploadItemDTO zaraDTO(String productPageLink, long storeId, WebDriver driver) {
         Category category;
         ProductType productType;
+        List<String> links = new ArrayList<>();
+        String imageAddr = "";
         productPageLink = correctZaraLink(productPageLink);
         LOGGER.info("zara productPageLink is: {}", productPageLink);
         driver.get(productPageLink);
@@ -661,27 +665,27 @@ public class ScrapingService {
             }
         }
         //System.out.println(breadCrumbsElem);
-        Element descriptionDiv = document.select(" h1.product-name").first();
-        String description = descriptionDiv.text();
+        String description = document.select(" h1.product-detail-info__name").first().text();
         description = description.replace("פרטי", "");
         String salePrice = "";
         String price = "";
         Currency currency = Currency.USD;
         try {
-            price = document.select("div.price._product-price span.line-through").first().text();
+            price = document.select("span.price__amount.price__amount--old").first().text();
             ItemPriceCurr itemPriceCurr = priceTag(price);
             price = itemPriceCurr.price;
-            salePrice = document.select("div.price._product-price span.sale.discount-percentage").first().text();
+            salePrice = document.select("span.price__amount.price__amount--on-sale").first().text();
+            String discountAmount = document.select("span.price__discount-percentage").first().text();
+            salePrice = salePrice.replace(discountAmount, "");
             ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
             currency = itemPriceCurrSale.currency;
             salePrice = itemPriceCurrSale.price;
         } catch (NullPointerException e) {
             String scriptTag = driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
             int priceCurrencyIndex = scriptTag.indexOf("priceCurrency");
-
-            int beginPriceIndex = scriptTag.indexOf("price", priceCurrencyIndex + 1) + 9;
-            int endPriceIndex = beginPriceIndex; // 9 is number of characters from the word price to its value.
-            while (Character.isDigit(scriptTag.charAt(endPriceIndex))) {
+            int beginPriceIndex = scriptTag.indexOf("price", priceCurrencyIndex + 1)+8; // 8 is number of characters from the word price to its value.
+            int endPriceIndex = beginPriceIndex;
+            while (Character.isDigit(scriptTag.charAt(endPriceIndex))||(scriptTag.charAt(endPriceIndex)) == '.' ) {
                 endPriceIndex++;
             }
             endPriceIndex--;
@@ -692,10 +696,12 @@ public class ScrapingService {
         }
         String designer = "";
         String imgExtension = "jpg";
-        Elements elem = document.select("div.media-wrap.image-wrap a");
-        List<String> links = elem.eachAttr("href");
-        String imageAddr = links.get(0);
-        links.remove(0);
+        Elements elem = document.select("img.media-image__image.media__wrapper--media");
+        if (elem.size()>1) {
+            links.add(elem.get(1).attr("src"));
+            imageAddr = elem.get(0).attr("src");
+        }
+
         int endIndex = productPageLink.indexOf("html");
         int startIndex = endIndex - 10;
         if (productPageLink.charAt(startIndex)!= 'p'){
