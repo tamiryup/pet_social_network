@@ -182,6 +182,15 @@ public class CognitoService {
         return getUserResult;
     }
 
+    public AdminDeleteUserResult deleteUser(String username) {
+        AdminDeleteUserRequest request = new AdminDeleteUserRequest()
+                .withUsername(username)
+                .withUserPoolId(cogPoolId);
+
+        AdminDeleteUserResult result = cognitoProvider.adminDeleteUser(request);
+        return result;
+    }
+
     public AuthenticationResultType performAuth(String username, String password) {
 
         AdminInitiateAuthRequest authRequest = new AdminInitiateAuthRequest();
