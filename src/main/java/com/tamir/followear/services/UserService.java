@@ -251,9 +251,9 @@ public class UserService {
     }
 
     /**
-     * saves a new user to the base based on cognito attributes
+     * saves a new user to the database based on cognito attributes provided by facebook
      */
-    public User createUserFromCognitoAttr(Map<String, String> attributesMap, String cogUsername) {
+    public User createUserFromCognitoAttrFacebook(Map<String, String> attributesMap, String cogUsername) {
 
         if(attributesMap.containsKey("custom:id")) {
             return findById(Long.parseLong(attributesMap.get("custom:id")));
@@ -277,6 +277,32 @@ public class UserService {
         return user;
     }
 
+    /**
+     * saves a new user to the database based on cognito attributes provided by apple
+     */
+    public User createUserFromCognitoAttrApple(Map<String, String> attributesMap, String cogUsername) {
+
+        if(attributesMap.containsKey("custom:id")) {
+            return findById(Long.parseLong(attributesMap.get("custom:id")));
+        }
+
+        String username = cogUsername;
+        String email = attributesMap.get("email");
+        username = usernameFromEmail(email);
+        String fullName = username;
+        Date birthDate = new Date(0);
+
+        if(existsByEmail(email)) {
+            cognitoService.deleteUser(cogUsername);
+            throw new UserCollisionException("apple account email already exists");
+        }
+
+        User user = new User(email, username, fullName, birthDate);
+        user = create(user);
+
+        return user;
+    }
+
     public String setProfilePictureFromFacebook(long id, String cognitoPictureString) throws IOException{
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Map<String, String>> map = mapper.readValue(cognitoPictureString, Map.class);
@@ -288,7 +314,20 @@ public class UserService {
     public String usernameFromFullName(String fullName) {
         String baseUsername = fullName.toLowerCase();
         baseUsername = baseUsername.replaceAll(" ", ".");
+        String username = uniqueUsernameFromBase(baseUsername);
+        return username;
+    }
 
+    public String usernameFromEmail(String email) {
+        String baseUsername = email.substring(0, email.indexOf("@"));
+        String username = uniqueUsernameFromBase(baseUsername);
+        return username;
+    }
+
+    /**
+     * create a unique username from a base username (using a number suffix)
+     */
+    public String uniqueUsernameFromBase(String baseUsername) {
         String username = baseUsername;
         int suffix = 0;
         while(existsByUsername(username)) {

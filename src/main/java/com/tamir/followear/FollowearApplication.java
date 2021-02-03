@@ -1,5 +1,6 @@
 package com.tamir.followear;
 
+import com.amazonaws.services.cognitoidp.model.AuthenticationResultType;
 import com.tamir.followear.AWS.cognito.CognitoService;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;
@@ -7,6 +8,7 @@ import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.services.AuthService;
 import com.tamir.followear.services.PostService;
+import com.tamir.followear.services.RegistrationService;
 import com.tamir.followear.services.ScrapingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

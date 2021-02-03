@@ -1,6 +1,8 @@
 package com.tamir.followear.services;
 
 import com.amazonaws.services.cognitoidp.model.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tamir.followear.AWS.cognito.CognitoService;
 import com.tamir.followear.dto.SignupRequestDTO;
 import com.tamir.followear.dto.AuthResultDTO;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +102,14 @@ public class RegistrationService {
         GetUserResult userResult = cognitoService.getUser(authResult.getAccessToken());
         List<AttributeType> attributes = userResult.getUserAttributes();
         Map<String, String> attributesMap = AWSHelper.createMapFromAttributeTypes(attributes);
-        User user = userService.createUserFromCognitoAttr(attributesMap, userResult.getUsername());
+
+        User user;
+        String providerName = getIdentityProviderName(attributesMap);
+        if (providerName.equals("Facebook")){
+            user = userService.createUserFromCognitoAttrFacebook(attributesMap, userResult.getUsername());
+        } else { //provider is apple
+            user = userService.createUserFromCognitoAttrApple(attributesMap, userResult.getUsername());
+        }
 
         if(!attributesMap.containsKey("custom:id")) { //if user signs up for the first time
             try {
@@ -129,6 +139,23 @@ public class RegistrationService {
         csrfService.setCsrfCookie(response);
 
         return new AuthResultDTO(user);
+    }
+
+    private String getIdentityProviderName(Map<String, String> attributesMap) {
+        String res = "";
+        String identitiesJson = attributesMap.get("identities");
+
+        try {
+            List<Map<String, String>> identitiesMapList = new ObjectMapper().readValue(identitiesJson,
+                    new TypeReference<List<Map<String, String>>>() {
+                    });
+            Map<String, String> identetiesMap = identitiesMapList.get(0);
+            res = identetiesMap.get("providerName");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return res;
     }
 
     public void logout(HttpServletRequest request, HttpServletResponse response) {
