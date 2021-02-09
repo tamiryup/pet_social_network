@@ -1,8 +1,9 @@
 package com.tamir.followear.services;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.Category;
@@ -11,9 +12,6 @@ import com.tamir.followear.exceptions.BadLinkException;
 import com.tamir.followear.exceptions.ScrapingError;
 import com.tamir.followear.helpers.StringHelper;
 import lombok.ToString;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,9 +29,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -182,6 +177,9 @@ public class ScrapingService {
                     break;
                 case "theoutnet.com":
                     itemDTO = outnetDTO(productPageLink, storeId, driver);
+                    break;
+                case "adika.com":
+                    itemDTO = adikaDTO(productPageLink, storeId, driver);
                     break;
                 default:
                     throw new BadLinkException("This website is not supported");
@@ -479,44 +477,58 @@ public class ScrapingService {
     }
 
 
-//    private UploadItemDTO adikaDTO(String website, String productPageLink) {
-//        String productID;
-//        List<String> links;
-//        String designer = null;
-//        Currency currency = Currency.ILS;
-//        WebDriver driver = getDriver(productPageLink);
-//        Document document = Jsoup.parse(driver.getPageSource());
-//        Element imageDiv = document.select("div#image-zoom-0").first();
-//        Element image = imageDiv.select("img").first();
-//        String imageAddr = image.absUrl("src");
-//        String imgExtension = "jpg";
-//        int startIndex = imageAddr.length() - 14;
-//        int endIndex = imageAddr.length() - 4;
-//        productID = imageAddr.substring(startIndex, endIndex);
-//        if (productID == null) {
-//            System.out.println("this is not a product page");
-//            return null;
-//        }
-//        Element descriptionDiv = document.select("div.product-name.only-tablet-desktop").first();
-//        Element descriptionText = descriptionDiv.select("h1").first();
-//        String description = descriptionText.text();
-//        Element priceSpan = document.select("span.price").first();
-//        String price = priceSpan.text();
-//
-//
-//        Element elem = document.selectFirst(".more-views-thumbs");
-//        Elements imageElements = elem.getElementsByTag("a");
-//        links = imageElements.eachAttr("href");
-//        links.remove(0);
-//
-//
-//        Map<String, List<String>> dict = InitilizeItemsHebrewDict();
-//        List<String> itemTags = classify(description, dict);
+    private UploadItemDTO adikaDTO(String productPageLink, long storeId, WebDriver driver) {
+        String productID;
+        Category category;
+        ProductType productType;
+        List<String> links;
+        String salePrice = "";
+        String price="";
+        String designer = null;
+        Currency currency = Currency.ILS;
+        driver.get(productPageLink);
+        Document document = Jsoup.parse(driver.getPageSource());
+        String description = document.select("div.product-name h1").first().text();
+        Element imageDiv = document.select("div#image-zoom-0").first();
+        Element image = imageDiv.select("img").first();
+        String imageAddr = image.absUrl("src");
+        String imgExtension = "jpg";
+        int startIndex = imageAddr.length() - 14;
+        int endIndex = imageAddr.length() - 4;
+        productID = imageAddr.substring(startIndex, endIndex);
+        if (productID == null) {
+            System.out.println("this is not a product page");
+            return null;
+        }
 
-//        return new UploadItemDTO(imageAddr, productPageLink, description,
-//                price, currency, website, designer, imgExtension, productID, links, itemTags);
-//        return new UploadItemDTO();
-//    }
+        try {
+            price = document.select("p.old-price").first().attr("data-price-amount");
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("p.special-price").first().attr("data-price-amount");
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            salePrice = itemPriceCurrSale.price;
+        } catch (NullPointerException e) {
+            price = document.select("span.price").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+        }
+
+
+        Elements imageElements = document.selectFirst(".more-views-thumbs").getElementsByTag("a");
+        links = imageElements.eachAttr("href");
+        links.remove(0);
+
+
+        Map<String, ProductType> dict = classificationService.getHebrewDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
+
+        return new UploadItemDTO(imageAddr, productPageLink, description,
+                price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
+
+    }
 
 
     private UploadItemDTO farfetchDTO(String productPageLink, long storeId, WebDriver driver) {
@@ -648,7 +660,7 @@ public class ScrapingService {
         return result;
     }
 
-    private UploadItemDTO zaraDTO(String productPageLink, long storeId, WebDriver driver) {
+    private UploadItemDTO zaraDTO(String productPageLink, long storeId, WebDriver driver) throws IOException {
         Category category;
         ProductType productType;
         List<String> links = new ArrayList<>();
@@ -670,36 +682,34 @@ public class ScrapingService {
         String salePrice = "";
         String price = "";
         Currency currency = Currency.USD;
-        try {
-            price = document.select("span.price__amount.price__amount--old").first().text();
-            ItemPriceCurr itemPriceCurr = priceTag(price);
-            price = itemPriceCurr.price;
-            salePrice = document.select("span.price__amount.price__amount--on-sale").first().text();
-            String discountAmount = document.select("span.price__discount-percentage").first().text();
-            salePrice = salePrice.replace(discountAmount, "");
-            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
-            currency = itemPriceCurrSale.currency;
-            salePrice = itemPriceCurrSale.price;
-        } catch (NullPointerException e) {
-            String scriptTag = driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
-            int priceCurrencyIndex = scriptTag.indexOf("priceCurrency");
-            int beginPriceIndex = scriptTag.indexOf("price", priceCurrencyIndex + 1)+8; // 8 is number of characters from the word price to its value.
-            int endPriceIndex = beginPriceIndex;
-            while (Character.isDigit(scriptTag.charAt(endPriceIndex))||(scriptTag.charAt(endPriceIndex)) == '.' ) {
-                endPriceIndex++;
-            }
-            endPriceIndex--;
-            ItemPriceCurr itemPriceCurr = priceTag(scriptTag.substring(priceCurrencyIndex + 17, priceCurrencyIndex + 20));
-            currency = itemPriceCurr.currency;
-            price = scriptTag.substring(beginPriceIndex, endPriceIndex + 1);
-
-        }
         String designer = "";
         String imgExtension = "jpg";
-        Elements elem = document.select("img.media-image__image.media__wrapper--media");
-        if (elem.size()>1) {
-            links.add(elem.get(1).attr("src"));
-            imageAddr = elem.get(0).attr("src");
+
+        String scriptTag = driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
+        String jsonString = scriptTag.substring(1,scriptTag.length()-1);
+
+
+        JsonNode jsonNode = new ObjectMapper().readTree(jsonString);
+        JsonNode offersJsonNode = new ObjectMapper().readTree(jsonNode.get("offers").toString());
+
+
+        ArrayNode arrayNode = (ArrayNode) jsonNode.get("image");
+        imageAddr = arrayNode.get(0).textValue();
+        if (arrayNode.size()>1) {
+            links.add(arrayNode.get(1).textValue());
+        }else{
+            links.add("");
+        }
+        ItemPriceCurr itemPriceCurr = priceTag(offersJsonNode.get("priceCurrency").toString());
+        currency = itemPriceCurr.currency;
+
+        try {
+            price = document.select("span.price__amount.price__amount--old").first().text();
+            price = price.replaceAll("[^\\d.]", "");
+            salePrice = offersJsonNode.get("price").textValue();
+
+        } catch (NullPointerException e) {
+            price = offersJsonNode.get("price").toString();
         }
 
         int endIndex = productPageLink.indexOf("html");
