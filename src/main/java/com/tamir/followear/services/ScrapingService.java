@@ -704,12 +704,14 @@ public class ScrapingService {
         currency = itemPriceCurr.currency;
 
         try {
-            price = document.select("span.price__amount.price__amount--old").first().text();
+            price = document.select(".product-detail-info__price-amount.price span.price__amount.price__amount--old").first().text();
             price = price.replaceAll("[^\\d.]", "");
             salePrice = offersJsonNode.get("price").textValue();
 
+
         } catch (NullPointerException e) {
-            price = offersJsonNode.get("price").toString();
+            price = offersJsonNode.get("price").textValue();
+            salePrice="";
         }
 
         int endIndex = productPageLink.indexOf("html");
