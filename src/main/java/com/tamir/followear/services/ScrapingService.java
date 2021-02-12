@@ -178,8 +178,8 @@ public class ScrapingService {
                 case "theoutnet.com":
                     itemDTO = outnetDTO(productPageLink, storeId, driver);
                     break;
-                case "adika.com":
-                    itemDTO = adikaDTO(productPageLink, storeId, driver);
+                case "massimodutti.com":
+                    itemDTO = massimoDuttiDTO(productPageLink, storeId, driver);
                     break;
                 default:
                     throw new BadLinkException("This website is not supported");
@@ -730,6 +730,78 @@ public class ScrapingService {
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
+
+    private UploadItemDTO massimoDuttiDTO(String productPageLink, long storeId, WebDriver driver) throws IOException {
+        Category category;
+        ProductType productType;
+        List<String> links = new ArrayList<>();
+        driver.get(productPageLink);
+        Map<String, ProductType> dict;
+        Document document = Jsoup.parse(driver.getPageSource());
+        String productID="";
+        try{
+            document.select("html#ItxProductPage").first().text();
+        }catch (NullPointerException e){
+
+            throw new BadLinkException("This isn't a product page");
+        }
+        int endIndex = productPageLink.indexOf(".html");
+        int beginIndex=0;
+        for (int i=endIndex;i>0;i--){
+            if (productPageLink.charAt(i)=='-'){
+                beginIndex = i;
+                break;
+            }
+        }
+
+        if (beginIndex > 0){
+            productID = productPageLink.substring(beginIndex+1,endIndex);
+        }
+        String salePrice = "";
+        String price = "";
+        Currency currency = Currency.USD;
+        String designer = "";
+        String imgExtension = "jpg";
+
+        String scriptTag = driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
+        String jsonString = scriptTag.substring(1,scriptTag.length()-1);
+
+
+        JsonNode jsonNode = new ObjectMapper().readTree(jsonString);
+        JsonNode offersJsonNode = new ObjectMapper().readTree(jsonNode.get("offers").toString());
+
+        String description = jsonNode.get("name").textValue();
+        price = offersJsonNode.get("price").textValue();
+        String imageAddr = jsonNode.get("image").textValue();
+        //ArrayNode arrayNode = (ArrayNode) jsonNode.get("image");
+
+//        if (arrayNode.size()>1) {
+//            links.add(arrayNode.get(1).textValue());
+//        }else{
+//            links.add("");
+//        }
+        ItemPriceCurr itemPriceCurr = priceTag(offersJsonNode.get("priceCurrency").toString());
+        currency = itemPriceCurr.currency;
+
+//        int endIndex = productPageLink.indexOf("html");
+//        int startIndex = endIndex - 10;
+//        if (productPageLink.charAt(startIndex)!= 'p'){
+//            throw new BadLinkException("This isn't a product page");
+//        }
+//        String productID = productPageLink.substring(startIndex+1, endIndex - 1);
+        if (StringHelper.doesContainHebrew(description)) {
+            dict = classificationService.getHebrewDict();
+        } else {
+            dict = classificationService.getEnglishDict();
+        }
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
+
+        return new UploadItemDTO(imageAddr, productPageLink, description,
+                price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
+    }
+
 
     private UploadItemDTO hmDTO(String productPageLink, long storeId, WebDriver driver) {
         String designer = null;
