@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 @Configuration
 public class CommonBeanConfig {
@@ -95,4 +97,13 @@ public class CommonBeanConfig {
 
         return registrationBean;
     }
+
+    @Bean
+    public MultipartResolver multipartResolver() {
+        CommonsMultipartResolver multipartResolver
+                = new CommonsMultipartResolver();
+        multipartResolver.setMaxUploadSize(10485760);
+        return multipartResolver;
+    }
+
 }
