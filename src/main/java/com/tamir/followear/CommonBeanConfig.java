@@ -98,6 +98,9 @@ public class CommonBeanConfig {
         return registrationBean;
     }
 
+    /*
+     * Define multipartFile maximum size to 10Mb
+     */
     @Bean
     public MultipartResolver multipartResolver() {
         CommonsMultipartResolver multipartResolver
