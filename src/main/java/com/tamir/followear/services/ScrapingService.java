@@ -113,12 +113,17 @@ public class ScrapingService {
     private String getDomainName(String productPageLink) throws URISyntaxException {
         URI uri = new URI(productPageLink);
         String domain = uri.getHost();
+
         if (domain.startsWith("www.")) {
             return domain.substring(4);
         }
         if (domain.startsWith("il.")) {
             return domain.substring(3);
-        } else {
+        }
+        if(domain.equals("api-shein.shein.com")){
+            return "shein.com";
+        }
+        else {
             return domain;
         }
     }
@@ -136,9 +141,11 @@ public class ScrapingService {
         }
         try {
             driver = getDriver();
+
             storeId = getStoreID(website);
 
             switch (website) {
+
                 case "asos.com":
                     itemDTO = asosDTO(productPageLink, storeId, driver);
                     break;
@@ -366,7 +373,9 @@ public class ScrapingService {
             price = price.replaceAll("[^0-9]", "");
         } catch (NullPointerException e) {
         }
-        String description = document.select(" p.ProductInformation82__name").first().text();
+
+        String description = driver.findElement(By.xpath("//meta[@name='twitter:image:alt']"))
+                .getAttribute("content");
         priceSymbol = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
                 .getAttribute("content");
         ItemPriceCurr itemPriceCurr = priceTag(priceSymbol);
@@ -377,19 +386,17 @@ public class ScrapingService {
                 .getAttribute("content");
         String imageAddr = "";
         String imgExtension = "jpg";
-        Elements imageDiv = document.select(".Image17__imageContainer.ImageCarousel82__thumbnailImage");
+        Elements imageDiv = document.select(".Image18__imageContainer.ImageCarousel83__thumbnailImage");
         Elements imageElements = imageDiv.select("img");
         List<String> links = imageElements.eachAttr("src");
 
-        int size = links.size();
-        if (size > 1) {
-            for (int i = 0; i < 2; i++) {
-                links.set(i, "https:" + links.get(i));
-            }
-            imageAddr = links.get(0);
-            links.remove(0);
-            links = links.subList(0, 1);
+        for (int i = 0; i < 2; i++) {
+            links.set(i, "https:" + links.get(i));
         }
+        imageAddr = links.get(0);
+        links.remove(0);
+        links = links.subList(0, 1);
+
 
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
