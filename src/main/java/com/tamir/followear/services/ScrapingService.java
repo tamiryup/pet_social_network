@@ -113,12 +113,17 @@ public class ScrapingService {
     private String getDomainName(String productPageLink) throws URISyntaxException {
         URI uri = new URI(productPageLink);
         String domain = uri.getHost();
+
         if (domain.startsWith("www.")) {
             return domain.substring(4);
         }
         if (domain.startsWith("il.")) {
             return domain.substring(3);
-        } else {
+        }
+        if(domain.equals("api-shein.shein.com")){
+            return "shein.com";
+        }
+        else {
             return domain;
         }
     }
@@ -136,9 +141,11 @@ public class ScrapingService {
         }
         try {
             driver = getDriver();
+
             storeId = getStoreID(website);
 
             switch (website) {
+
                 case "asos.com":
                     itemDTO = asosDTO(productPageLink, storeId, driver);
                     break;
