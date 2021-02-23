@@ -137,7 +137,6 @@ public class ScrapingService {
         try {
             driver = getDriver();
             storeId = getStoreID(website);
-
             switch (website) {
                 case "asos.com":
                     itemDTO = asosDTO(productPageLink, storeId, driver);
@@ -180,6 +179,9 @@ public class ScrapingService {
                     break;
                 case "massimodutti.com":
                     itemDTO = massimoDuttiDTO(productPageLink, storeId, driver);
+                    break;
+                case "boohoo.com":
+                    itemDTO = boohooDTO(productPageLink, storeId, driver);
                     break;
                 default:
                     throw new BadLinkException("This website is not supported");
@@ -775,22 +777,8 @@ public class ScrapingService {
         String description = jsonNode.get("name").textValue();
         price = offersJsonNode.get("price").textValue();
         String imageAddr = jsonNode.get("image").textValue();
-        //ArrayNode arrayNode = (ArrayNode) jsonNode.get("image");
-
-//        if (arrayNode.size()>1) {
-//            links.add(arrayNode.get(1).textValue());
-//        }else{
-//            links.add("");
-//        }
         ItemPriceCurr itemPriceCurr = priceTag(offersJsonNode.get("priceCurrency").toString());
         currency = itemPriceCurr.currency;
-
-//        int endIndex = productPageLink.indexOf("html");
-//        int startIndex = endIndex - 10;
-//        if (productPageLink.charAt(startIndex)!= 'p'){
-//            throw new BadLinkException("This isn't a product page");
-//        }
-//        String productID = productPageLink.substring(startIndex+1, endIndex - 1);
         if (StringHelper.doesContainHebrew(description)) {
             dict = classificationService.getHebrewDict();
         } else {
@@ -1069,6 +1057,58 @@ public class ScrapingService {
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
+
+    private UploadItemDTO boohooDTO(String productPageLink, long storeId, WebDriver driver) {
+        Category category;
+        ProductType productType;
+        driver.get(productPageLink);
+        Document document = Jsoup.parse(driver.getPageSource());
+        String productID = driver.findElement(By.xpath("//span[@itemprop='sku']"))
+                .getAttribute("data-masterid");
+        String designer = "";
+        String description = driver.findElement(By.xpath("//h1[@itemprop='name']")).getAttribute("textContent");
+        String salePrice = "";
+        String price = "";
+        String imageThumbnail="";
+        Currency currency = Currency.USD;
+        String stringCurrency = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']"))
+                .getAttribute("content");
+        currency = priceTag(stringCurrency).currency;
+
+        try {
+            document.select("price-sales").text(); //check sale price exists
+            salePrice = driver.findElement(By.xpath("//span[@itemprop='price']")).getAttribute("content");
+            price = document.select("span.price-standard").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+        } catch (NullPointerException e) {
+            System.out.println("regular price");
+            price = driver.findElement(By.xpath("//span[@itemprop='price']"))
+                    .getText();
+        }
+        List<String> links = new ArrayList<>();
+        List<String> imagesThumbnails = document.select("li.thumb a").eachAttr("data-image");
+
+        String imageAddr = imagesThumbnails.get(0);
+        if (imagesThumbnails.size() > 1) {
+            imageThumbnail = imagesThumbnails.get(1);
+        }
+        links.add(imageThumbnail);
+        String imgExtension = "webp";
+        Map<String, ProductType> dict;
+        if (StringHelper.doesContainHebrew(description)) {
+            dict = classificationService.getHebrewDict();
+        } else {
+            dict = classificationService.getEnglishDict();
+        }
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
+
+        return new UploadItemDTO(imageAddr, productPageLink, description,
+                price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
+    }
+
 
 
 }
