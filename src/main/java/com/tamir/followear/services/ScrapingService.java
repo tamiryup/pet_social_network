@@ -16,12 +16,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.By;
+import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.Duration;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.*;
@@ -424,56 +426,59 @@ public class ScrapingService {
 
 
     private UploadItemDTO terminalxDTO(String productPageLink, long storeId, WebDriver driver) {
+            Category category;
+            ProductType productType;
+            driver.get(productPageLink);
+            String price = "";
+            String salePrice = "";
+            String imgExtension = "jpg";
+            List<String> links = new ArrayList<>();
+            List<WebElement> visibleThumbnails = new ArrayList<>();
+            Currency currency = Currency.ILS;
+            Document document = Jsoup.parse(driver.getPageSource());
+            String description = driver.findElement(By.xpath("//span[@itemprop='name']")).getText();
+            String productPageType = document.select(".product-item-brand").first().attr(
+                    "data-div-top");
+            if (("גברים".equals(productPageType)) || ("נשים".equals(productPageType))) {
 
-        Category category;
-        ProductType productType;
-        driver.get(productPageLink);
-        String price = "";
-        String salePrice = "";
-        Currency currency = Currency.ILS;
-        Document document = Jsoup.parse(driver.getPageSource());
-        String description = driver.findElement(By.xpath("//span[@itemprop='name']")).getText();
-        String productPageType = document.select(".product-item-brand").first().attr(
-                "data-div-top");
-        if (("גברים".equals(productPageType)) || ("נשים".equals(productPageType))) {
+            } else {
+                throw new BadLinkException("This product isn't a fashion item");
+            }
+            String productID = document.select(".price-box.price-final_price").first().attr(
+                    "data-product-id");
 
-        } else {
-            throw new BadLinkException("This product isn't a fashion item");
-        }
-        String productID = document.select(".price-box.price-final_price").first().attr(
-                "data-product-id");
+            try {
+                price = document.select("span#old-price-" + productID).first().attr("data-price-amount");
+                ItemPriceCurr itemPriceCurr = priceTag(price);
+                price = itemPriceCurr.price;
+                salePrice = document.select("span#product-price-" + productID).first().attr("data-price-amount");
+                ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+                salePrice = itemPriceCurrSale.price;
+            } catch (NullPointerException e) {
+                price = document.select("span#product-price-" + productID).first().attr("data-price-amount");
+                ItemPriceCurr itemPriceCurr = priceTag(price);
+                price = itemPriceCurr.price;
+            }
 
-        try {
-            price = document.select("span#old-price-" + productID).first().attr("data-price-amount");
-            ItemPriceCurr itemPriceCurr = priceTag(price);
-            price = itemPriceCurr.price;
-            salePrice = document.select("span#product-price-" + productID).first().attr("data-price-amount");
-            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
-            salePrice = itemPriceCurrSale.price;
-        } catch (NullPointerException e) {
-            price = document.select("span#product-price-" + productID).first().attr("data-price-amount");
-            ItemPriceCurr itemPriceCurr = priceTag(price);
-            price = itemPriceCurr.price;
-        }
+            String designer = document.select("div.product-item-brand a").first().text();
+            String imageAddr = document.select("img.fotorama__img").eachAttr("src").get(0);
+            driver.findElements(By.xpath("//div[@class='fotorama__nav__frame fotorama__nav__frame--thumb']")).get(1).click();
+            try {
+                visibleThumbnails = new WebDriverWait(driver, 1)
+                        .until(driverx -> driverx.findElements(By.xpath("//img[@class='fotorama__img']")));
+            }catch (TimeoutException e){
 
-        String designer = document.select("div.product-item-brand a").first().text();
-        Elements imagesDiv = document.select("img.fotorama__img");
-        List<String> allThumbnailsLinks = imagesDiv.eachAttr("src");
-        String imgExtension = "jpg";
-        String imageAddr = allThumbnailsLinks.get(0);
-        allThumbnailsLinks.remove(0);
-        List<String> links = new ArrayList<>();
-        if (allThumbnailsLinks.size() > 1) {
-            links.add(allThumbnailsLinks.get(1));
-        }
+            }
+            if (visibleThumbnails.size() > 1){
+                links.add(visibleThumbnails.get(1).getAttribute("src"));
+            }
+            Map<String, ProductType> dict = classificationService.getHebrewDict();
+            ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+            category = itemTags.getCategory();
+            productType = itemTags.getProductType();
 
-        Map<String, ProductType> dict = classificationService.getHebrewDict();
-        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
-        category = itemTags.getCategory();
-        productType = itemTags.getProductType();
-
-        return new UploadItemDTO(imageAddr, productPageLink, description,
-                price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
+            return new UploadItemDTO(imageAddr, productPageLink, description,
+                    price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
 
 
