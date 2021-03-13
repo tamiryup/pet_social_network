@@ -471,7 +471,7 @@ public class ScrapingService {
 
             String designer = document.select("div.product-item-brand a").first().text();
             String imageAddr = document.select("img.magnifier-large").eachAttr("src").get(0);
-            driver.findElements(By.xpath("//div[@class='fotorama__nav__frame fotorama__nav__frame--thumb']")).get(1).click();
+ //           driver.findElements(By.xpath("//div[@class='fotorama__nav__frame fotorama__nav__frame--thumb']")).get(1).click();
 
 //            try {
 //                visibleThumbnails = new WebDriverWait(driver, 10)
@@ -481,11 +481,11 @@ public class ScrapingService {
 //                System.out.println(e);
 //            }
 
-            try {
-                links.add(document.select("div.fotorama__stage__frame.fotorama_vertical_ratio.fotorama__loaded.fotorama__loaded--img img").eachAttr("src").get(2));
-            }catch (IndexOutOfBoundsException e){
-
-            }
+//            try {
+//                links.add(document.select("div.fotorama__stage__frame.fotorama_vertical_ratio.fotorama__loaded.fotorama__loaded--img img").eachAttr("src").get(2));
+//            }catch (IndexOutOfBoundsException e){
+//
+//            }
             Map<String, ProductType> dict = classificationService.getHebrewDict();
             ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
             category = itemTags.getCategory();
