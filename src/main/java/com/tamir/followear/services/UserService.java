@@ -268,11 +268,11 @@ public class UserService {
         User user = new User(email, username, fullName, birthDate);
         user = create(user);
 
-        try {
+        /* try {
             setProfilePictureFromFacebook(user.getId(), attributesMap.get("picture"));
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        } */
 
         return user;
     }
