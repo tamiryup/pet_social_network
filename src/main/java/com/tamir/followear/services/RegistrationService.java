@@ -111,7 +111,11 @@ public class RegistrationService {
             user = userService.createUserFromCognitoAttrApple(attributesMap, userResult.getUsername());
         }
 
-        if(!attributesMap.containsKey("custom:id")) { //if user signs up for the first time
+        AuthResultDTO ret = new AuthResultDTO(user);
+
+        //if user signs up for the first time
+        if(!attributesMap.containsKey("custom:id")) {
+            ret.setNew(true);
             try {
                 cognitoService.updateCustomIdAndPreferredUsername(authResult.getAccessToken(),
                         user.getUsername(), user.getId());
@@ -138,7 +142,7 @@ public class RegistrationService {
         HttpHelper.setUserIdCookie(response, user.getId());
         csrfService.setCsrfCookie(response);
 
-        return new AuthResultDTO(user);
+        return ret;
     }
 
     private String getIdentityProviderName(Map<String, String> attributesMap) {

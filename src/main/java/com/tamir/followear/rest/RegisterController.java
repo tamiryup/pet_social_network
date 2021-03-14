@@ -44,6 +44,7 @@ public class RegisterController {
         logger.info("starting signupNewUser input signupReq: {}", signupReq);
         registrationService.signup(signupReq);
         AuthResultDTO authResultDTO = registrationService.signIn(response, signupReq.getUserName(), signupReq.getPassword());
+        authResultDTO.setNew(true);
         return authResultDTO;
     }
 
