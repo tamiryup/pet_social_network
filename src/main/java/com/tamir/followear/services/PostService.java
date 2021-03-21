@@ -242,6 +242,16 @@ public class PostService {
         postRepo.incPostViews(userId, postId);
     }
 
+    /**
+     * Increment the numRedirects of a specific post.
+     * this time the user who uploaded the post does count as a redirect.
+     *
+     * @param postId
+     */
+    public void incPostRedirects(long postId) {
+        postRepo.incPostRedirects(postId);
+    }
+
     public void incNumLikes(long postId) {
         postRepo.incNumLikes(postId);
     }

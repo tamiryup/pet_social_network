@@ -143,6 +143,13 @@ public class SocialController {
         postService.incPostViews(id, postId);
     }
 
+    @PostMapping("inc-post-redirects")
+    @ResponseBody
+    public void incPostRedirects(@PathVariable long id, @RequestParam long postId) {
+        logger.info("starting incPostRedirects input userId: {}, postId: {}", id, postId);
+        postService.incPostRedirects(postId);
+    }
+
     @GetMapping("more-from")
     @ResponseBody
     public List<BasicPostDTO> moreFrom(@RequestParam long masterUserId, @RequestParam long currPostId) {

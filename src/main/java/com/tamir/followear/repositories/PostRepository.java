@@ -40,6 +40,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     void incPostViews(@Param("userId") long userId, @Param("postId") long postId);
 
     @Transactional
+    @Modifying
+    @Query(value = "UPDATE Post p SET p.numRedirects = p.numRedirects + 1 WHERE p.id = :postId")
+    void incPostRedirects(@Param("postId") long postId);
+
+    @Transactional
     @Query(value =
             "SELECT * FROM posts\n" +
             "WHERE create_date >= (NOW() - 3 * INTERVAL '1 week') AND num_views > 0\n" +

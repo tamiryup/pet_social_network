@@ -79,7 +79,11 @@ public class Post {
     @UpdateTimestamp
     private Date updateDate;
 
+    //number of times the post have been viewed
     private long numViews;
+
+    //number of times the 'view on website' button has been pressed
+    private long numRedirects;
 
     @Column(columnDefinition = "bigint default 0")
     private long numLikes;
@@ -89,6 +93,7 @@ public class Post {
         this.imageAddr = imageAddr;
         this.description = description;
         this.numViews = 0;
+        this.numRedirects = 0;
         this.selfThumb = "";
         this.salePrice = "";
     }
