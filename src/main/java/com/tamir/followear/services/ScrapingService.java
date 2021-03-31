@@ -667,7 +667,7 @@ public class ScrapingService {
     }
 
 
-    public String correctZaraLink(String productPageLink) {
+    private String correctZaraLink(String productPageLink) {
         String result = productPageLink.replaceFirst("/share/", "/");
 
         //remove all irrelevant text between
