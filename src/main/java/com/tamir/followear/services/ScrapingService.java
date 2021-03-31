@@ -667,16 +667,22 @@ public class ScrapingService {
     }
 
 
-    private String correctZaraLink(String productPageLink) {
-        String result = productPageLink.replaceFirst("/share/", "/il/en/");
+    public String correctZaraLink(String productPageLink) {
+        String result = productPageLink.replaceFirst("/share/", "/");
 
-        if (StringHelper.doesContainHebrew(productPageLink)) {
-            int startIndex = result.lastIndexOf('/') + 1;
-            int htmlStringIndex = result.indexOf(".html");
-            int endIndex = result.lastIndexOf("-p", htmlStringIndex);
-            int linkLength = result.length();
-            result = result.substring(0, startIndex) + productPageLink.substring(endIndex, linkLength);
-        }
+        //remove all irrelevant text between
+        int startIrrelvantIndex = result.indexOf("html?") + 5;
+        int endIrrelevantIndex = result.indexOf("v1=");
+        int linkLength = result.length();
+        result = result.substring(0, startIrrelvantIndex) + result.substring(endIrrelevantIndex, linkLength);
+
+//        if (StringHelper.doesContainHebrew(productPageLink)) {
+//            int startIndex = result.lastIndexOf('/') + 1;
+//            int htmlStringIndex = result.indexOf(".html");
+//            int endIndex = result.lastIndexOf("-p", htmlStringIndex);
+//            linkLength = result.length();
+//            result = result.substring(0, startIndex) + result.substring(endIndex, linkLength);
+//        }
         return result;
     }
 
