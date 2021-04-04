@@ -9,6 +9,7 @@ import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.exceptions.BadLinkException;
+import com.tamir.followear.exceptions.NonFashionItemException;
 import com.tamir.followear.exceptions.ScrapingError;
 import com.tamir.followear.helpers.StringHelper;
 import lombok.ToString;
@@ -252,7 +253,7 @@ public class ScrapingService {
         List<String> breadCrumbsElem = document.select("nav._1MMuO3r li a").eachText();
         for (String i : breadCrumbsElem) {
             if (i.equals("Face + Body") || (i.equals("New In: Face + Body"))) {
-                throw new BadLinkException("This isn't a wearable fashion item");
+                throw new NonFashionItemException();
             }
         }
         Elements descriptionDiv = document.select("div.product-hero");
@@ -344,7 +345,7 @@ public class ScrapingService {
         List<WebElement> webElements = driver.findElements(By.xpath("//*[contains(@class,'__shopMore--bottomDetails')]")).get(0).findElements(By.xpath(".//a"));
         for (WebElement webElement:webElements) {
             if (webElement.getAttribute("href").contains("shop/beauty") || webElement.getAttribute("href").contains("accessories/lifestyle") || webElement.getAttribute("href").contains("accessories/books")){
-                throw new BadLinkException("This item cannot be shared");
+                throw new NonFashionItemException();
             }
         }
 
@@ -468,7 +469,7 @@ public class ScrapingService {
             if (("גברים".equals(productPageType)) || ("נשים".equals(productPageType))) {
 
             } else {
-                throw new BadLinkException("This product isn't a fashion item");
+                throw new NonFashionItemException();
             }
             String productID = document.select(".price-box.price-final_price").first().attr(
                     "data-product-id");
@@ -596,7 +597,7 @@ public class ScrapingService {
 
         for (WebElement breadCrumb : breadCrumbsElem) {
             if (breadCrumb.getText().equals("Homeware")) {
-                throw new BadLinkException("This item cannot be shared");
+                throw new NonFashionItemException();
             }
         }
         String description = driver.findElement(By.xpath("//meta[@itemprop='name']")).getAttribute("content");
@@ -647,7 +648,7 @@ public class ScrapingService {
         List<String> breadCrumbsElem = document.select("div.bread-crumb__inner div a").eachText();
         for (String i : breadCrumbsElem) {
             if (i.contains("Event & Party Supplies") || i.contains("ביוטי") || i.contains("Beauty") || i.contains("טיפוח אישי") || (i.contains("בית & חיות מחמד"))) {
-                throw new BadLinkException("This item cannot be shared");
+                throw new NonFashionItemException();
             }
         }
         Element descriptionDiv = document.select("div.product-intro__head-name").first();
@@ -723,7 +724,7 @@ public class ScrapingService {
         List<String> breadCrumbsElem = document.select(".breadcrumbs._breadcrumbs li a span").eachText();
         for (String i : breadCrumbsElem) {
             if (i == "KIDS") {
-                throw new BadLinkException("This item cannot be shared");
+                throw new NonFashionItemException();
             }
         }
         //System.out.println(breadCrumbsElem);
@@ -889,7 +890,7 @@ public class ScrapingService {
 
         for (WebElement breadCrumb : breadCrumbsElem) {
             if (breadCrumb.getText().equals("Trend: Self-Care Essentials") || breadCrumb.getText().equals("Home & Gifts")) {
-                throw new BadLinkException("This item cannot be shared");
+                throw new NonFashionItemException();
             }
         }
 
@@ -939,7 +940,7 @@ public class ScrapingService {
         Document document = Jsoup.parse(driver.getPageSource());
         String productPageType = driver.findElement(By.xpath("//meta[@name='twitter:label2']")).getAttribute("content");
         if (productPageType.equals("Beauty")) {
-            throw new BadLinkException("This item cannot be shared");
+            throw new NonFashionItemException();
         }
         Element descriptionDiv = document.select("h1.product-name--lg.u-text-transform--none.u-margin-t--none.u-margin-b--sm").first();
         String description = descriptionDiv.text();
@@ -993,13 +994,13 @@ public class ScrapingService {
         ProductType productType;
         driver.get(productPageLink);
         if (productPageLink.contains("https://www.factory54.co.il/kids")){
-            throw new BadLinkException("This item cannot be shared");
+            throw new NonFashionItemException();
         }
         Document document = Jsoup.parse(driver.getPageSource());
         List<String> breadCrumbsElem = document.select("div.links.clearfix ul li a").eachText();
         for (String element : breadCrumbsElem) {
             if (element.contains("נרות") || element.contains("בישום") || element.contains("איפור") || element.contains("ספרים")) {
-                throw new BadLinkException("This item cannot be shared");
+                throw new NonFashionItemException();
             }
         }
         String productID = driver.findElement(By.xpath("//input[@id='product-id']"))
@@ -1092,7 +1093,7 @@ public class ScrapingService {
         List<String> breadCrumbsElem = document.select(".breadcrumbs li a span").eachText();
         for (String i : breadCrumbsElem) {
             if (i.equals("Kids")) {
-                throw new BadLinkException("This item cannot be shared");
+                throw new NonFashionItemException();
             }
         }
         Element descriptionDiv = document.select("div.product-name").first();
