@@ -173,6 +173,12 @@ public class PostService {
         return uploadItemPost(userId, item);
     }
 
+    public Post rstyleUploadLink(long userId, String link, String rstyleLink) throws IOException {
+        UploadItemDTO item = scrapingService.extractItem(link);
+        item.setLink(rstyleLink);
+        return uploadItemPost(userId, item);
+    }
+
     public long getNumPostsByUserId(long userId) {
         User user = userService.findById(userId);
         if (user == null)
