@@ -9,6 +9,7 @@ import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.exceptions.BadLinkException;
+import com.tamir.followear.exceptions.NonFashionItemException;
 import com.tamir.followear.exceptions.ScrapingError;
 import com.tamir.followear.helpers.StringHelper;
 import lombok.ToString;
@@ -178,9 +179,6 @@ public class ScrapingService {
                 case "factory54.co.il":
                     itemDTO = factoryDTO(productPageLink, storeId, driver);
                     break;
-                case "topshop.com":
-                    itemDTO = topshopDTO(productPageLink, storeId, driver);
-                    break;
                 case "mytheresa.com":
                     itemDTO = mytheresaDTO(productPageLink, storeId, driver);
                     break;
@@ -231,6 +229,7 @@ public class ScrapingService {
         ProductType productType;
         String designer = null;
         String imageAddr;
+
         int endIndex = 0;
         int beginIndex = productPageLink.indexOf("/prd/");
         if (beginIndex == -1) {
@@ -251,6 +250,12 @@ public class ScrapingService {
         productID = productPageLink.substring(beginIndex, endIndex + 1);
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
+        List<String> breadCrumbsElem = document.select("nav._1MMuO3r li a").eachText();
+        for (String i : breadCrumbsElem) {
+            if (i.equals("Face + Body") || (i.equals("New In: Face + Body"))) {
+                throw new NonFashionItemException();
+            }
+        }
         Elements descriptionDiv = document.select("div.product-hero");
         String description = descriptionDiv.select("h1").text();
         String price = "";
@@ -334,6 +339,18 @@ public class ScrapingService {
          else{
             throw new BadLinkException("This is not a product page");
         }
+
+         //get(0).findElements(By.xpath("//*[contains(@class,'__links')]"))
+
+        List<WebElement> webElements = driver.findElements(By.xpath("//*[contains(@class,'__shopMore--bottomDetails')]")).get(0).findElements(By.xpath(".//a"));
+        for (WebElement webElement:webElements) {
+            if (webElement.getAttribute("href").contains("shop/beauty") || webElement.getAttribute("href").contains("accessories/lifestyle") || webElement.getAttribute("href").contains("accessories/books")){
+                throw new NonFashionItemException();
+            }
+        }
+
+
+
         String imgExtension = "jpg";
         Elements imageElements = document.select("picture img");
         List<String> links = imageElements.eachAttr("src");
@@ -452,7 +469,7 @@ public class ScrapingService {
             if (("גברים".equals(productPageType)) || ("נשים".equals(productPageType))) {
 
             } else {
-                throw new BadLinkException("This product isn't a fashion item");
+                throw new NonFashionItemException();
             }
             String productID = document.select(".price-box.price-final_price").first().attr(
                     "data-product-id");
@@ -553,6 +570,7 @@ public class ScrapingService {
 
     private UploadItemDTO farfetchDTO(String productPageLink, long storeId, WebDriver driver) {
         driver.get(productPageLink);
+        driver.manage().window().maximize();
         Document document = Jsoup.parse(driver.getPageSource());
         Category category;
         ProductType productType;
@@ -571,10 +589,17 @@ public class ScrapingService {
                 productID = productPageLink.substring(productIdBeginIndex,productIdEndIndex);
             }
        }
-            if (productID.length()<1) {
+        if (productID.length()<1) {
             throw new BadLinkException("This isn't a product page");
         }
+        List<WebElement> breadCrumbsElem = driver.findElements(By.xpath("//li[@itemprop='itemListElement']"));
+        //System.out.println(driver.findElements(By.xpath("//ol[@data-tstid='breadcrumb']")));
 
+        for (WebElement breadCrumb : breadCrumbsElem) {
+            if (breadCrumb.getText().equals("Homeware")) {
+                throw new NonFashionItemException();
+            }
+        }
         String description = driver.findElement(By.xpath("//meta[@itemprop='name']")).getAttribute("content");
         String designer = driver.findElement(By.xpath("//a[@data-tstid='cardInfo-title']")).getAttribute("aria-label");
         Currency currency = Currency.USD;
@@ -620,6 +645,12 @@ public class ScrapingService {
         List<String> links = new ArrayList<>();
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
+        List<String> breadCrumbsElem = document.select("div.bread-crumb__inner div a").eachText();
+        for (String i : breadCrumbsElem) {
+            if (i.contains("Event & Party Supplies") || i.contains("ביוטי") || i.contains("Beauty") || i.contains("טיפוח אישי") || (i.contains("בית & חיות מחמד"))) {
+                throw new NonFashionItemException();
+            }
+        }
         Element descriptionDiv = document.select("div.product-intro__head-name").first();
         String description = descriptionDiv.text();
         String designer = null;
@@ -699,7 +730,7 @@ public class ScrapingService {
         List<String> breadCrumbsElem = document.select(".breadcrumbs._breadcrumbs li a span").eachText();
         for (String i : breadCrumbsElem) {
             if (i == "KIDS") {
-                throw new BadLinkException("This item cannot be shared");
+                throw new NonFashionItemException();
             }
         }
         //System.out.println(breadCrumbsElem);
@@ -859,6 +890,16 @@ public class ScrapingService {
         ProductType productType;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
+
+        List<WebElement> breadCrumbsElem = driver.findElements(By.xpath("//li[@itemprop='itemListElement']"));
+        //System.out.println(driver.findElements(By.xpath("//ol[@data-tstid='breadcrumb']")));
+
+        for (WebElement breadCrumb : breadCrumbsElem) {
+            if (breadCrumb.getText().equals("Trend: Self-Care Essentials") || breadCrumb.getText().equals("Home & Gifts")) {
+                throw new NonFashionItemException();
+            }
+        }
+
         Element descriptionDiv = document.select(" div#product-title").first();
         String description = descriptionDiv.text();
         String designer = document.select("span.brand-name").first().text();
@@ -903,6 +944,10 @@ public class ScrapingService {
         ProductType productType;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
+        String productPageType = driver.findElement(By.xpath("//meta[@name='twitter:label2']")).getAttribute("content");
+        if (productPageType.equals("Beauty")) {
+            throw new NonFashionItemException();
+        }
         Element descriptionDiv = document.select("h1.product-name--lg.u-text-transform--none.u-margin-t--none.u-margin-b--sm").first();
         String description = descriptionDiv.text();
         String designer = null;
@@ -954,7 +999,16 @@ public class ScrapingService {
         Category category;
         ProductType productType;
         driver.get(productPageLink);
+        if (productPageLink.contains("https://www.factory54.co.il/kids")){
+            throw new NonFashionItemException();
+        }
         Document document = Jsoup.parse(driver.getPageSource());
+        List<String> breadCrumbsElem = document.select("div.links.clearfix ul li a").eachText();
+        for (String element : breadCrumbsElem) {
+            if (element.contains("נרות") || element.contains("בישום") || element.contains("איפור") || element.contains("ספרים")) {
+                throw new NonFashionItemException();
+            }
+        }
         String productID = driver.findElement(By.xpath("//input[@id='product-id']"))
                 .getAttribute("value");
         String designer = document.select("h1#manufacturer_header a").attr("title");
@@ -1042,6 +1096,12 @@ public class ScrapingService {
         ProductType productType;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
+        List<String> breadCrumbsElem = document.select(".breadcrumbs li a span").eachText();
+        for (String i : breadCrumbsElem) {
+            if (i.equals("Kids")) {
+                throw new NonFashionItemException();
+            }
+        }
         Element descriptionDiv = document.select("div.product-name").first();
         String description = descriptionDiv.text();
         String designer = document.select("div.product-designer").first().text();
@@ -1106,7 +1166,6 @@ public class ScrapingService {
             ItemPriceCurr itemPriceCurr = priceTag(price);
             price = itemPriceCurr.price;
         } catch (NullPointerException e) {
-            System.out.println("regular price");
             price = driver.findElement(By.xpath("//span[@itemprop='price']"))
                     .getText();
         }
