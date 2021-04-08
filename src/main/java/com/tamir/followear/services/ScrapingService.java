@@ -233,6 +233,8 @@ public class ScrapingService {
         String imageAddr;
         int endIndex = 0;
         int beginIndex = productPageLink.indexOf("/prd/");
+        int descriptionIndex = productPageLink.indexOf("/", productPageLink.indexOf(".com/") + 5);
+        String descriptionSearch = productPageLink.substring(descriptionIndex+1,beginIndex);
         if (beginIndex == -1) {
             beginIndex = productPageLink.indexOf("/grp/");
             if (beginIndex == -1) {
@@ -251,6 +253,18 @@ public class ScrapingService {
         productID = productPageLink.substring(beginIndex, endIndex + 1);
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
+
+        try {
+            Elements descriptionDiv = document.select("div.product-hero");
+            String description = descriptionDiv.select("h1").text();
+        }catch(IndexOutOfBoundsException e){
+            driver.findElement(By.xpath("(//input[@id='chrome-search'])")).sendKeys(descriptionSearch);
+            driver.findElement(By.xpath("//button[@data-testid='search-button-inline']")).click();
+
+          document = new WebDriverWait(driver, 10)
+                        .until((driverx) ->
+                                Jsoup.parse(driverx.getPageSource()));
+        }
         Elements descriptionDiv = document.select("div.product-hero");
         String description = descriptionDiv.select("h1").text();
         String price = "";
@@ -259,6 +273,8 @@ public class ScrapingService {
         Elements images = document.select("img.gallery-image");
         String imgExtension = "jpg";
         List<String> links = images.eachAttr("src");
+
+
 
         if (links.size() > 1) {
             imageAddr = links.get(1);
