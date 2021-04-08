@@ -6,6 +6,6 @@ public class NonFashionItemException extends RuntimeException {
         super(message);
     }
 
-    public NonFashionItemException() { this("Sorry, this isn't a fashion item"); }
+    public NonFashionItemException() { this("Sorry, this product isn't a fashion item"); }
 
 }
