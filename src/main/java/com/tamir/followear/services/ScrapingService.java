@@ -196,7 +196,7 @@ public class ScrapingService {
             }
         } catch (BadLinkException e) {
             throw e;
-        }catch (NonFashionItemException e) {
+        } catch (NonFashionItemException e) {
             throw e;
         } catch (Exception e) {
             e.printStackTrace();
