@@ -242,8 +242,6 @@ public class ScrapingService {
 
         beginIndex = beginIndex + 5;
         for (int i = beginIndex; i < productPageLink.length(); i++) {
-            System.out.println("in loop");
-            System.out.println(beginIndex);
             if (Character.isDigit(productPageLink.charAt(i))) {
                 endIndex = i;
             } else {
