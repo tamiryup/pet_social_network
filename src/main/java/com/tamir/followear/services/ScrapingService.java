@@ -34,10 +34,8 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.*;
@@ -84,6 +82,7 @@ public class ScrapingService {
         ChromeOptions options = new ChromeOptions();
         options.setBinary(chromeBinary);
 
+
         options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
                 "--user-data-dir=/tmp/user-data", "--remote-debugging-port=9222", "--hide-scrollbars",
                 "--enable-logging", "--log-level=0", "--v=99", "--single-process",
@@ -91,6 +90,7 @@ public class ScrapingService {
                 "--disk-cache-dir=/tmp/cache-dir",
                 "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
                         " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+
 
         WebDriver driver = new ChromeDriver(options);
         return driver;
@@ -239,14 +239,14 @@ public class ScrapingService {
             if (beginIndex == -1) {
                 throw new BadLinkException("This is not a product page");
             }
-        } else {
-            beginIndex = beginIndex + 5;
-            for (int i = beginIndex; i < productPageLink.length(); i++) {
-                if (Character.isDigit(productPageLink.charAt(i))) {
-                    endIndex = i;
-                } else {
-                    break;
-                }
+        }
+
+        beginIndex = beginIndex + 5;
+        for (int i = beginIndex; i < productPageLink.length(); i++) {
+            if (Character.isDigit(productPageLink.charAt(i))) {
+                endIndex = i;
+            } else {
+                break;
             }
         }
         productID = productPageLink.substring(beginIndex, endIndex + 1);
@@ -490,7 +490,8 @@ public class ScrapingService {
             }
 
             String designer = document.select("div.product-item-brand a").first().text();
-            String imageAddr = document.select("img.magnifier-large").eachAttr("src").get(0);
+            //String imageAddr = document.select("img.magnifier-large").eachAttr("src").get(0);
+            String imageAddr = document.select("div.fotorama__stage__shaft img").attr("src");
  //           driver.findElements(By.xpath("//div[@class='fotorama__nav__frame fotorama__nav__frame--thumb']")).get(1).click();
 
 //            try {
