@@ -33,10 +33,8 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.*;
@@ -83,6 +81,7 @@ public class ScrapingService {
         ChromeOptions options = new ChromeOptions();
         options.setBinary(chromeBinary);
 
+
         options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
                 "--user-data-dir=/tmp/user-data", "--remote-debugging-port=9222", "--hide-scrollbars",
                 "--enable-logging", "--log-level=0", "--v=99", "--single-process",
@@ -90,6 +89,7 @@ public class ScrapingService {
                 "--disk-cache-dir=/tmp/cache-dir",
                 "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
                         " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+
 
         WebDriver driver = new ChromeDriver(options);
         return driver;
@@ -233,38 +233,27 @@ public class ScrapingService {
         String imageAddr;
         int endIndex = 0;
         int beginIndex = productPageLink.indexOf("/prd/");
-        int descriptionIndex = productPageLink.indexOf("/", productPageLink.indexOf(".com/") + 5);
-        String descriptionSearch = productPageLink.substring(descriptionIndex+1,beginIndex);
         if (beginIndex == -1) {
             beginIndex = productPageLink.indexOf("/grp/");
             if (beginIndex == -1) {
                 throw new BadLinkException("This is not a product page");
             }
-        } else {
-            beginIndex = beginIndex + 5;
-            for (int i = beginIndex; i < productPageLink.length(); i++) {
-                if (Character.isDigit(productPageLink.charAt(i))) {
-                    endIndex = i;
-                } else {
-                    break;
-                }
+        }
+
+        beginIndex = beginIndex + 5;
+        for (int i = beginIndex; i < productPageLink.length(); i++) {
+            System.out.println("in loop");
+            System.out.println(beginIndex);
+            if (Character.isDigit(productPageLink.charAt(i))) {
+                endIndex = i;
+            } else {
+                break;
             }
         }
         productID = productPageLink.substring(beginIndex, endIndex + 1);
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
 
-        try {
-            Elements descriptionDiv = document.select("div.product-hero");
-            String description = descriptionDiv.select("h1").text();
-        }catch(IndexOutOfBoundsException e){
-            driver.findElement(By.xpath("(//input[@id='chrome-search'])")).sendKeys(descriptionSearch);
-            driver.findElement(By.xpath("//button[@data-testid='search-button-inline']")).click();
-
-          document = new WebDriverWait(driver, 10)
-                        .until((driverx) ->
-                                Jsoup.parse(driverx.getPageSource()));
-        }
         Elements descriptionDiv = document.select("div.product-hero");
         String description = descriptionDiv.select("h1").text();
         String price = "";
@@ -273,8 +262,6 @@ public class ScrapingService {
         Elements images = document.select("img.gallery-image");
         String imgExtension = "jpg";
         List<String> links = images.eachAttr("src");
-
-
 
         if (links.size() > 1) {
             imageAddr = links.get(1);
@@ -487,7 +474,8 @@ public class ScrapingService {
             }
 
             String designer = document.select("div.product-item-brand a").first().text();
-            String imageAddr = document.select("img.magnifier-large").eachAttr("src").get(0);
+            //String imageAddr = document.select("img.magnifier-large").eachAttr("src").get(0);
+            String imageAddr = document.select("div.fotorama__stage__shaft img").attr("src");
  //           driver.findElements(By.xpath("//div[@class='fotorama__nav__frame fotorama__nav__frame--thumb']")).get(1).click();
 
 //            try {
