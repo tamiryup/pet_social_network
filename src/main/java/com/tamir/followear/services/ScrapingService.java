@@ -2,7 +2,6 @@ package com.tamir.followear.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Store;
@@ -21,9 +20,6 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.Duration;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,12 +78,13 @@ public class ScrapingService {
         ChromeOptions options = new ChromeOptions();
         options.setBinary(chromeBinary);
 
+        String proxyUrl = "http://il.smartproxy.com:30001";
 
         options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
                 "--user-data-dir=/tmp/user-data", "--remote-debugging-port=9222", "--hide-scrollbars",
                 "--enable-logging", "--log-level=0", "--v=99", "--single-process",
                 "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
-                "--disk-cache-dir=/tmp/cache-dir",
+                "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
                 "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
                         " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
 
