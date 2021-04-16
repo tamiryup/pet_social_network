@@ -90,6 +90,8 @@ public class CurrencyConverterService {
         Double rateAsDouble = rate.doubleValue();
         updateRateByQueryString(query, rateAsDouble);
 
+        response.body().close();
+
         return rateAsDouble;
     }
 

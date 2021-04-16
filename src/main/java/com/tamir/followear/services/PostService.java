@@ -141,6 +141,7 @@ public class PostService {
         ImageType imageType = ImageType.PostImage;
         InputStream imageInputStream = FileHelper.urlToInputStream(item.getImageAddr());
         String imageAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
+        imageInputStream.close();
 
         //extract thumbnails of item
         List<String> thumbnailAddresses = new ArrayList<>();
@@ -148,6 +149,7 @@ public class PostService {
             imageInputStream = FileHelper.urlToInputStream(thumbnails.get(i));
             String thumbnailAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
             thumbnailAddresses.add(thumbnailAddr);
+            imageInputStream.close();
         }
         String thumbnail = (thumbnailAddresses.size() > 0) ? thumbnailAddresses.get(0) : null;
 
