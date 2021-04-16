@@ -81,7 +81,7 @@ public class ScrapingService {
         String proxyUrl = "http://il.smartproxy.com:30001";
 
         options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
-                "--user-data-dir=/tmp/user-data", "--remote-debugging-port=9222", "--hide-scrollbars",
+                "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
                 "--enable-logging", "--log-level=0", "--v=99", "--single-process",
                 "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
                 "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
