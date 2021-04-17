@@ -1,6 +1,7 @@
 package com.tamir.followear;
 
 import com.amazonaws.services.cognitoidp.model.AuthenticationResultType;
+import com.amazonaws.services.s3.transfer.Upload;
 import com.tamir.followear.AWS.cognito.CognitoService;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;

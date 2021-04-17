@@ -105,7 +105,7 @@ public class S3Service {
     }
 
     public void deleteByKey(String key) {
-        if (key == null)
+        if (key == null || key.equals(""))
             return;
 
         try {

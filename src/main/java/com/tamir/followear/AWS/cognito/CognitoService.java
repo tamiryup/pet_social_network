@@ -171,6 +171,8 @@ public class CognitoService {
                 .withExpiresIn((Integer) map.get("expires_in"))
                 .withTokenType((String) map.get("token_type"));
 
+        response.body().close();
+
         return authResultType;
     }
 

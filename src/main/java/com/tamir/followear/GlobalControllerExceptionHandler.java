@@ -198,4 +198,12 @@ public class GlobalControllerExceptionHandler {
         ErrorMessage error = new ErrorMessage("Exchange Rate Exception", e.getMessage());
         return error;
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(NonFashionItemException.class)
+    @ResponseBody
+    public ErrorMessage handleNonFashionItemException(NonFashionItemException e) {
+        ErrorMessage error = new ErrorMessage("Non Fashion Item Exception", e.getMessage());
+        return error;
+    }
 }

@@ -56,6 +56,15 @@ public class SocialController {
         return post.getId();
     }
 
+    @PostMapping("rstyle-upload-link")
+    @ResponseBody
+    public long rstyleUploadLink(@PathVariable long id, @RequestParam String link,
+                                 @RequestParam String rstyleLink) throws IOException{
+        logger.info("starting rstyleUploadLink input userId: {}, link: {}, rstyleLink: {}", id, link, rstyleLink);
+        Post post = postService.rstyleUploadLink(id, link, rstyleLink);
+        return post.getId();
+    }
+
     @PostMapping("follow")
     @ResponseBody
     public void followUser(@PathVariable("id") long slaveId, @RequestParam long masterId) {
