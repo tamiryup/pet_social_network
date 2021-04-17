@@ -134,12 +134,6 @@ public class ScrapingService {
         UploadItemDTO itemDTO;
         long storeId;
         String website;
-        if (productPageLink.contains("shopbop") && productPageLink.contains("htm?")){
-            int htmIndex = productPageLink.indexOf("htm");
-            if (htmIndex != -1) {
-                productPageLink = productPageLink.substring(0, htmIndex + 3);
-            }
-        }
         try {
             productPageLink = correctLink(productPageLink);
             website = getDomainName(productPageLink);
@@ -708,18 +702,13 @@ public class ScrapingService {
         String result = productPageLink.replaceFirst("/share/", "/");
 
         //remove all irrelevant text between
-        int startIrrelvantIndex = result.indexOf("html?") + 5;
-        int endIrrelevantIndex = result.indexOf("v1=");
-        int linkLength = result.length();
-        result = result.substring(0, startIrrelvantIndex) + result.substring(endIrrelevantIndex, linkLength);
+        if(productPageLink.contains("html?") && productPageLink.contains("v1=")) {
+            int startIrrelvantIndex = result.indexOf("html?") + 5;
+            int endIrrelevantIndex = result.indexOf("v1=");
+            int linkLength = result.length();
+            result = result.substring(0, startIrrelvantIndex) + result.substring(endIrrelevantIndex, linkLength);
+        }
 
-//        if (StringHelper.doesContainHebrew(productPageLink)) {
-//            int startIndex = result.lastIndexOf('/') + 1;
-//            int htmlStringIndex = result.indexOf(".html");
-//            int endIndex = result.lastIndexOf("-p", htmlStringIndex);
-//            linkLength = result.length();
-//            result = result.substring(0, startIndex) + result.substring(endIndex, linkLength);
-//        }
         return result;
     }
 
@@ -902,10 +891,22 @@ public class ScrapingService {
 
     }
 
+    private String correctShopbopLink(String productPageLink) {
+        if (productPageLink.contains("shopbop") && productPageLink.contains("htm?")){
+            int htmIndex = productPageLink.indexOf("htm");
+            if (htmIndex != -1) {
+                return productPageLink.substring(0, htmIndex + 3);
+            }
+        }
+
+        return productPageLink;
+    }
+
 
     private UploadItemDTO shopBopDTO(String productPageLink, long storeId, WebDriver driver) {
         Category category;
         ProductType productType;
+        productPageLink = correctShopbopLink(productPageLink);
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
 
