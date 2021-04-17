@@ -103,6 +103,10 @@ public class ScrapingService {
     }
 
     private String correctLink(String productPageLink) throws URISyntaxException {
+
+        //fix link if it's a shopbop link
+        productPageLink = correctShopbopLink(productPageLink);
+
         URI uri = new URI(productPageLink);
         String domain = uri.getHost();
         if (domain.startsWith("m.")) {
@@ -906,7 +910,6 @@ public class ScrapingService {
     private UploadItemDTO shopBopDTO(String productPageLink, long storeId, WebDriver driver) {
         Category category;
         ProductType productType;
-        productPageLink = correctShopbopLink(productPageLink);
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
 
