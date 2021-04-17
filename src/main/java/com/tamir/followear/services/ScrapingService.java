@@ -136,6 +136,12 @@ public class ScrapingService {
         UploadItemDTO itemDTO;
         long storeId;
         String website;
+        if (productPageLink.contains("shopbop")){
+            int htmIndex = productPageLink.indexOf("htm");
+            if (htmIndex != -1) {
+                productPageLink = productPageLink.substring(0, htmIndex + 3);
+            }
+        }
         try {
             productPageLink = correctLink(productPageLink);
             website = getDomainName(productPageLink);
@@ -768,9 +774,16 @@ public class ScrapingService {
 //            throw new BadLinkException("This isn't a product page");
 //        }
         int endIndex = productPageLink.indexOf(".html");
-        int beginIndex=0;
+
         for (int i=endIndex;i>0;i--){
             if (productPageLink.charAt(i)=='-'){
+                endIndex = i;
+                break;
+            }
+        }
+        int beginIndex=0;
+        for (int i=endIndex;i>0;i--){
+            if (productPageLink.charAt(i)=='p'){
                 beginIndex = i;
                 break;
             }
