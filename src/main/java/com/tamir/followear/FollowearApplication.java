@@ -42,8 +42,6 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 	    logger.info("start execution");
-            UploadItemDTO res = this.scrapingService.extractItem("https://www.shopbop.com/501-mid-thigh-short-levis/vp/v=1/1566162367.htm?folderID=11096&fm=other-shopbysize-viewall&os=false&colorId=1AC8D&ref_=SB_PLP_EP_1&breadcrumb=Designers%3ELevi%27s");
-	    System.out.println(res);
 
 	}
 

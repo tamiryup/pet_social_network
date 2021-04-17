@@ -134,7 +134,7 @@ public class ScrapingService {
         UploadItemDTO itemDTO;
         long storeId;
         String website;
-        if (productPageLink.contains("shopbop")){
+        if (productPageLink.contains("shopbop") && productPageLink.contains("htm?")){
             int htmIndex = productPageLink.indexOf("htm");
             if (htmIndex != -1) {
                 productPageLink = productPageLink.substring(0, htmIndex + 3);
@@ -834,7 +834,12 @@ public class ScrapingService {
         Currency currency = Currency.USD;
         String designer = "";
         String imgExtension = "jpg";
+        Elements imagesElements= document.select("img.center-block.img-responsive.main-image.lazy-img");
+        String imageAddr = imagesElements.eachAttr("src").get(0);
 
+        if (imagesElements.size() > 1){
+            links.add(imagesElements.eachAttr("src").get(1));
+        }
         String scriptTag = driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
         String jsonString = scriptTag.substring(1,scriptTag.length()-1);
 
@@ -844,7 +849,7 @@ public class ScrapingService {
 
         String description = jsonNode.get("name").textValue();
         price = offersJsonNode.get("price").textValue();
-        String imageAddr = jsonNode.get("image").textValue();
+        //String imageAddr = jsonNode.get("image").textValue();
         ItemPriceCurr itemPriceCurr = priceTag(offersJsonNode.get("priceCurrency").toString());
         currency = itemPriceCurr.currency;
         if (StringHelper.doesContainHebrew(description)) {
