@@ -143,6 +143,7 @@ public class ScrapingService {
             driver = getDriver();
 
             storeId = getStoreID(website);
+
             switch (website) {
 
                 case "asos.com":
@@ -187,9 +188,9 @@ public class ScrapingService {
                 case "boohoo.com":
                     itemDTO = boohooDTO(productPageLink, storeId, driver);
                     break;
-                case "adikastyle.com":
-                    itemDTO = adikaDTO(productPageLink, storeId, driver);
-                    break;
+//                case "adikastyle.com":
+//                    itemDTO = adikaDTO(productPageLink, storeId, driver);
+//                    break;
                 case "renuar.co.il":
                     itemDTO = renuarDTO(productPageLink, storeId, driver);
                     break;
@@ -536,6 +537,13 @@ public class ScrapingService {
         if (productPageLink.contains("/myhome/")){
             throw new NonFashionItemException();
         }
+
+        String scriptTag = driver.findElement(By.xpath("//script")).getAttribute("innerHTML");
+        //String jsonString = scriptTag.substring(1,scriptTag.length()-1);
+
+
+        System.out.println(scriptTag);
+
         List<String> breadCrumbsElem = document.select(".breadcrumbs ul li a").eachAttr("href");
         for (String i : breadCrumbsElem) {
             if (i.contains("back-in-stock-living") || i.contains("adika-living")) {
@@ -1283,7 +1291,6 @@ public class ScrapingService {
 
         Document document = Jsoup.parse(driver.getPageSource());
         String productCategory = document.select("poloriz-stories#poloriz-widget-rectangles").attr("category");
-        System.out.println(productCategory);
         if (productCategory.equals("אקססוריזX") || productCategory.equals("עציצים") || productCategory.equals("חדר אמבטיה") || productCategory.equals("HOME")){
             throw new NonFashionItemException();
         }
@@ -1318,12 +1325,14 @@ public class ScrapingService {
             price = itemPriceCurr.price;
         }
 
+        String imageAddr = driver.findElement(By.xpath("//a[@data-index='0']")).findElement(By.xpath(".//img")).getAttribute("src");
+        try {
+            String thumbImage = driver.findElement(By.xpath("//a[@data-index='2']")).findElement(By.xpath(".//img")).getAttribute("src");
+            links.add(thumbImage);
+        }catch (NoSuchElementException e){
 
-        Elements imageElements = document.select("ul li a img");
-        String imageAddr = imageElements.get(0).attr("src");
-        if (imageElements.size()>1){
-            links.add(imageElements.get(1).attr("src"));
         }
+
         Map<String, ProductType> dict = classificationService.getHebrewDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
         category = itemTags.getCategory();
