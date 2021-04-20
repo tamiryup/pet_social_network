@@ -3,6 +3,7 @@ package com.tamir.followear.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.Category;
@@ -141,9 +142,7 @@ public class ScrapingService {
         }
         try {
             driver = getDriver();
-
             storeId = getStoreID(website);
-
             switch (website) {
 
                 case "asos.com":
@@ -1225,11 +1224,18 @@ public class ScrapingService {
         Currency currency = Currency.ILS;
         driver.get(productPageLink);
         String productCategory = driver.findElement(By.xpath("//meta[@property='product:category']")).getAttribute("content");
+        Document document = Jsoup.parse(driver.getPageSource());
         if (productCategory.equals("אקססוריז2")){
-            throw new NonFashionItemException();
+            Boolean isFashionItem = false;
+            String pageTile = document.select("title").text();
+                if (pageTile.contains("נשים")){
+                    isFashionItem = true;
+                }
+                if (!isFashionItem) {
+                    throw new NonFashionItemException();
+                }
         }
 
-        Document document = Jsoup.parse(driver.getPageSource());
         String description = document.select("div.product-name h1").first().text();
         String imgExtension = "jpg";
 
