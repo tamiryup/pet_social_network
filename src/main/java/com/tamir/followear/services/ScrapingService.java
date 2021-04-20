@@ -79,15 +79,15 @@ public class ScrapingService {
         ChromeOptions options = new ChromeOptions();
         options.setBinary(chromeBinary);
 
-        String proxyUrl = "http://il.smartproxy.com:30001";
-
-        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
-                "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
-                "--enable-logging", "--log-level=0", "--v=99", "--single-process",
-                "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
-                "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
-                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
-                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+//        String proxyUrl = "http://il.smartproxy.com:30001";
+//
+//        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
+//                "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
+//                "--enable-logging", "--log-level=0", "--v=99", "--single-process",
+//                "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
+//                "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
+//                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
+//                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
 
         WebDriver driver = new ChromeDriver(options);
         return driver;
@@ -269,9 +269,14 @@ public class ScrapingService {
         String salePrice = "";
         Currency currency = Currency.GBP;
         Elements images = document.select("img.gallery-image");
-        String imgExtension = "jpg";
-        List<String> links = images.eachAttr("src");
 
+        String imgExtension = "jpg";
+        List<String> links = new ArrayList<>();
+        for (String imgSrc:images.eachAttr("src")){
+            if (imgSrc.contains("wid=513")){
+                links.add(imgSrc);
+            }
+        }
         if (links.size() > 1) {
             imageAddr = links.get(1);
             links.remove(1);
