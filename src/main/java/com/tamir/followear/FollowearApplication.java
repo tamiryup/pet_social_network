@@ -42,8 +42,6 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 	    logger.info("start execution");
-	    UploadItemDTO res = this.scrapingService.extractItem("https://www.asos.com/dr-martens/dr-martens-voss-quad-sandals-in-black/prd/22622895?colourwayid=60412552&cid=4650");
-	    System.out.println(res);
 	}
 
 	private void fillUpDatabase() throws Exception {

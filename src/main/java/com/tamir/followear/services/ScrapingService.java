@@ -79,15 +79,15 @@ public class ScrapingService {
         ChromeOptions options = new ChromeOptions();
         options.setBinary(chromeBinary);
 
-//        String proxyUrl = "http://il.smartproxy.com:30001";
-//
-//        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
-//                "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
-//                "--enable-logging", "--log-level=0", "--v=99", "--single-process",
-//                "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
-//                "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
-//                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
-//                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+        String proxyUrl = "http://il.smartproxy.com:30001";
+
+        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
+                "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
+                "--enable-logging", "--log-level=0", "--v=99", "--single-process",
+                "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
+                "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
+                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
+                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
 
         WebDriver driver = new ChromeDriver(options);
         return driver;
@@ -143,6 +143,7 @@ public class ScrapingService {
         try {
             driver = getDriver();
             storeId = getStoreID(website);
+
             switch (website) {
 
                 case "asos.com":
@@ -187,9 +188,9 @@ public class ScrapingService {
                 case "boohoo.com":
                     itemDTO = boohooDTO(productPageLink, storeId, driver);
                     break;
-//                case "adikastyle.com":
-//                    itemDTO = adikaDTO(productPageLink, storeId, driver);
-//                    break;
+                case "adikastyle.com":
+                    itemDTO = adikaDTO(productPageLink, storeId, driver);
+                    break;
                 case "renuar.co.il":
                     itemDTO = renuarDTO(productPageLink, storeId, driver);
                     break;
@@ -538,21 +539,10 @@ public class ScrapingService {
         Currency currency = Currency.ILS;
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
-        if (productPageLink.contains("/myhome/")){
+        Elements scriptTag = document.getElementsByTag("script");
+        String productPage = scriptTag.toString();
+        if (productPage.contains("ליבינג")){
             throw new NonFashionItemException();
-        }
-
-        String scriptTag = driver.findElement(By.xpath("//script")).getAttribute("innerHTML");
-        //String jsonString = scriptTag.substring(1,scriptTag.length()-1);
-
-
-        System.out.println(scriptTag);
-
-        List<String> breadCrumbsElem = document.select(".breadcrumbs ul li a").eachAttr("href");
-        for (String i : breadCrumbsElem) {
-            if (i.contains("back-in-stock-living") || i.contains("adika-living")) {
-                throw new NonFashionItemException();
-            }
         }
         String description = document.select("div.product-name h1").first().text();
         Element imageDiv = document.select("div#image-zoom-0").first();
