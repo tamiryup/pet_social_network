@@ -103,6 +103,10 @@ public class ScrapingService {
     }
 
     private String correctLink(String productPageLink) throws URISyntaxException {
+
+        //fix link if it's a shopbop link
+        productPageLink = correctShopbopLink(productPageLink);
+
         URI uri = new URI(productPageLink);
         String domain = uri.getHost();
         if (domain.startsWith("m.")) {
@@ -269,23 +273,12 @@ public class ScrapingService {
         String price = "";
         String salePrice = "";
         Currency currency = Currency.GBP;
-        Elements images = document.select("img.gallery-image");
-
+        Elements images = document.select(".image-container.zoomable img.gallery-image");
         String imgExtension = "jpg";
         List<String> links = new ArrayList<>();
-        for (String imgSrc:images.eachAttr("src")){
-            if (imgSrc.contains("wid=513")){
-                links.add(imgSrc);
-            }
-        }
-        if (links.size() > 1) {
-            imageAddr = links.get(1);
-            links.remove(1);
-        } else {
-            imageAddr = links.get(0);
-            links.remove(0);
-        }
-
+        links = images.eachAttr("src");
+        imageAddr = links.get(0);
+        links.remove(0);
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
 
@@ -718,18 +711,13 @@ public class ScrapingService {
         String result = productPageLink.replaceFirst("/share/", "/");
 
         //remove all irrelevant text between
-        int startIrrelvantIndex = result.indexOf("html?") + 5;
-        int endIrrelevantIndex = result.indexOf("v1=");
-        int linkLength = result.length();
-        result = result.substring(0, startIrrelvantIndex) + result.substring(endIrrelevantIndex, linkLength);
+        if(productPageLink.contains("html?") && productPageLink.contains("v1=")) {
+            int startIrrelvantIndex = result.indexOf("html?") + 5;
+            int endIrrelevantIndex = result.indexOf("v1=");
+            int linkLength = result.length();
+            result = result.substring(0, startIrrelvantIndex) + result.substring(endIrrelevantIndex, linkLength);
+        }
 
-//        if (StringHelper.doesContainHebrew(productPageLink)) {
-//            int startIndex = result.lastIndexOf('/') + 1;
-//            int htmlStringIndex = result.indexOf(".html");
-//            int endIndex = result.lastIndexOf("-p", htmlStringIndex);
-//            linkLength = result.length();
-//            result = result.substring(0, startIndex) + result.substring(endIndex, linkLength);
-//        }
         return result;
     }
 
@@ -821,9 +809,16 @@ public class ScrapingService {
 //            throw new BadLinkException("This isn't a product page");
 //        }
         int endIndex = productPageLink.indexOf(".html");
-        int beginIndex=0;
+
         for (int i=endIndex;i>0;i--){
             if (productPageLink.charAt(i)=='-'){
+                endIndex = i;
+                break;
+            }
+        }
+        int beginIndex=0;
+        for (int i=endIndex;i>0;i--){
+            if (productPageLink.charAt(i)=='p'){
                 beginIndex = i;
                 break;
             }
@@ -837,7 +832,12 @@ public class ScrapingService {
         Currency currency = Currency.USD;
         String designer = "";
         String imgExtension = "jpg";
+        Elements imagesElements= document.select("img.center-block.img-responsive.main-image.lazy-img");
+        String imageAddr = imagesElements.eachAttr("src").get(0);
 
+        if (imagesElements.size() > 1){
+            links.add(imagesElements.eachAttr("src").get(1));
+        }
         String scriptTag = driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
         String jsonString = scriptTag.substring(1,scriptTag.length()-1);
 
@@ -847,7 +847,7 @@ public class ScrapingService {
 
         String description = jsonNode.get("name").textValue();
         price = offersJsonNode.get("price").textValue();
-        String imageAddr = jsonNode.get("image").textValue();
+        //String imageAddr = jsonNode.get("image").textValue();
         ItemPriceCurr itemPriceCurr = priceTag(offersJsonNode.get("priceCurrency").toString());
         currency = itemPriceCurr.currency;
         if (StringHelper.doesContainHebrew(description)) {
@@ -898,6 +898,17 @@ public class ScrapingService {
         return new UploadItemDTO(imageAddr, productPageLink, description,
                 price, "", currency, storeId, designer, imgExtension, productID, links, category, productType);
 
+    }
+
+    private String correctShopbopLink(String productPageLink) {
+        if (productPageLink.contains("shopbop") && productPageLink.contains("htm?")){
+            int htmIndex = productPageLink.indexOf("htm");
+            if (htmIndex != -1) {
+                return productPageLink.substring(0, htmIndex + 3);
+            }
+        }
+
+        return productPageLink;
     }
 
 

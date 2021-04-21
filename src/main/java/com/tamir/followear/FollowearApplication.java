@@ -42,6 +42,7 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 	    logger.info("start execution");
+
 	}
 
 	private void fillUpDatabase() throws Exception {
