@@ -264,23 +264,12 @@ public class ScrapingService {
         String price = "";
         String salePrice = "";
         Currency currency = Currency.GBP;
-        Elements images = document.select("img.gallery-image");
+        Elements images = document.select(".image-container.zoomable img.gallery-image");
         String imgExtension = "jpg";
         List<String> links = new ArrayList<>();
-        for (String imgSrc:images.eachAttr("src")){
-            if (imgSrc.contains("wid=513")){
-                links.add(imgSrc);
-            }
-        }
-
-        if (links.size() > 1) {
-            imageAddr = links.get(1);
-            links.remove(1);
-        } else {
-            imageAddr = links.get(0);
-            links.remove(0);
-        }
-
+        links = images.eachAttr("src");
+        imageAddr = links.get(0);
+        links.remove(0);
         Map<String, ProductType> dict = classificationService.getEnglishDict();
         ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
 
