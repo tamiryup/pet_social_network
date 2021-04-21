@@ -266,7 +266,12 @@ public class ScrapingService {
         Currency currency = Currency.GBP;
         Elements images = document.select("img.gallery-image");
         String imgExtension = "jpg";
-        List<String> links = images.eachAttr("src");
+        List<String> links = new ArrayList<>();
+        for (String imgSrc:images.eachAttr("src")){
+            if (imgSrc.contains("wid=513")){
+                links.add(imgSrc);
+            }
+        }
 
         if (links.size() > 1) {
             imageAddr = links.get(1);
