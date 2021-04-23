@@ -192,9 +192,9 @@ public class ScrapingService {
                 case "boohoo.com":
                     itemDTO = boohooDTO(productPageLink, storeId, driver);
                     break;
-                case "adikastyle.com":
-                    itemDTO = adikaDTO(productPageLink, storeId, driver);
-                    break;
+//                case "adikastyle.com":
+//                    itemDTO = adikaDTO(productPageLink, storeId, driver);
+//                    break;
                 case "renuar.co.il":
                     itemDTO = renuarDTO(productPageLink, storeId, driver);
                     break;
