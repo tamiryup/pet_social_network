@@ -268,6 +268,11 @@ public class ScrapingService {
                 throw new NonFashionItemException();
             }
         }
+        String productCategory = document.select(".product-description a").attr("href");
+        if (productCategory.contains("/beauty/")){
+            throw new NonFashionItemException();
+        }
+
         Elements descriptionDiv = document.select("div.product-hero");
         String description = descriptionDiv.select("h1").text();
         String price = "";
