@@ -201,6 +201,9 @@ public class ScrapingService {
                 case "twentyfourseven.co.il":
                     itemDTO = twentyFourSevenDTO(productPageLink, storeId, driver);
                     break;
+                case "coconutlove.co":
+                    itemDTO = coconutloveDTO(productPageLink, storeId, driver);
+                    break;
                 default:
                     throw new BadLinkException("This website is not supported");
             }
@@ -1361,6 +1364,62 @@ public class ScrapingService {
 
     }
 
+    private UploadItemDTO coconutloveDTO(String productPageLink, long storeId, WebDriver driver) {
+        String productID = "";
+        Category category;
+        ProductType productType;
+        List<String> links = new ArrayList<>();
+        String salePrice = "";
+        String price="";
+        String designer = null;
+        Currency currency = Currency.USD;
+        driver.get(productPageLink);
+
+
+        Document document = Jsoup.parse(driver.getPageSource());
+        String description = document.select("h1._2qrJF").first().text();
+        String imgExtension = "jpg";
+
+        int endIndex = productPageLink.length();
+        int beginIndex = 0;
+        for (int i = endIndex-1; i > 0 ; i--){
+            if (productPageLink.charAt(i) == '/'){
+                beginIndex = i;
+                break;
+            }
+        }
+        if (beginIndex > 0){
+            productID = productPageLink.substring(beginIndex+1,endIndex);
+        }
+        if (productID == "") {
+            throw new BadLinkException("This isn't a product page");
+        }
+
+        try {
+            price = driver.findElement(By.xpath("//span[@data-hook='formatted-secondary-price']")).getText();
+            salePrice = driver.findElement(By.xpath("//span[@data-hook='formatted-primary-price']")).getText();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            salePrice = itemPriceCurrSale.price;
+        } catch (NoSuchElementException e) {
+            price = driver.findElement(By.xpath("//span[@data-hook='formatted-primary-price']")).getText();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+        }
+
+        String imageAddr = driver.findElement(By.xpath("//img[@data-hook='product-image']")).getAttribute("src");
+        imageAddr = imageAddr.replace(".webp", ".jpg");
+
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = Category.Accessories;
+        productType = itemTags.getProductType();
+
+        return new UploadItemDTO(imageAddr, productPageLink, description,
+                price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
+
+    }
 
 
 
