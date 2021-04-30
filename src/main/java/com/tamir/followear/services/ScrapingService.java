@@ -661,7 +661,8 @@ public class ScrapingService {
         Document document = Jsoup.parse(driver.getPageSource());
         List<String> breadCrumbsElem = document.select("div.bread-crumb__inner div a").eachText();
         for (String i : breadCrumbsElem) {
-            if (i.contains("Event & Party Supplies") || i.contains("ביוטי") || i.contains("Beauty") || i.contains("טיפוח אישי") || (i.contains("בית & חיות מחמד"))) {
+            System.out.println(i);
+            if (i.contains("Event & Party Supplies") || i.contains("ביוטי") || i.contains("Beauty") || i.contains("טיפוח אישי") || (i.contains("בית & חיות מחמד") || (i.contains("בית & מגורים") || (i.contains("Home Decor"))))) {
                 throw new NonFashionItemException();
             }
         }
