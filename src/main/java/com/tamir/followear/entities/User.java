@@ -44,6 +44,10 @@ public class User {
     @Setter
     private String description;
 
+    @Column(columnDefinition = "varchar(1000)")
+    @Setter
+    private String instagramLink;
+
     @Column(columnDefinition = "varchar(320)")
     private String email;
 

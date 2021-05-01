@@ -36,7 +36,7 @@ public class UserInfoController {
         if(user==null)
             throw new InvalidUserException();
         UserProfileInfoDTO ret = new UserProfileInfoDTO(user.getId(), user.getUsername(), user.getFullName(),
-                user.getProfileImageAddr(), user.getDescription());
+                user.getProfileImageAddr(), user.getDescription(), user.getInstagramLink());
         return ret;
     }
 

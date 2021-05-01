@@ -38,7 +38,8 @@ public class UserSettingsController {
         if(user==null)
             throw new InvalidUserException();
         UserInfoDTO ret = new UserInfoDTO(user.getId(), user.getUsername(), user.getFullName(),
-                user.getProfileImageAddr(), user.getDescription(), user.getEmail(), user.getBirthDate());
+                user.getProfileImageAddr(), user.getDescription(), user.getInstagramLink(),
+                user.getEmail(), user.getBirthDate());
         return ret;
     }
 
@@ -64,6 +65,13 @@ public class UserSettingsController {
     public void updateFullName(@PathVariable long id, @RequestParam("fullName") String fullName) {
         logger.info("starting updateFullName input userId: {}, fullName: {}", id, fullName);
         userService.updateFullNameById(id, fullName);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/update-instagram-link")
+    public void updateInstagramLink(@PathVariable long id, @RequestParam("instagramLink") String instagramLink) {
+        logger.info("starting updateInstagramLink input userId: {}, instagramLink: {}", id, instagramLink);
+        userService.updateInstagramLinkById(id, instagramLink);
     }
 
     @ResponseStatus(HttpStatus.OK)

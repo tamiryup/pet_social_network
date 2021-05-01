@@ -15,6 +15,7 @@ public class UserInfoDTO {
     private String fullName;
     private String profileImageAddr;
     private String description;
+    private String instagramLink;
     private String email;
     private Date birthDate;
 

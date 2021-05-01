@@ -187,6 +187,13 @@ public class UserService {
         userRepo.updateFullNameById(id, fullName);
     }
 
+    public void updateInstagramLinkById(long id, String instagramLink) {
+        if(!existsById(id)) {
+            throw new InvalidUserException();
+        }
+        userRepo.updateInstagramLinkById(id, instagramLink);
+    }
+
     public void updateEmailById(long id, String email) {
         User user = findById(id);
         if (user == null) {
