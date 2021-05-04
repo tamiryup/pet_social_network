@@ -21,6 +21,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,15 +80,15 @@ public class ScrapingService {
         ChromeOptions options = new ChromeOptions();
         options.setBinary(chromeBinary);
 
-        String proxyUrl = "http://il.smartproxy.com:30001";
-
-        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
-                "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
-                "--enable-logging", "--log-level=0", "--v=99", "--single-process",
-                "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
-                "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
-                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
-                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+//        String proxyUrl = "http://il.smartproxy.com:30001";
+//
+//        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
+//                "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
+//                "--enable-logging", "--log-level=0", "--v=99", "--single-process",
+//                "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
+//                "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
+//                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
+//                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
 
         WebDriver driver = new ChromeDriver(options);
         return driver;
@@ -466,7 +467,7 @@ public class ScrapingService {
             String salePrice = "";
             String imgExtension = "jpg";
             List<String> links = new ArrayList<>();
-            List<WebElement> visibleThumbnails = new ArrayList<>();
+            String visibleThumbnails = "";
             Currency currency = Currency.ILS;
             Document document = Jsoup.parse(driver.getPageSource());
             String description = driver.findElement(By.xpath("//span[@itemprop='name']")).getText();
@@ -496,11 +497,12 @@ public class ScrapingService {
             String designer = document.select("div.product-item-brand a").first().text();
             //String imageAddr = document.select("img.magnifier-large").eachAttr("src").get(0);
             String imageAddr = document.select("div.fotorama__stage__shaft img").attr("src");
- //           driver.findElements(By.xpath("//div[@class='fotorama__nav__frame fotorama__nav__frame--thumb']")).get(1).click();
-
+            driver.findElement(By.xpath("//div[@class='fotorama__arr fotorama__arr--next']")).click();
+            String thumb = document.select("img#magnifier-item-10-large.magnifier-large").attr("src");
+            System.out.println(thumb);
 //            try {
 //                visibleThumbnails = new WebDriverWait(driver, 10)
-//                        .until(driverx -> driverx.findElements(By.xpath("//img[@id='magnifier-item-0-large']")));
+//                        .until(driverx -> Jsoup.parse(driverx.getPageSource()).select("div.fotorama__stage__shaft img").attr("src"));
 //                System.out.println(visibleThumbnails);
 //            }catch (TimeoutException e){
 //                System.out.println(e);

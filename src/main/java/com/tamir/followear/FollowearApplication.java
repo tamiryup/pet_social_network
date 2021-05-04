@@ -42,6 +42,8 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 	    logger.info("start execution");
+	    UploadItemDTO res = this.scrapingService.extractItem("https://www.zara.com/il/en/share/wide-leg-trousers-p03384680.html?utm_campaign=productShare&utm_medium=mobile_sharing_iOS&utm_source=red_social_movil&v1=109287494");
+	    System.out.println(res);
 
 	}
 
