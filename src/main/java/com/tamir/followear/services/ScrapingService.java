@@ -733,6 +733,7 @@ public class ScrapingService {
     private UploadItemDTO zaraDTO(String productPageLink, long storeId, WebDriver driver) throws IOException {
         Category category;
         ProductType productType;
+        List<String> tempLinks = new ArrayList<>();
         List<String> links = new ArrayList<>();
         String imageAddr = "";
         productPageLink = correctZaraLink(productPageLink);
@@ -754,35 +755,57 @@ public class ScrapingService {
         Currency currency = Currency.USD;
         String designer = "";
         String imgExtension = "jpg";
-
-        String scriptTag = driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
-        String jsonString = scriptTag.substring(1,scriptTag.length()-1);
-
-
-        JsonNode jsonNode = new ObjectMapper().readTree(jsonString);
-        JsonNode offersJsonNode = new ObjectMapper().readTree(jsonNode.get("offers").toString());
-
-
-        ArrayNode arrayNode = (ArrayNode) jsonNode.get("image");
-        imageAddr = arrayNode.get(0).textValue();
-        if (arrayNode.size()>1) {
-            links.add(arrayNode.get(1).textValue());
-        }else{
-            links.add("");
+        tempLinks = document.select("img.media-image__image.media__wrapper--media").eachAttr("src");
+        imageAddr = tempLinks.get(0);
+        if (tempLinks.size()>1){
+            String thumbnail = tempLinks.get(1);
+            thumbnail = thumbnail.replace("w/66/","w/705/");
+            links.add(thumbnail);
         }
-        ItemPriceCurr itemPriceCurr = priceTag(offersJsonNode.get("priceCurrency").toString());
-        currency = itemPriceCurr.currency;
 
         try {
-            price = document.select(".product-detail-info__price-amount.price span.price__amount.price__amount--old").first().text();
-            price = price.replaceAll("[^\\d.]", "");
-            salePrice = offersJsonNode.get("price").textValue();
-
-
+            price = document.select("span.price__amount.price__amount--old").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            price = itemPriceCurr.price;
+            salePrice = document.select("span.price__amount.price__amount--on-sale").first().text();
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            currency = itemPriceCurrSale.currency;
+            salePrice = itemPriceCurrSale.price;
         } catch (NullPointerException e) {
-            price = offersJsonNode.get("price").textValue();
-            salePrice="";
+            price = document.select("span.price__amount").first().text();
+            ItemPriceCurr itemPriceCurr = priceTag(price);
+            currency = itemPriceCurr.currency;
+            price = itemPriceCurr.price;
         }
+
+//        String scriptTag = driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
+//        String jsonString = scriptTag.substring(1,scriptTag.length()-1);
+//
+//
+//        JsonNode jsonNode = new ObjectMapper().readTree(jsonString);
+//        JsonNode offersJsonNode = new ObjectMapper().readTree(jsonNode.get("offers").toString());
+//
+//
+//        ArrayNode arrayNode = (ArrayNode) jsonNode.get("image");
+//        imageAddr = arrayNode.get(0).textValue();
+//        if (arrayNode.size()>1) {
+//            links.add(arrayNode.get(1).textValue());
+//        }else{
+//            links.add("");
+//        }
+//        ItemPriceCurr itemPriceCurr = priceTag(offersJsonNode.get("priceCurrency").toString());
+        //currency = itemPriceCurr.currency;
+
+//        try {
+//            price = document.select(".product-detail-info__price-amount.price span.price__amount.price__amount--old").first().text();
+//            price = price.replaceAll("[^\\d.]", "");
+//            salePrice = offersJsonNode.get("price").textValue();
+//
+//
+//        } catch (NullPointerException e) {
+//            price = offersJsonNode.get("price").textValue();
+//            salePrice="";
+//        }
 
         int endIndex = productPageLink.indexOf("html");
         int startIndex = endIndex - 10;
