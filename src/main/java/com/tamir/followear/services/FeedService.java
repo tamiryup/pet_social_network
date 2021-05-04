@@ -30,6 +30,8 @@ public class FeedService {
 
     private final Logger logger = LoggerFactory.getLogger(FeedService.class);
 
+    private final static String terminaLinkSuffix = "?utm_source=IG&utm_medium=Followear%20platform&utm_campaign=amitca";
+
     @Autowired
     private StreamService streamService;
 
@@ -86,6 +88,12 @@ public class FeedService {
             for (Post post : posts) {
                 User user = userMap.get(post.getUserId());
                 Store store = storeMap.get(post.getStoreId());
+                String link = post.getLink();
+
+                // if store is terminalX
+                if(store.getId() == 7) {
+                    link = post.getLink() + terminaLinkSuffix;
+                }
 
                 if (user == null) {
                     logger.error("Post's userId does not exist in database");
@@ -93,7 +101,7 @@ public class FeedService {
                 }
 
                 feedPostDTOS.add(new TimelineFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                        post.getDescription(), post.getLink(), post.getFormattedPrice(), post.getFormattedSalePrice(),
+                        post.getDescription(), link, post.getFormattedPrice(), post.getFormattedSalePrice(),
                         store.getWebsite(), user.getProfileImageAddr(), user.getUsername(), post.getThumbnail(),
                         post.getSelfThumb()));
             }
@@ -191,8 +199,14 @@ public class FeedService {
 
         for (Post post : posts) {
             Store store = storeMap.get(post.getStoreId());
+            String link = post.getLink();
+
+            if(store.getId() == 7) {
+                link = post.getLink() + terminaLinkSuffix;
+            }
+
             feedPostDTOS.add(new UserFeedPostDTO(post.getId(), post.getUserId(), post.getImageAddr(),
-                    post.getDescription(), post.getLink(), post.getFormattedPrice(), post.getFormattedSalePrice(),
+                    post.getDescription(), link, post.getFormattedPrice(), post.getFormattedSalePrice(),
                     store.getWebsite(), post.getThumbnail(), post.getSelfThumb()));
         }
     }
