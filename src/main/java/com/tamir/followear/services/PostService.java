@@ -3,6 +3,7 @@ package com.tamir.followear.services;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.tamir.followear.AWS.s3.S3Service;
+import com.tamir.followear.CommonBeanConfig;
 import com.tamir.followear.dto.BasicPostDTO;
 import com.tamir.followear.dto.PostInfoDTO;
 import com.tamir.followear.dto.UploadItemDTO;
@@ -192,11 +193,17 @@ public class PostService {
         Post post = findById(postId);
         User user = userService.findById(post.getUserId());
         Store store = storeService.findById(post.getStoreId());
+        String link = post.getLink();
+
+        // if store is terminalX
+        if(store.getId() == 7) {
+            link = post.getLink() + CommonBeanConfig.getTerminaLinkSuffix();
+        }
 
         PostInfoDTO postInfo = new PostInfoDTO(post.getId(), post.getUserId(), post.getStoreId(),
                 user.getProfileImageAddr(), user.getUsername(), post.getImageAddr(), post.getDescription(),
                 post.getFormattedPrice(), post.getFormattedSalePrice(), store.getLogoAddr(), store.getName(),
-                store.getWebsite(), post.getThumbnail(), post.getSelfThumb(), post.getLink(),
+                store.getWebsite(), post.getThumbnail(), post.getSelfThumb(), link,
                 post.getNumViews(), post.getNumLikes(), post.getCreateDate());
 
         return postInfo;
