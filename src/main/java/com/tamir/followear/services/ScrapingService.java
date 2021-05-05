@@ -17,6 +17,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -80,15 +81,15 @@ public class ScrapingService {
         ChromeOptions options = new ChromeOptions();
         options.setBinary(chromeBinary);
 
-//        String proxyUrl = "http://il.smartproxy.com:30001";
-//
-//        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
-//                "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
-//                "--enable-logging", "--log-level=0", "--v=99", "--single-process",
-//                "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
-//                "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
-//                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
-//                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+        String proxyUrl = "http://il.smartproxy.com:30001";
+
+        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
+                "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
+                "--enable-logging", "--log-level=0", "--v=99", "--single-process",
+                "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
+                "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
+                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
+                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
 
         WebDriver driver = new ChromeDriver(options);
         return driver;
@@ -458,6 +459,19 @@ public class ScrapingService {
                 && (str.matches("^[a-zA-Z]*$")));
     }
 
+    private int terminalXThumbnailHelper(String imageAddr) {
+        int ImageCodeBeginIndex = imageAddr.indexOf("/cache/");
+        int ImageCodeEndIndex = 0;
+        for (int i = ImageCodeBeginIndex + 7 ; i < imageAddr.length() ; i++){
+            if (imageAddr.charAt(i) == '/') {
+                ImageCodeEndIndex = i;
+                break;
+            }
+        }
+        return ImageCodeEndIndex;
+    }
+
+
 
     private UploadItemDTO terminalxDTO(String productPageLink, long storeId, WebDriver driver) {
             Category category;
@@ -467,7 +481,9 @@ public class ScrapingService {
             String salePrice = "";
             String imgExtension = "jpg";
             List<String> links = new ArrayList<>();
+            List<String> tempLinks = new ArrayList<>();
             String visibleThumbnails = "";
+            String largeImageStringCode = "";
             Currency currency = Currency.ILS;
             Document document = Jsoup.parse(driver.getPageSource());
             String description = driver.findElement(By.xpath("//span[@itemprop='name']")).getText();
@@ -495,11 +511,20 @@ public class ScrapingService {
             }
 
             String designer = document.select("div.product-item-brand a").first().text();
-            //String imageAddr = document.select("img.magnifier-large").eachAttr("src").get(0);
             String imageAddr = document.select("div.fotorama__stage__shaft img").attr("src");
-            driver.findElement(By.xpath("//div[@class='fotorama__arr fotorama__arr--next']")).click();
-            String thumb = document.select("img#magnifier-item-10-large.magnifier-large").attr("src");
-            System.out.println(thumb);
+            tempLinks = document.select("img.fotorama__img").eachAttr("src");
+            String largeImageCode = "b374ff9ecf3b29b1a67d228d0c98e9a1";
+            String smallImageCode = "18af6b3a2b941abd05c55baf78d1b952";
+
+            for (int i = tempLinks.size(); i > 0 ; i--){
+                if (tempLinks.get(i-1).contains(smallImageCode)){
+                    String largeThumbnail = tempLinks.get(i-1).replace(smallImageCode,largeImageCode);
+                    links.add(largeThumbnail);
+                    break;
+                }
+            }
+
+
 //            try {
 //                visibleThumbnails = new WebDriverWait(driver, 10)
 //                        .until(driverx -> Jsoup.parse(driverx.getPageSource()).select("div.fotorama__stage__shaft img").attr("src"));
@@ -521,6 +546,8 @@ public class ScrapingService {
             return new UploadItemDTO(imageAddr, productPageLink, description,
                     price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
+
+
 
 
     private UploadItemDTO adikaDTO(String productPageLink, long storeId, WebDriver driver) {
