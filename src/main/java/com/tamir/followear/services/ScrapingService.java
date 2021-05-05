@@ -755,13 +755,13 @@ public class ScrapingService {
         Currency currency = Currency.USD;
         String designer = "";
         String imgExtension = "jpg";
-        tempLinks = document.select("img.media-image__image.media__wrapper--media").eachAttr("src");
-        imageAddr = tempLinks.get(0);
-        if (tempLinks.size()>1){
-            String thumbnail = tempLinks.get(1);
-            thumbnail = thumbnail.replace("w/66/","w/705/");
-            links.add(thumbnail);
-        }
+//        tempLinks = document.select("img.media-image__image.media__wrapper--media").eachAttr("src");
+//        imageAddr = tempLinks.get(0);
+//        if (tempLinks.size()>1){
+//            String thumbnail = tempLinks.get(1);
+//            thumbnail = thumbnail.replace("w/66/","w/705/");
+//            links.add(thumbnail);
+//        }
 
         try {
             price = document.select("span.price__amount.price__amount--old").first().text();
@@ -778,21 +778,21 @@ public class ScrapingService {
             price = itemPriceCurr.price;
         }
 
-//        String scriptTag = driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
-//        String jsonString = scriptTag.substring(1,scriptTag.length()-1);
-//
-//
-//        JsonNode jsonNode = new ObjectMapper().readTree(jsonString);
+        String scriptTag = driver.findElement(By.xpath("//script[@type='application/ld+json']")).getAttribute("innerHTML");
+        String jsonString = scriptTag.substring(1,scriptTag.length()-1);
+
+
+        JsonNode jsonNode = new ObjectMapper().readTree(jsonString);
 //        JsonNode offersJsonNode = new ObjectMapper().readTree(jsonNode.get("offers").toString());
-//
-//
-//        ArrayNode arrayNode = (ArrayNode) jsonNode.get("image");
-//        imageAddr = arrayNode.get(0).textValue();
-//        if (arrayNode.size()>1) {
-//            links.add(arrayNode.get(1).textValue());
-//        }else{
-//            links.add("");
-//        }
+
+
+        ArrayNode arrayNode = (ArrayNode) jsonNode.get("image");
+        imageAddr = arrayNode.get(0).textValue();
+        if (arrayNode.size()>1) {
+            links.add(arrayNode.get(1).textValue());
+        }else{
+            links.add("");
+        }
 //        ItemPriceCurr itemPriceCurr = priceTag(offersJsonNode.get("priceCurrency").toString());
         //currency = itemPriceCurr.currency;
 
