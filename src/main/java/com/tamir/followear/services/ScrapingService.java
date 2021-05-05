@@ -17,10 +17,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -465,6 +467,19 @@ public class ScrapingService {
                 && (str.matches("^[a-zA-Z]*$")));
     }
 
+    private int terminalXThumbnailHelper(String imageAddr) {
+        int ImageCodeBeginIndex = imageAddr.indexOf("/cache/");
+        int ImageCodeEndIndex = 0;
+        for (int i = ImageCodeBeginIndex + 7 ; i < imageAddr.length() ; i++){
+            if (imageAddr.charAt(i) == '/') {
+                ImageCodeEndIndex = i;
+                break;
+            }
+        }
+        return ImageCodeEndIndex;
+    }
+
+
 
     private UploadItemDTO terminalxDTO(String productPageLink, long storeId, WebDriver driver) {
             Category category;
@@ -474,7 +489,9 @@ public class ScrapingService {
             String salePrice = "";
             String imgExtension = "jpg";
             List<String> links = new ArrayList<>();
-            List<WebElement> visibleThumbnails = new ArrayList<>();
+            List<String> tempLinks = new ArrayList<>();
+            String visibleThumbnails = "";
+            String largeImageStringCode = "";
             Currency currency = Currency.ILS;
             Document document = Jsoup.parse(driver.getPageSource());
             String description = driver.findElement(By.xpath("//span[@itemprop='name']")).getText();
@@ -502,13 +519,23 @@ public class ScrapingService {
             }
 
             String designer = document.select("div.product-item-brand a").first().text();
-            //String imageAddr = document.select("img.magnifier-large").eachAttr("src").get(0);
             String imageAddr = document.select("div.fotorama__stage__shaft img").attr("src");
- //           driver.findElements(By.xpath("//div[@class='fotorama__nav__frame fotorama__nav__frame--thumb']")).get(1).click();
+            tempLinks = document.select("img.fotorama__img").eachAttr("src");
+            String largeImageCode = "b374ff9ecf3b29b1a67d228d0c98e9a1";
+            String smallImageCode = "18af6b3a2b941abd05c55baf78d1b952";
+
+            for (int i = tempLinks.size(); i > 0 ; i--){
+                if (tempLinks.get(i-1).contains(smallImageCode)){
+                    String largeThumbnail = tempLinks.get(i-1).replace(smallImageCode,largeImageCode);
+                    links.add(largeThumbnail);
+                    break;
+                }
+            }
+
 
 //            try {
 //                visibleThumbnails = new WebDriverWait(driver, 10)
-//                        .until(driverx -> driverx.findElements(By.xpath("//img[@id='magnifier-item-0-large']")));
+//                        .until(driverx -> Jsoup.parse(driverx.getPageSource()).select("div.fotorama__stage__shaft img").attr("src"));
 //                System.out.println(visibleThumbnails);
 //            }catch (TimeoutException e){
 //                System.out.println(e);
@@ -527,6 +554,8 @@ public class ScrapingService {
             return new UploadItemDTO(imageAddr, productPageLink, description,
                     price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
+
+
 
 
     private UploadItemDTO adikaDTO(String productPageLink, long storeId, WebDriver driver) {
