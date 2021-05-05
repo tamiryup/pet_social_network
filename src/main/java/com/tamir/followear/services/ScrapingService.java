@@ -209,6 +209,7 @@ public class ScrapingService {
                 default:
                     throw new BadLinkException("This website is not supported");
             }
+
         } catch (BadLinkException e) {
             throw e;
         } catch (NonFashionItemException e) {
