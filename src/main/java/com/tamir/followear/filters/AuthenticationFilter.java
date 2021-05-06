@@ -38,7 +38,8 @@ public class AuthenticationFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
         String lastPathPart = HttpHelper.getPathPartByIndex(request, -1);
-        List<String> excludedPaths = Arrays.asList("user-feed", "post-info", "follow-slaves", "follow-masters");
+        List<String> excludedPaths = Arrays.asList("user-feed", "post-info", "follow-slaves",
+                "follow-masters", "inc-post-views");
 
         //exclude these two paths from the filter
         if(!excludedPaths.contains(lastPathPart)) {
