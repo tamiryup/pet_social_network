@@ -14,6 +14,7 @@ import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ImageType;
 import com.tamir.followear.exceptions.*;
 import com.tamir.followear.helpers.FileHelper;
+import com.tamir.followear.helpers.ImageHelper;
 import com.tamir.followear.helpers.StringHelper;
 import com.tamir.followear.repositories.PostRepository;
 import com.tamir.followear.stream.StreamService;
@@ -140,14 +141,14 @@ public class PostService {
         List<String> thumbnails = item.getThumbnails();
 
         ImageType imageType = ImageType.PostImage;
-        InputStream imageInputStream = FileHelper.urlToInputStream(item.getImageAddr());
+        InputStream imageInputStream = getFinalImageInputStream(item.getImageAddr(), item.getStoreId());
         String imageAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
         imageInputStream.close();
 
         //extract thumbnails of item
         List<String> thumbnailAddresses = new ArrayList<>();
         for (int i = 0; i < thumbnails.size() && i < 1; i++) {
-            imageInputStream = FileHelper.urlToInputStream(thumbnails.get(i));
+            imageInputStream = getFinalImageInputStream(thumbnails.get(i), item.getStoreId());
             String thumbnailAddr = s3Service.uploadImage(imageType, imageInputStream, item.getImgExtension());
             thumbnailAddresses.add(thumbnailAddr);
             imageInputStream.close();
@@ -169,6 +170,17 @@ public class PostService {
         }
 
         return post;
+    }
+
+    private InputStream getFinalImageInputStream(String imageAddr, long storeId) throws IOException {
+        InputStream imageInputStream = FileHelper.urlToInputStream(imageAddr);
+
+        //crop image if 24/7
+        if(storeId == 18) {
+            imageInputStream = ImageHelper.cropImage(imageInputStream, 20, 0, 527, 813);
+        }
+
+        return imageInputStream;
     }
 
     public Post uploadLink(long userId, String link) throws IOException {
