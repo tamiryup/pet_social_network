@@ -28,14 +28,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.*;
+import org.apache.commons.codec.binary.Base64;
 
 import com.tamir.followear.enums.Currency;
 
@@ -146,8 +152,8 @@ public class ScrapingService {
         }
         try {
             driver = getDriver();
-            storeId = getStoreID(website);
-
+            //storeId = getStoreID(website);
+            storeId = 8;
             switch (website) {
 
                 case "asos.com":
@@ -1347,6 +1353,26 @@ public class ScrapingService {
         }
 
         String imageAddr = driver.findElement(By.xpath("//a[@data-index='0']")).findElement(By.xpath(".//img")).getAttribute("src");
+        File imageFile = new File(imageAddr);
+        try {
+            URL url = new URL(imageAddr);
+            URLConnection urlConn = url.openConnection();
+            urlConn.addRequestProperty("User-Agent", "Mozilla/5.0 (X11; CrOS x86_64 10066.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36");
+            BufferedImage bufferedImage = ImageIO.read(urlConn.getInputStream());
+            BufferedImage cropedImage = bufferedImage.getSubimage(20, 0, 527, 813);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(cropedImage, "jpg", baos);
+            byte[] bytes = baos.toByteArray();
+            String bytesBase64 = Base64.encodeBase64String(bytes);
+            byte[] bytesFromDecode = Base64.decodeBase64(bytesBase64);
+            InputStream is = new ByteArrayInputStream(bytesFromDecode);
+            BufferedImage bi = ImageIO.read(is);
+            ImageIO.write(bi, "png", new File("C:\\Users\\adica\\Downloads\\google-decode.png"));
+        }catch (IOException e){
+            System.out.println(e);
+        }
+
         try {
             String thumbImage = driver.findElement(By.xpath("//a[@data-index='2']")).findElement(By.xpath(".//img")).getAttribute("src");
             links.add(thumbImage);
