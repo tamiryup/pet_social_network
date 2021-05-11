@@ -864,28 +864,14 @@ public class ScrapingService {
         Map<String, ProductType> dict;
         Document document = Jsoup.parse(driver.getPageSource());
         String productID="";
-//        try{
-//            document.select("html#ItxProductPage").first().text();
-//        }catch (NullPointerException e){
-//
-//            throw new BadLinkException("This isn't a product page");
-//        }
         int endIndex = productPageLink.indexOf(".html");
-
-        for (int i=endIndex;i>0;i--){
-            if (productPageLink.charAt(i)=='-'){
-                endIndex = i;
-                break;
-            }
-        }
         int beginIndex=0;
         for (int i=endIndex;i>0;i--){
-            if (productPageLink.charAt(i)=='p'){
+            if (productPageLink.charAt(i)=='-'){
                 beginIndex = i;
                 break;
             }
         }
-
         if (beginIndex > 0){
             productID = productPageLink.substring(beginIndex+1,endIndex);
         }
