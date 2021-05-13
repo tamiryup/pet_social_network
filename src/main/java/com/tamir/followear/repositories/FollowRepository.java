@@ -2,6 +2,7 @@ package com.tamir.followear.repositories;
 
 import com.tamir.followear.entities.Follow;
 import com.tamir.followear.jpaKeys.FollowKey;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -49,4 +50,11 @@ public interface FollowRepository extends CrudRepository<Follow, FollowKey> {
             "LIMIT :limit",
     nativeQuery = true)
     List<Object[]> getRelevantSuggestionsForUser(@Param("userId") long userId, @Param("limit") int limit);
+
+    @Transactional
+    @Modifying
+    @Query(value =
+            "DELETE FROM follows WHERE master_id = :userId OR slave_id = :userId",
+    nativeQuery = true)
+    void deleteUserFromFollows(@Param("userId") long userId);
 }

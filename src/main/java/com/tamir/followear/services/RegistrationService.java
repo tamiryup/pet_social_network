@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +28,21 @@ public class RegistrationService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
+
+    @Autowired
+    private SaveService saveService;
+
+    @Autowired
+    private FollowService followService;
+
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private UserDeviceService userDeviceService;
 
     @Autowired
     private CsrfService csrfService;
@@ -207,5 +221,28 @@ public class RegistrationService {
         }
 
         return confForgotPasswordRes;
+    }
+
+    /**
+     * remember to delete the 'stream' feed too
+     * @param userId
+     */
+    public void deleteUser(long userId) {
+        User user = userService.findById(userId);
+        if(user == null)
+            throw new InvalidUserException();
+
+        cognitoService.deleteUser(user.getUsername());
+        deleteUserFromDB(user);
+        //delete from stream - follows/following feed + user feed
+    }
+
+    private void deleteUserFromDB(User user) {
+        likeService.deleteAllByUserId(user.getId());
+        saveService.deleteAllByUserId(user.getId());
+        followService.deleteAllByUserId(user.getId());
+        postService.deleteAllByUserId(user.getId());
+        userService.delete(user);
+        userDeviceService.deleteAllByUserId(user.getId());
     }
 }

@@ -80,4 +80,13 @@ public class LikeService {
 
         return resultList;
     }
+
+    /**
+     * delete all records by userId
+     *
+     * @param userId - The id of the liking user
+     */
+    public void deleteAllByUserId(long userId) {
+        likeRepo.deleteByUserId(userId);
+    }
 }

@@ -66,4 +66,13 @@ public class SaveService {
         streamService.unsaveItem(userId, postId);
         saveRepo.deleteById(new SaveKey(userId, postId));
     }
+
+    /**
+     * delete all records by userId
+     *
+     * @param userId - The id of the saving user
+     */
+    public void deleteAllByUserId(long userId) {
+        saveRepo.deleteByUserId(userId);
+    }
 }

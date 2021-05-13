@@ -15,6 +15,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     long countByUserId(long id);
 
+    long deleteByUserId(long userId);
+
     @Transactional
     @Query(value =
             "SELECT * FROM posts p WHERE p.user_id = :userId and p.id != :excludeId " +

@@ -18,4 +18,6 @@ public interface LikeRepository extends CrudRepository<Like, LikeKey> {
     nativeQuery = true)
     List<Like> findByPostIdWithLimit(@Param("postId") long postId, @Param("limit") int limit);
 
+    long deleteByUserId(long userId);
+
 }

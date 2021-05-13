@@ -357,4 +357,13 @@ public class PostService {
         s3Service.deleteByKey(prevSelfThumb);
     }
 
+    /**
+     * delete all records by userId
+     *
+     * @param userId - The id of the uploading user
+     */
+    public void deleteAllByUserId(long userId) {
+        postRepo.deleteByUserId(userId);
+    }
+
 }

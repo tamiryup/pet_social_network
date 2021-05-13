@@ -137,4 +137,14 @@ public class FollowService {
                 .collect(Collectors.toList());
         return followingIds;
     }
+
+    /**
+     * delete all records by userId
+     * every row with an occurrence of 'userId', both in master and slave column, will be removed
+     *
+     * @param userId - The id of the user to be removed
+     */
+    public void deleteAllByUserId(long userId) {
+        followRepo.deleteUserFromFollows(userId);
+    }
 }

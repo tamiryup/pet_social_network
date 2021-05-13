@@ -70,4 +70,13 @@ public class UserDeviceService {
 
         return registrationTokens;
     }
+
+    /**
+     * delete all records by userId
+     *
+     * @param userId - The id of the user
+     */
+    public void deleteAllByUserId(long userId) {
+        userDeviceRepo.deleteByUserId(userId);
+    }
 }

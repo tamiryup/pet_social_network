@@ -10,4 +10,6 @@ public interface UserDeviceRepository extends CrudRepository<UserDevice, UserDev
 
     List<UserDevice> findByUserId(long userId);
 
+    long deleteByUserId(long userId);
+
 }
