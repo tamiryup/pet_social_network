@@ -111,8 +111,12 @@ public class ScrapingService {
 
         URI uri = new URI(productPageLink);
         String domain = uri.getHost();
+
         if (domain.startsWith("m.")) {
             return productPageLink.replaceFirst("m.", "www.");
+        }
+        if(domain.startsWith("www2.")) {
+            return productPageLink.replaceFirst("www2.", "www.");
         }
         return productPageLink;
     }
@@ -127,7 +131,7 @@ public class ScrapingService {
         if (domain.startsWith("il.")) {
             return domain.substring(3);
         }
-        if(domain.equals("api-shein.shein.com")){
+        if(domain.equals("api-shein.shein.com")) {
             return "shein.com";
         }
         else {
