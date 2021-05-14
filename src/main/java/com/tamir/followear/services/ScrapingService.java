@@ -118,6 +118,9 @@ public class ScrapingService {
         if(domain.startsWith("www2.")) {
             return productPageLink.replaceFirst("www2.", "www.");
         }
+        if(domain.startsWith("new.terminalx")) {
+            return correctTerminalLink(productPageLink);
+        }
         return productPageLink;
     }
 
@@ -748,6 +751,14 @@ public class ScrapingService {
         return new UploadItemDTO(correctImageAddr, productPageLink, description,
                 price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
     }
+
+    private String correctTerminalLink(String productPageLink) {
+        int lastIndex = productPageLink.lastIndexOf('/');
+        String productCode = productPageLink.substring(lastIndex);
+        String correctLink = "https://terminalx.com"+productCode;
+        return  correctLink;
+    }
+
 
 
     private String correctZaraLink(String productPageLink) {
