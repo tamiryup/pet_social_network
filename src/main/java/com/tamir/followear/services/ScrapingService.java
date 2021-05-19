@@ -499,7 +499,7 @@ public class ScrapingService {
             String largeImageStringCode = "";
             Currency currency = Currency.ILS;
             Document document = Jsoup.parse(driver.getPageSource());
-            String description = driver.findElement(By.xpath("//span[@itemprop='name']")).getText();
+            String description = document.select("span[data-ui-id='page-title-wrapper']").first().text();
             String productPageType = document.select(".product-item-brand").first().attr(
                     "data-div-top");
             if (("גברים".equals(productPageType)) || ("נשים".equals(productPageType))) {
@@ -537,20 +537,6 @@ public class ScrapingService {
                 }
             }
 
-
-//            try {
-//                visibleThumbnails = new WebDriverWait(driver, 10)
-//                        .until(driverx -> Jsoup.parse(driverx.getPageSource()).select("div.fotorama__stage__shaft img").attr("src"));
-//                System.out.println(visibleThumbnails);
-//            }catch (TimeoutException e){
-//                System.out.println(e);
-//            }
-
-//            try {
-//                links.add(document.select("div.fotorama__stage__frame.fotorama_vertical_ratio.fotorama__loaded.fotorama__loaded--img img").eachAttr("src").get(2));
-//            }catch (IndexOutOfBoundsException e){
-//
-//            }
             Map<String, ProductType> dict = classificationService.getHebrewDict();
             ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
             category = itemTags.getCategory();
@@ -631,52 +617,41 @@ public class ScrapingService {
         String imageAddr="";
         String firstThumbnailImage="";
         List<String> links = new ArrayList<>(1);
-        try {
-            productID = driver.findElement(By.xpath("//meta[@itemprop='productID']")).getAttribute("content");
-        }catch (NoSuchElementException e) {
-           int productIdEndIndex = productPageLink.indexOf(".aspx");
-            if (productIdEndIndex != -1) {
-                int productIdBeginIndex = productIdEndIndex - 8;
-                productID = productPageLink.substring(productIdBeginIndex,productIdEndIndex);
-            }
-       }
+        productID = document.select("div[data-productid]").first().attr("data-productid");
         if (productID.length()<1) {
             throw new BadLinkException("This isn't a product page");
         }
-        List<WebElement> breadCrumbsElem = driver.findElements(By.xpath("//li[@itemprop='itemListElement']"));
-        //System.out.println(driver.findElements(By.xpath("//ol[@data-tstid='breadcrumb']")));
 
-        for (WebElement breadCrumb : breadCrumbsElem) {
-            if (breadCrumb.getText().equals("Homeware")) {
+        List<String> breadCrumbsElem = document.select("li[itemprop='itemListElement']").eachText();
+        for (String breadCrumb : breadCrumbsElem) {
+            if (breadCrumb.equals("Homeware")) {
                 throw new NonFashionItemException();
             }
         }
-        String description = driver.findElement(By.xpath("//meta[@itemprop='name']")).getAttribute("content");
-        String designer = driver.findElement(By.xpath("//a[@data-tstid='cardInfo-title']")).getAttribute("aria-label");
+
+        String description = document.select("div[data-productid]").select("[itemprop='name']").attr("content");
+        String designer = document.select("a[data-tstid='cardInfo-title']").first().text();
         Currency currency = Currency.USD;
+        String stringCurrency = document.select("meta[itemprop='priceCurrency']").first().attr("content");
+        ItemPriceCurr itemPriceCurr = priceTag(stringCurrency);
+        currency = itemPriceCurr.currency;
         try {
-            salePrice = driver.findElement(By.xpath("//strong[@data-tstid='priceInfo-onsale']")).getText();
-            salePrice = salePrice.replaceAll("[^0-9\\,\\.]", "");
-            price = driver.findElement(By.xpath("//span[@data-tstid='priceInfo-original']")).getText();
-            ItemPriceCurr itemPriceCurr = priceTag(price);
-            price = itemPriceCurr.price;
-            //salePrice = driver.findElement(By.xpath("//meta[@itemprop='price']")).getAttribute("content");
-            String stringCurrency = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']")).getAttribute("content");
-            ItemPriceCurr itemPriceCurrSale = priceTag(stringCurrency);
-            currency = itemPriceCurrSale.currency;
+            salePrice = document.select("strong[data-tstid='priceInfo-onsale']").text();
+            price = document.select("span[data-tstid='priceInfo-original']").text();
         } catch (NoSuchElementException e) {
-            price = driver.findElement(By.xpath("//meta[@itemprop='price']")).getAttribute("content");
-            String stringCurrency = driver.findElement(By.xpath("//meta[@itemprop='priceCurrency']")).getAttribute("content");
-            ItemPriceCurr itemPriceCurr = priceTag(stringCurrency);
-            currency = itemPriceCurr.currency;
+            price = document.select("span[data-tstid='priceInfo-original']").text();
         }
-        try {
-            imageAddr = driver.findElement(By.xpath("//img[@data-index='0'][@data-tstid='slick-active']")).getAttribute("src");
-            firstThumbnailImage = driver.findElement(By.xpath("//img[@data-index='1']")).getAttribute("src");
-        }catch (NoSuchElementException e){
-            imageAddr = driver.findElement(By.xpath("//img[@data-test='imagery-img0']")).getAttribute("src");
-            firstThumbnailImage = driver.findElement(By.xpath("//img[@data-test='imagery-img1']")).getAttribute("src");
-        }
+        price = price.replaceAll("[^0-9\\,\\.]", "");
+        salePrice = salePrice.replaceAll("[^0-9\\,\\.]", "");
+      //  try {
+            //imageAddr = driver.findElement(By.xpath("//img[@data-index='0'][@data-tstid='slick-active']")).getAttribute("src");
+            //imageAddr = document.select("img[data-index='0'][@data-tstid='slick-active']").attr("src");
+            //firstThumbnailImage = driver.findElement(By.xpath("//img[@data-index='1']")).getAttribute("src");
+           // firstThumbnailImage = document.select("img[@data-index='1']").attr("src");
+        //}catch (NoSuchElementException e){
+            imageAddr = document.select("img[data-test='imagery-img0']").first().attr("src");
+            firstThumbnailImage = document.select("img[data-test='imagery-img1']").attr("src");
+        //}
         links.add(firstThumbnailImage);
         String imgExtension = "jpg";
         Map<String, ProductType> dict = classificationService.getEnglishDict();
