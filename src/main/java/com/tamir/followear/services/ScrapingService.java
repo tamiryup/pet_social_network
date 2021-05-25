@@ -974,7 +974,7 @@ public class ScrapingService {
         //System.out.println(driver.findElements(By.xpath("//ol[@data-tstid='breadcrumb']")));
 
         for (WebElement breadCrumb : breadCrumbsElem) {
-            if (breadCrumb.getText().equals("Trend: Self-Care Essentials") || breadCrumb.getText().equals("Home & Gifts")) {
+            if (breadCrumb.getText().equals("Trend: Self-Care Essentials") || breadCrumb.getText().equals("Home & Gifts") || breadCrumb.getText().equals("Missoni Home Jewelry & Accessories")) {
                 throw new NonFashionItemException();
             }
         }
