@@ -152,8 +152,8 @@ public class ScrapingService {
         }
         try {
             driver = getDriver();
-            storeId = getStoreID(website);
-
+            //storeId = getStoreID(website);
+            storeId = 8;
             switch (website) {
 
                 case "asos.com":
@@ -1454,7 +1454,8 @@ public class ScrapingService {
 
 
         Document document = Jsoup.parse(driver.getPageSource());
-        if (document.text().contains("Beauty:Skin") || document.text().contains("Beauty:Body") || document.text().contains("Accessories:Mats") || document.text().contains("Equipment:Strap") || document.text().contains("Accessories:Equipment")){
+        String stringDocument = document.toString();
+        if (stringDocument.contains("Beauty:Skin") || stringDocument.contains("Beauty:Body") || stringDocument.contains("Accessories:Mats") || stringDocument.contains("Equipment:Strap") || stringDocument.contains("Accessories:Equipment")){
             throw new NonFashionItemException();
         }
 
