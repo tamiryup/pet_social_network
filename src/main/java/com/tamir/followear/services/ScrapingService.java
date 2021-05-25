@@ -152,8 +152,8 @@ public class ScrapingService {
         }
         try {
             driver = getDriver();
-            //storeId = getStoreID(website);
-            storeId = 8;
+            storeId = getStoreID(website);
+
             switch (website) {
 
                 case "asos.com":
