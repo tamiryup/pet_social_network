@@ -1106,7 +1106,7 @@ public class ScrapingService {
         imageAddr = imagesPrefix + imageAddr;
         String imageThumbnail = document.select("div#imgCarousel-1 img").attr("src");;
         imageThumbnail = imagesPrefix + imageThumbnail;
-        imageThumbnail = imageThumbnail.replaceAll("\\s+","%20");
+        //imageThumbnail = imageThumbnail.replaceAll("\\s+","%20");
         String imgExtension = "jpg";
         links.add(imageThumbnail);
 
