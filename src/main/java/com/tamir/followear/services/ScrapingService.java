@@ -1082,40 +1082,31 @@ public class ScrapingService {
             throw new NonFashionItemException();
         }
         Document document = Jsoup.parse(driver.getPageSource());
-        List<String> breadCrumbsElem = document.select("div.links.clearfix ul li a").eachText();
-        for (String element : breadCrumbsElem) {
-            if (element.contains("נרות") || element.contains("בישום") || element.contains("איפור") || element.contains("ספרים")) {
-                throw new NonFashionItemException();
-            }
+        String productID = document.select("span.product-id").first().text();
+        String designer = document.select("h1.product-name.name-product__brand a").text();
+        if (designer.equals("BYREDO") || designer.equals("COQUI COQUI") || designer.equals("BAOBAB") || designer.equals("ASSOULINE") || designer.equals("TOM DIXON")){
+            throw new NonFashionItemException();
         }
-        String productID = driver.findElement(By.xpath("//input[@id='product-id']"))
-                .getAttribute("value");
-        String designer = document.select("h1#manufacturer_header a").attr("title");
-        String description = document.select("p.product_note").first().text();
+        String description = document.select("h2.product-name.name-product__product").first().text();
         String salePrice = "";
         String price = "";
         Currency currency = Currency.USD;
 
         try {
-            price = document.select("p.old-price span.price").first().text();
-            ItemPriceCurr itemPriceCurr = priceTag(price);
-            price = itemPriceCurr.price;
-            salePrice = document.select("span.final-price").first().text();
-            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
-            currency = itemPriceCurrSale.currency;
-            salePrice = itemPriceCurrSale.price;
+            price = document.select(".price span.value").attr("content");
+            //salePrice = document.select(".price span.value").attr("content");
         } catch (NullPointerException e) {
-            price = document.select("span.price").first().text();
-            ItemPriceCurr itemPriceCurr = priceTag(price);
-            currency = itemPriceCurr.currency;
-            price = itemPriceCurr.price;
+            price = document.select(".price span.value").attr("content");
+
         }
-
-
+        currency = Currency.ILS;
         List<String> links = new ArrayList<>();
-        String imageAddr = document.select("img#image-main.main_img").attr("src");
-        String imageThumbnail = driver.findElement(By.xpath("//a[@data-image-index='2']"))
-                .getAttribute("data-zoom-image");
+        String imagesPrefix = "https://www.factory54.co.il/dw/image/v2/BFLR_PRD";
+        String imageAddr = document.select("div#imgCarousel-0 img").attr("src");
+        imageAddr = imagesPrefix + imageAddr;
+        String imageThumbnail = document.select("div#imgCarousel-1 img").attr("src");;
+        imageThumbnail = imagesPrefix + imageThumbnail;
+        imageThumbnail = imageThumbnail.replaceAll("\\s+","%20");
         String imgExtension = "jpg";
         links.add(imageThumbnail);
 
