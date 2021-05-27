@@ -1460,7 +1460,7 @@ public class ScrapingService {
         }
 
         String description = document.select("h1.h3.h3--uppercase.d-none.d-md-block").first().text();
-        productID = description;
+        productID = description.replaceAll("\\s","");
         String imgExtension = "jpg";
 
 
@@ -1481,7 +1481,9 @@ public class ScrapingService {
 
 
         String imageAddr = document.select("img#Image-0").attr("src");
+        imageAddr = "https:" + imageAddr;
         String thumbnail = document.select("img#Image-1").attr("src");
+        thumbnail = "https:" + thumbnail;
         links.add(thumbnail);
 
         Map<String, ProductType> dict = classificationService.getEnglishDict();
