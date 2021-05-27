@@ -1481,9 +1481,13 @@ public class ScrapingService {
 
 
         String imageAddr = document.select("img#Image-0").attr("src");
-        imageAddr = "https:" + imageAddr;
+        if (!imageAddr.contains("https:")){
+            imageAddr = "https:" + imageAddr;
+        }
         String thumbnail = document.select("img#Image-1").attr("src");
-        thumbnail = "https:" + thumbnail;
+        if (!thumbnail.contains("https:")){
+            thumbnail = "https:" + imageAddr;
+        }
         links.add(thumbnail);
 
         Map<String, ProductType> dict = classificationService.getEnglishDict();
