@@ -13,6 +13,7 @@ import com.tamir.followear.exceptions.NonFashionItemException;
 import com.tamir.followear.exceptions.ScrapingError;
 import com.tamir.followear.helpers.StringHelper;
 import lombok.ToString;
+import org.apache.commons.lang3.ObjectUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -698,8 +699,7 @@ public class ScrapingService {
         Document document = Jsoup.parse(driver.getPageSource());
         List<String> breadCrumbsElem = document.select("div.bread-crumb__inner div a").eachText();
         for (String i : breadCrumbsElem) {
-            System.out.println(i);
-            if (i.contains("Event & Party Supplies") || i.contains("ביוטי") || i.contains("Beauty") || i.contains("טיפוח אישי") || (i.contains("בית & חיות מחמד") || (i.contains("בית & מגורים") || (i.contains("Home Decor"))))) {
+            if (i.contains("Event & Party Supplies") || i.contains("ביוטי") || i.contains("Beauty") || i.contains("טיפוח אישי") || (i.contains("בית & חיות מחמד") || (i.contains("בית & מגורים") || i.contains("Home & Living") || i.contains("Storage & Organization") || (i.contains("Home Decor"))))) {
                 throw new NonFashionItemException();
             }
         }
@@ -707,6 +707,7 @@ public class ScrapingService {
         String description = descriptionDiv.text();
         String designer = null;
         String salePrice = "";
+        String imageAddr="";
         Currency currency = Currency.USD;
         try {
             price = document.select("div.product-intro__head-price del.del-price").first().text();
@@ -722,9 +723,20 @@ public class ScrapingService {
             currency = itemPriceCurr.currency;
             price = itemPriceCurr.price;
         }
+        try {
+            Element imageDiv = document.select("div.swiper-slide.product-intro__main-item.cursor-zoom-in.swiper-slide-active").first().attr("data-swiper-slide-index", "0");
+            imageAddr = imageDiv.select("img.j-verlok-lazy.loaded").attr("src");
+        }catch (NullPointerException e){
+            List<String> images = document.select("img.j-verlok-lazy.loaded").eachAttr("src");
+            imageAddr = images.get(0);
+            if (images.size() > 1){
+                String thumb = images.get(1);
+                thumb = "http:" + thumb;
+                thumb = thumb.replace(".webp",".jpg");
+                links.add(thumb);
+            }
 
-        Element imageDiv = document.select("div.swiper-slide.product-intro__main-item.cursor-zoom-in.swiper-slide-active").first().attr("data-swiper-slide-index", "0");
-        String imageAddr = imageDiv.select("img.j-verlok-lazy.loaded").attr("src");
+        }
         imageAddr = "https:" + imageAddr;
         String correctImageAddr = imageAddr.replace(".webp", ".jpg");
         String imgExtension = "jpg";
