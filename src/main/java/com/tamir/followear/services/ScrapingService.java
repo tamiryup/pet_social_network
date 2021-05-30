@@ -211,6 +211,9 @@ public class ScrapingService {
                 case "coconutlove.co":
                     itemDTO = coconutloveDTO(productPageLink, storeId, driver);
                     break;
+                case "aloyoga.com":
+                    itemDTO = aloyogaDTO(productPageLink, storeId, driver);
+                    break;
                 default:
                     throw new BadLinkException("This website is not supported");
             }
@@ -1441,6 +1444,65 @@ public class ScrapingService {
                 price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
 
     }
+
+    private UploadItemDTO aloyogaDTO(String productPageLink, long storeId, WebDriver driver) {
+        String productID = "";
+        Category category;
+        ProductType productType;
+        List<String> links = new ArrayList<>();
+        String salePrice = "";
+        String price="";
+        String designer = null;
+        driver.get(productPageLink);
+
+
+        Document document = Jsoup.parse(driver.getPageSource());
+        String stringDocument = document.toString();
+        if (stringDocument.contains("Beauty:Skin") || stringDocument.contains("Beauty:Body") || stringDocument.contains("Accessories:Mats") || stringDocument.contains("Equipment:Strap") || stringDocument.contains("Accessories:Equipment")){
+            throw new NonFashionItemException();
+        }
+
+        String description = document.select("h1.h3.h3--uppercase.d-none.d-md-block").first().text();
+        productID = description.replaceAll("\\s","");
+        String imgExtension = "jpg";
+
+
+        try {
+            price = document.select(".Price span.product__price.product__price--sale.h6.h6--uppercase.d-none.d-md-inline-block").first().text();
+            salePrice = document.select(".Price span.product__price.sale__price.h6.h6--uppercase.d-none.d-md-inline-block").first().text();
+            ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
+            salePrice = itemPriceCurrSale.price;
+        } catch (NullPointerException e) {
+            price = document.select(".Price span.product__price.h6.h6--uppercase.d-none.d-md-inline-block").first().text();
+
+        }
+
+        price = price.replace("*","");
+        ItemPriceCurr itemPriceCurr = priceTag(price);
+        price = itemPriceCurr.price;
+        Currency currency = itemPriceCurr.currency;
+
+
+        String imageAddr = document.select("img#Image-0").attr("src");
+        if (!imageAddr.contains("https:")){
+            imageAddr = "https:" + imageAddr;
+        }
+        String thumbnail = document.select("img#Image-1").attr("src");
+        if (!thumbnail.contains("https:")){
+            thumbnail = "https:" + imageAddr;
+        }
+        links.add(thumbnail);
+
+        Map<String, ProductType> dict = classificationService.getEnglishDict();
+        ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
+        category = itemTags.getCategory();
+        productType = itemTags.getProductType();
+
+        return new UploadItemDTO(imageAddr, productPageLink, description,
+                price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
+
+    }
+
 
 
 
