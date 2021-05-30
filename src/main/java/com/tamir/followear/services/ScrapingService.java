@@ -208,9 +208,9 @@ public class ScrapingService {
                 case "coconutlove.co":
                     itemDTO = coconutloveDTO(productPageLink, storeId, driver);
                     break;
-                case "aloyoga.com":
-                    itemDTO = aloyogaDTO(productPageLink, storeId, driver);
-                    break;
+//                case "aloyoga.com":
+//                    itemDTO = aloyogaDTO(productPageLink, storeId, driver);
+//                    break;
                 default:
                     throw new BadLinkException("This website is not supported");
             }
