@@ -3,27 +3,26 @@ package com.tamir.followear.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.Category;
+import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.exceptions.BadLinkException;
 import com.tamir.followear.exceptions.NonFashionItemException;
 import com.tamir.followear.exceptions.ScrapingError;
 import com.tamir.followear.helpers.StringHelper;
 import lombok.ToString;
-import org.apache.commons.lang3.ObjectUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +35,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.*;
-
-import com.tamir.followear.enums.Currency;
 
 @Service
 public class ScrapingService {
