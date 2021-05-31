@@ -81,13 +81,13 @@ public class ScrapingService {
 
         String proxyUrl = "http://il.smartproxy.com:30001";
 
-        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
-                "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
-                "--enable-logging", "--log-level=0", "--v=99", "--single-process",
-                "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
-                "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
-                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
-                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
+//        options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
+//                "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
+//                "--enable-logging", "--log-level=0", "--v=99", "--single-process",
+//                "--data-path=/tmp/data-path", "--ignore-certificate-errors", "--homedir=/tmp",
+//                "--disk-cache-dir=/tmp/cache-dir", "--proxy-server=" + proxyUrl,
+//                "user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" +
+//                        " (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36");
 
         WebDriver driver = new ChromeDriver(options);
         return driver;
@@ -286,6 +286,9 @@ public class ScrapingService {
 
         Elements descriptionDiv = document.select("div.product-hero");
         String description = descriptionDiv.select("h1").text();
+        if (description.contains("The Ordinary")){
+            throw new NonFashionItemException();
+        }
         String price = "";
         String salePrice = "";
         Currency currency = Currency.GBP;

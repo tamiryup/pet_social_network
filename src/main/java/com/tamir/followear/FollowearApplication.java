@@ -38,6 +38,8 @@ public class FollowearApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 	    logger.info("start execution");
+	    UploadItemDTO res = this.scrapingService.extractItem("https://www.asos.com/the-ordinary/the-ordinary-aha-30-bha-2-peeling-solution/prd/8206142?colourwayid=15146501&cid=25860");
+	    System.out.println(res);
 	}
 
 	private void fillUpDatabase() throws Exception {
