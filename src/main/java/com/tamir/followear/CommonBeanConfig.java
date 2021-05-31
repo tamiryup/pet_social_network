@@ -38,9 +38,6 @@ public class CommonBeanConfig {
     @Getter
     private final static int readFollowersRequestLimit = 15;
 
-    @Getter
-    private final static String terminaLinkSuffix = "?utm_source=IG&utm_medium=Followear%20platform&utm_campaign=amitca";
-
     @Autowired
     @Qualifier("filterAuthService")
     private AuthService filterAuthService;

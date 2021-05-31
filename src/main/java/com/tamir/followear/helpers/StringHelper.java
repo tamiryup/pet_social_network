@@ -1,5 +1,9 @@
 package com.tamir.followear.helpers;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -47,6 +51,10 @@ public class StringHelper {
             }
         }
         return sb.toString();
+    }
+
+    public static String encodeUrl(String url) throws IOException {
+        return URLEncoder.encode(url, StandardCharsets.UTF_8.toString());
     }
 
 }

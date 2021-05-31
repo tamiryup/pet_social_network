@@ -1,0 +1,74 @@
+package com.tamir.followear.services;
+
+import com.tamir.followear.helpers.StringHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+
+@Service
+public class AffiliationService {
+
+    @Value("${fw.skimlinks.id}")
+    private String skimlinksId;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AffiliationService.class);
+
+    public String getAffiliatedLink(String link, long userId, long storeId) {
+
+        if(storeId == 7) { //terminalX
+            return encodeTerminal(link, userId);
+        }
+
+        if(storeId == 17) { //renuar
+            return encodeRenuar(link, userId);
+        }
+        if(storeId == 18) { //TFS
+            return encodeTFS(link, userId);
+        }
+
+        return encodeSkimlinks(link, userId);
+
+    }
+
+    private String encodeTerminal(String link, long userId) {
+        String terminalSuffix = "?utm_source=IG&utm_medium=Followear%20platform&utm_campaign=amitca";
+        return link + terminalSuffix;
+    }
+
+    private String encodeRenuar(String link, long userId) {
+        String renuarSuffix = "?utm_source=FW&utm_medium=Followear_Platform&utm_campaign=adizep";
+        return link + renuarSuffix;
+    }
+
+    private String encodeTFS(String link, long userId) {
+        String tfsSuffix = "?utm_source=FW&utm_medium=Followear_Platform&utm_campaign=adizep";
+        return link + tfsSuffix;
+    }
+
+    public String encodeSkimlinks(String link, long userId) {
+        String encodedUrl;
+
+        try {
+            encodedUrl = StringHelper.encodeUrl(link);
+        } catch (IOException e) {
+            LOGGER.error("Failed to encode link. link: {}", link);
+            return link;
+        }
+
+        String prefix = "https://go.skimresources.com/?";
+        StringBuilder linkBuildr = new StringBuilder();
+
+        linkBuildr.append(prefix)
+                .append("id=")
+                .append(skimlinksId)
+                .append("&url=")
+                .append(encodedUrl)
+                .append("&xcust=")
+                .append(userId);
+
+        return linkBuildr.toString();
+    }
+}

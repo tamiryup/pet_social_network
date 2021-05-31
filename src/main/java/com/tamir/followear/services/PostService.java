@@ -58,6 +58,9 @@ public class PostService {
     private ScrapingService scrapingService;
 
     @Autowired
+    private AffiliationService affilationService;
+
+    @Autowired
     private CurrencyConverterService currConverterService;
 
     public Post create(Post post) {
@@ -205,12 +208,9 @@ public class PostService {
         Post post = findById(postId);
         User user = userService.findById(post.getUserId());
         Store store = storeService.findById(post.getStoreId());
-        String link = post.getLink();
 
-        // if store is terminalX
-        if(store.getId() == 7) {
-            link = post.getLink() + CommonBeanConfig.getTerminaLinkSuffix();
-        }
+        //send back affiliated link
+        String link = affilationService.getAffiliatedLink(post.getLink(), user.getId(), store.getId());
 
         PostInfoDTO postInfo = new PostInfoDTO(post.getId(), post.getUserId(), post.getStoreId(),
                 user.getProfileImageAddr(), user.getUsername(), post.getImageAddr(), post.getDescription(),
