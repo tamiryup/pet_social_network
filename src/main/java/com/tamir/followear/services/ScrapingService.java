@@ -220,7 +220,7 @@ public class ScrapingService {
         } catch (NonFashionItemException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("ScrapingError: ", e);
             throw new ScrapingError(e.toString());
         } finally {
             if (driver != null) {
