@@ -12,6 +12,7 @@ import com.tamir.followear.exceptions.BadLinkException;
 import com.tamir.followear.exceptions.NonFashionItemException;
 import com.tamir.followear.exceptions.ScrapingError;
 import com.tamir.followear.helpers.StringHelper;
+import jdk.internal.cmm.SystemResourcePressureImpl;
 import lombok.ToString;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -208,9 +209,9 @@ public class ScrapingService {
                 case "coconutlove.co":
                     itemDTO = coconutloveDTO(productPageLink, storeId, driver);
                     break;
-//                case "aloyoga.com":
-//                    itemDTO = aloyogaDTO(productPageLink, storeId, driver);
-//                    break;
+                case "aloyoga.com":
+                    itemDTO = aloyogaDTO(productPageLink, storeId, driver);
+                    break;
                 default:
                     throw new BadLinkException("This website is not supported");
             }
@@ -1459,8 +1460,19 @@ public class ScrapingService {
             throw new NonFashionItemException();
         }
 
-        String description = document.select("h1.h3.h3--uppercase.d-none.d-md-block").first().text();
-        productID = description.replaceAll("\\s","");
+
+        String description = document.select("meta[property='og:title']").attr("content");
+        int beginIndex = productPageLink.indexOf("products");
+        int endIndex = 0;
+        for (int i = beginIndex + 9;i < productPageLink.length(); i++){
+            if (productPageLink.charAt(i) == '-'){
+                endIndex = i;
+                break;
+            }
+        }
+        if (endIndex > 0){
+            productID = productPageLink.substring(beginIndex+9,endIndex);
+        }
         String imgExtension = "jpg";
 
 
