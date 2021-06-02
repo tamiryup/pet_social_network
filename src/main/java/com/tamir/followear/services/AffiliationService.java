@@ -34,17 +34,17 @@ public class AffiliationService {
     }
 
     private String encodeTerminal(String link, long userId) {
-        String terminalSuffix = "?utm_source=IG&utm_medium=Followear%20platform&utm_campaign=amitca";
+        String terminalSuffix = "?utm_source=IG&utm_medium=Followear%20platform&utm_campaign=" + userId;
         return link + terminalSuffix;
     }
 
     private String encodeRenuar(String link, long userId) {
-        String renuarSuffix = "?utm_source=FW&utm_medium=Followear_Platform&utm_campaign=adizep";
+        String renuarSuffix = "?utm_source=FW&utm_medium=Followear_Platform&utm_campaign=" + userId;
         return link + renuarSuffix;
     }
 
     private String encodeTFS(String link, long userId) {
-        String tfsSuffix = "?utm_source=FW&utm_medium=Followear_Platform&utm_campaign=adizep";
+        String tfsSuffix = "?utm_source=FW&utm_medium=Followear_Platform&utm_campaign=" + userId;
         return link + tfsSuffix;
     }
 
