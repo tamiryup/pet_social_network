@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class AffiliationService {
@@ -15,6 +17,9 @@ public class AffiliationService {
     private String skimlinksId;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AffiliationService.class);
+
+    // Asos, Farfetch, Shopbop, Revolve
+    private static List<Integer> skimlinksStores = Arrays.asList(1, 3, 6, 9);
 
     public String getAffiliatedLink(String link, long userId, long storeId) {
 
@@ -29,8 +34,11 @@ public class AffiliationService {
             return encodeTFS(link, userId);
         }
 
-        return encodeSkimlinks(link, userId);
+        if(skimlinksStores.contains(storeId)) {
+            return encodeSkimlinks(link, userId);
+        }
 
+        return link;
     }
 
     private String encodeTerminal(String link, long userId) {
