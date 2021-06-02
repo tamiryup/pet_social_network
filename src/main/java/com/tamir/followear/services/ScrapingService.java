@@ -768,6 +768,12 @@ public class ScrapingService {
                 throw new NonFashionItemException();
             }
         }
+        List<String> productInfo = document.select(".product-size-info span").eachText();
+        for (String info : productInfo) {
+            if ((info.contains("26/27")) || (info.contains("6 years")) || (info.contains("6-7 years")) || (info.contains("1-3 years")) || (info.contains("9-12 months"))){
+                throw new NonFashionItemException();
+            }
+        }
         //System.out.println(breadCrumbsElem);
         String description = document.select(" h1.product-detail-info__name").first().text();
         description = description.replace("פרטי", "");
