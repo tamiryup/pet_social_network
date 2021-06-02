@@ -18,8 +18,8 @@ public class AffiliationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AffiliationService.class);
 
-    // Asos, Farfetch, Shopbop, Revolve
-    private static List<Integer> skimlinksStores = Arrays.asList(1, 3, 6, 9);
+    // Asos, Farfetch, Shopbop, Revolve, Outnet
+    private static List<Integer> skimlinksStores = Arrays.asList(1, 3, 6, 9, 13);
 
     public String getAffiliatedLink(String link, long userId, long storeId) {
 
