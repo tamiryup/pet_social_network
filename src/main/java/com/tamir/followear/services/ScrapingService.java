@@ -493,12 +493,20 @@ public class ScrapingService {
         return ImageCodeEndIndex;
     }
 
+    private String correctTerminalLink(String productPageLink) {
+        int index = productPageLink.lastIndexOf("/x");
+        String linkPrefix = "https://www.terminalx.com";
+        String result = linkPrefix + productPageLink.substring(index);
+        return result;
+    }
+
 
 
     private UploadItemDTO terminalxDTO(String productPageLink, long storeId, WebDriver driver) {
             Category category;
             ProductType productType;
-            driver.get(productPageLink);
+            String correctLink = correctTerminalLink((productPageLink));
+            driver.get(correctLink);
             String price = "";
             String salePrice = "";
             String imgExtension = "jpg";
