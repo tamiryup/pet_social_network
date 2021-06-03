@@ -1476,12 +1476,11 @@ public class ScrapingService {
 
         try {
             price = document.select(".Price span.product__price.product__price--sale.h6.h6--uppercase.d-none.d-md-inline-block").first().text();
-            salePrice = document.select(".Price span.product__price.sale__price.h6.h6--uppercase.d-none.d-md-inline-block").first().text();
+            salePrice = document.select("span[data-currency='true']").first().text();
             ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
             salePrice = itemPriceCurrSale.price;
         } catch (NullPointerException e) {
-            price = document.select(".Price span.product__price.h6.h6--uppercase.d-none.d-md-inline-block").first().text();
-
+            price = document.select("span[data-currency='true']").first().text();
         }
 
         price = price.replace("*","");
