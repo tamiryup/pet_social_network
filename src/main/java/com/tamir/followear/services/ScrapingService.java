@@ -312,6 +312,8 @@ public class ScrapingService {
             ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
             currency = itemPriceCurrSale.currency;
             salePrice = itemPriceCurrSale.price;
+            int saleDotIndex = salePrice.indexOf('.');
+            salePrice = salePrice.substring(0,saleDotIndex+3);
         } catch (NullPointerException e) {
             price = driver.findElement(By.xpath(
                     "//span[contains(@class,'current-price')]"))
@@ -320,6 +322,9 @@ public class ScrapingService {
             ItemPriceCurr itemPriceCurr = priceTag(price);
             currency = itemPriceCurr.currency;
             price = itemPriceCurr.price;
+            int priceDotIndex = price.indexOf('.');
+            price = price.substring(0,priceDotIndex+3);
+
         }
 
 
