@@ -286,6 +286,9 @@ public class ScrapingService {
 
         Elements descriptionDiv = document.select("div.product-hero");
         String description = descriptionDiv.select("h1").text();
+        if (description.contains("The Ordinary")){
+            throw new NonFashionItemException();
+        }
         String price = "";
         String salePrice = "";
         Currency currency = Currency.GBP;
