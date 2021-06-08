@@ -1,5 +1,6 @@
 package com.tamir.followear.services;
 
+import com.tamir.followear.entities.Post;
 import com.tamir.followear.helpers.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,8 @@ public class AffiliationService {
     // Asos, Farfetch, Shein, Shopbop, Revolve, Outnet, AloYoga
     private static List<Long> skimlinksStores = Arrays.asList(1l, 3l, 5l, 6l, 9l, 13l, 21l);
 
-    public String getAffiliatedLink(String link, long userId, long storeId) {
+    public String getAffiliatedLink(Post post, long userId, long storeId) {
+        String link = post.getLink();
 
         if(storeId == 7) { //terminalX
             return encodeTerminal(link, userId);
@@ -35,7 +37,7 @@ public class AffiliationService {
         }
 
         if(skimlinksStores.contains(storeId)) {
-            return encodeSkimlinks(link, userId);
+            return encodeSkimlinks(link, userId, post.getId());
         }
 
         return link;
@@ -56,11 +58,14 @@ public class AffiliationService {
         return link + tfsSuffix;
     }
 
-    public String encodeSkimlinks(String link, long userId) {
-        String encodedUrl;
+    public String encodeSkimlinks(String link, long userId, long postId) {
+        String encodedUrl, refferingPageEncoded;
+        String refferingPage = "followear.com/product-page/" + postId + "?uid=" + userId +
+                "&source=app";
 
         try {
             encodedUrl = StringHelper.encodeUrl(link);
+            refferingPageEncoded = StringHelper.encodeUrl(refferingPage);
         } catch (IOException e) {
             LOGGER.error("Failed to encode link. link: {}", link);
             return link;
@@ -75,7 +80,9 @@ public class AffiliationService {
                 .append("&url=")
                 .append(encodedUrl)
                 .append("&xcust=")
-                .append(userId);
+                .append(userId)
+                .append("&sref=")
+                .append(refferingPageEncoded);
 
         return linkBuildr.toString();
     }

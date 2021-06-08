@@ -210,7 +210,7 @@ public class PostService {
         Store store = storeService.findById(post.getStoreId());
 
         //send back affiliated link
-        String link = affilationService.getAffiliatedLink(post.getLink(), user.getId(), store.getId());
+        String link = affilationService.getAffiliatedLink(post, user.getId(), store.getId());
 
         PostInfoDTO postInfo = new PostInfoDTO(post.getId(), post.getUserId(), post.getStoreId(),
                 user.getProfileImageAddr(), user.getUsername(), post.getImageAddr(), post.getDescription(),
