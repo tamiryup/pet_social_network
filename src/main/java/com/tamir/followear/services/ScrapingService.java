@@ -287,7 +287,7 @@ public class ScrapingService {
 
         Elements descriptionDiv = document.select("div.product-hero");
         String description = descriptionDiv.select("h1").text();
-        if (description.contains("The Ordinary")){
+        if (description.contains("The Ordinary") || description.contains("Revolution")){
             throw new NonFashionItemException();
         }
         String price = "";
@@ -307,6 +307,9 @@ public class ScrapingService {
 
         try {
             price = document.selectFirst("span.product-prev-price[data-id='previous-price']").text();
+            if (price.length()==0){
+                price = document.selectFirst("span.product-prev-price[data-id='rrp-price']").text();
+            }
             ItemPriceCurr itemPriceCurr = priceTag(price);
             price = itemPriceCurr.price;
             salePrice = document.select("span.current-price.product-price-discounted").first().text();
