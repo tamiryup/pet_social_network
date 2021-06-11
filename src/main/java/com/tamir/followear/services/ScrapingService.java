@@ -499,9 +499,17 @@ public class ScrapingService {
 
     private String correctTerminalLink(String productPageLink) {
         int index = productPageLink.lastIndexOf("/x");
-        String linkPrefix = "https://www.terminalx.com";
-        String result = linkPrefix + productPageLink.substring(index);
-        return result;
+        if (index == -1){
+            index = productPageLink.lastIndexOf("/z");
+        }
+        if (index != -1) {
+            String linkPrefix = "https://www.terminalx.com";
+            String result = linkPrefix + productPageLink.substring(index);
+            return result;
+        }else{
+            return productPageLink;
+        }
+
     }
 
 
