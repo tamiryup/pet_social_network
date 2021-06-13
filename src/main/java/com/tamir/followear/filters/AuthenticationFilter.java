@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 public class AuthenticationFilter implements Filter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CsrfFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);
 
     private AuthService authService;
 
