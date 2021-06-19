@@ -1,7 +1,14 @@
 package com.tamir.followear;
 
-import com.amazonaws.services.s3.transfer.Upload;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.lambda.AWSLambda;
+import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
+import com.amazonaws.services.lambda.model.*;
+import com.tamir.followear.AWS.MyAWSCredentials;
 import com.tamir.followear.AWS.cognito.CognitoService;
+import com.tamir.followear.AWS.lambda.LambdaService;
+import com.tamir.followear.dto.ScrapingEventDTO;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
@@ -15,7 +22,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 
 @SpringBootApplication

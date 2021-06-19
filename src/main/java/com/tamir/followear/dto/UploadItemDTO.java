@@ -1,5 +1,6 @@
 package com.tamir.followear.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
@@ -10,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter @Setter
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UploadItemDTO {
 
     private String imageAddr;
