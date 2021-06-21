@@ -80,7 +80,7 @@ public class ScrapingService {
         ChromeOptions options = new ChromeOptions();
         options.setBinary(chromeBinary);
 
-        String proxyUrl = "http://il.smartproxy.com:30001";
+        String proxyUrl = "http://il.smartproxy.com:30000";
 
         options.addArguments("--headless", "--no-sandbox", "--disable-gpu", "--window-size=1280x1696",
                 "--user-data-dir=/tmp/user-data", /*"--remote-debugging-port=9222",*/ "--hide-scrollbars",
