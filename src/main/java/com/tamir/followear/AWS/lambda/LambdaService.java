@@ -1,5 +1,6 @@
 package com.tamir.followear.AWS.lambda;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.AWSLambda;
@@ -42,9 +43,13 @@ public class LambdaService {
 
     @PostConstruct
     public void init() {
+        ClientConfiguration clientConfig = new ClientConfiguration();
+        clientConfig.setSocketTimeout(3 * 60 * 60 * 1000); // 3 minutes
+
         awsLambda = AWSLambdaClientBuilder.standard()
             .withCredentials(new AWSStaticCredentialsProvider(myAWSCreds.getCredentials()))
             .withRegion(Regions.EU_WEST_1)
+            .withClientConfiguration(clientConfig)
             .build();
 
         mapper = new ObjectMapper();
