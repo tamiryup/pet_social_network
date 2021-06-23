@@ -187,12 +187,12 @@ public class PostService {
     }
 
     public Post uploadLink(long userId, String link) throws IOException {
-        UploadItemDTO item = scrapingService.extractItem(link);
+        UploadItemDTO item = scrapingService.extractItem(link, userId);
         return uploadItemPost(userId, item);
     }
 
     public Post rstyleUploadLink(long userId, String link, String rstyleLink) throws IOException {
-        UploadItemDTO item = scrapingService.extractItem(link);
+        UploadItemDTO item = scrapingService.extractItem(link, userId);
         item.setLink(rstyleLink);
         return uploadItemPost(userId, item);
     }

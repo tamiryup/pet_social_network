@@ -10,5 +10,6 @@ public class ScrapingEventDTO {
 
     private String link;
     private long storeId;
+    private long userId;
 
 }

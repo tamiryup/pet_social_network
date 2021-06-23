@@ -76,10 +76,10 @@ public class ScrapingService {
         return driver;
     }
 
-    public UploadItemDTO extractItem(String productPageLink) {
+    public UploadItemDTO extractItem(String productPageLink, long userId) {
         UploadItemDTO itemDTO = null;
         InvokeResult result = null;
-        ScrapingEventDTO scrapingEvent = createScrapingEvent(productPageLink);
+        ScrapingEventDTO scrapingEvent = createScrapingEvent(productPageLink, userId);
 
         try {
 
@@ -162,7 +162,7 @@ public class ScrapingService {
         }
     }
 
-    public ScrapingEventDTO createScrapingEvent(String productPageLink) {
+    public ScrapingEventDTO createScrapingEvent(String productPageLink, long userId) {
         long storeId;
         String website;
 
@@ -175,7 +175,7 @@ public class ScrapingService {
 
         storeId = getStoreID(website);
 
-        return new ScrapingEventDTO(productPageLink, storeId);
+        return new ScrapingEventDTO(productPageLink, storeId, userId);
     }
 
     public UploadItemDTO classifyItem(UploadItemDTO itemDTO) {
