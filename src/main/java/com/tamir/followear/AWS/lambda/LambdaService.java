@@ -50,7 +50,7 @@ public class LambdaService {
         mapper = new ObjectMapper();
     }
 
-    public UploadItemDTO invokeScrapingLambda(ScrapingEventDTO scrapingEvent) throws IOException {
+    public InvokeResult invokeScrapingLambda(ScrapingEventDTO scrapingEvent) throws IOException {
 
         ByteBuffer payload = ByteBuffer.wrap(mapper.writeValueAsBytes(scrapingEvent));
 
@@ -60,9 +60,7 @@ public class LambdaService {
 
         InvokeResult result = awsLambda.invoke(invokeRequest);
 
-        UploadItemDTO itemDTO = mapper.readValue(result.getPayload().array(), UploadItemDTO.class);
-
-        return itemDTO;
+        return result;
     }
 
 }

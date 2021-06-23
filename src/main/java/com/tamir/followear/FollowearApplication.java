@@ -13,6 +13,7 @@ import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.enums.Category;
 import com.tamir.followear.enums.Currency;
 import com.tamir.followear.enums.ProductType;
+import com.tamir.followear.exceptions.BadLinkException;
 import com.tamir.followear.services.PostService;
 import com.tamir.followear.services.ScrapingService;
 import org.slf4j.Logger;

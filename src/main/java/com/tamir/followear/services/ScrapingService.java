@@ -1,11 +1,17 @@
 package com.tamir.followear.services;
 
+import com.amazonaws.services.lambda.model.InvokeResult;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tamir.followear.AWS.lambda.LambdaService;
+import com.tamir.followear.dto.LambdaErrorDTO;
 import com.tamir.followear.dto.ScrapingEventDTO;
 import com.tamir.followear.dto.UploadItemDTO;
 import com.tamir.followear.entities.Store;
 import com.tamir.followear.enums.ProductType;
 import com.tamir.followear.exceptions.BadLinkException;
+import com.tamir.followear.exceptions.NonFashionItemException;
 import com.tamir.followear.exceptions.ScrapingError;
 import com.tamir.followear.helpers.StringHelper;
 import org.openqa.selenium.WebDriver;
@@ -43,9 +49,13 @@ public class ScrapingService {
     @Value("${fw.chrome.binary}")
     private String chromeBinary;
 
+    private ObjectMapper mapper;
+
     @PostConstruct
     public void init() throws IOException {
         System.setProperty("webdriver.chrome.driver", chromedriverPath);
+
+        mapper = new ObjectMapper();
     }
 
     public WebDriver getDriver() {
@@ -68,10 +78,16 @@ public class ScrapingService {
 
     public UploadItemDTO extractItem(String productPageLink) {
         UploadItemDTO itemDTO = null;
+        InvokeResult result = null;
         ScrapingEventDTO scrapingEvent = createScrapingEvent(productPageLink);
 
         try {
-            itemDTO = lambdaService.invokeScrapingLambda(scrapingEvent);
+
+            result = lambdaService.invokeScrapingLambda(scrapingEvent);
+            itemDTO = mapper.readValue(result.getPayload().array(), UploadItemDTO.class);
+
+        } catch (JsonMappingException | JsonParseException e) {
+            handleScrapingLambdaError(result);
         } catch (IOException e) {
             logger.error("ScrapingError: ", e);
             throw new ScrapingError(e.toString());
@@ -80,6 +96,30 @@ public class ScrapingService {
         classifyItem(itemDTO);
 
         return itemDTO;
+    }
+
+    private void handleScrapingLambdaError(InvokeResult lambdaResult) {
+
+        try {
+            LambdaErrorDTO lambdaError = mapper.readValue(lambdaResult.getPayload().array(), LambdaErrorDTO.class);
+            String errorType = lambdaError.getErrorType();
+
+            if(errorType.contains(BadLinkException.class.getSimpleName())) {
+                throw new BadLinkException(lambdaError.getErrorMessage());
+            }
+            if(errorType.contains(NonFashionItemException.class.getSimpleName())) {
+                throw new NonFashionItemException(lambdaError.getErrorMessage());
+            }
+            if(errorType.contains(ScrapingError.class.getSimpleName())) {
+                logger.error("ScrapingError from lambda: ", lambdaError.getStackTrace());
+                throw new ScrapingError(lambdaError.getErrorMessage());
+            }
+
+        } catch (IOException e) {
+            logger.error("ScrapingError: ", e);
+            throw new ScrapingError(e.toString());
+        }
+
     }
 
     private long getStoreID(String website) {
