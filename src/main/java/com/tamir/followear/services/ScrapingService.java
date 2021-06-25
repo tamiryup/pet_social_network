@@ -518,77 +518,17 @@ public class ScrapingService {
 
 
     private UploadItemDTO terminalxDTO(String productPageLink, long storeId, WebDriver driver) {
-//            Category category;
-//            ProductType productType;
-            String correctLink = correctTerminalLink((productPageLink));
-            driver.get(productPageLink);
-//            String price = "";
-//            String salePrice = "";
-//            String imgExtension = "jpg";
-//            List<String> links = new ArrayList<>();
-//            List<String> tempLinks = new ArrayList<>();
-//            String visibleThumbnails = "";
-//            String largeImageStringCode = "";
-//            Currency currency = Currency.ILS;
-            Document document = Jsoup.parse(driver.getPageSource());
-//            String description="";
-            //System.out.println(document.toString());
-            try{
-                //System.out.println("normal");
-                return this.terminalxNormalDTO(correctLink,storeId, document);
-            }
+        String correctLink = correctTerminalLink((productPageLink));
+        driver.get(productPageLink);
+        Document document = Jsoup.parse(driver.getPageSource());
 
-            catch (NullPointerException e) {
-                //System.out.println("no css");
-                return this.terminalNoCSS(document, correctLink, storeId);
-
-            }
-
-//            String productPageType = document.select(".product-item-brand").first().attr(
-//                    "data-div-top");
-//            if (("גברים".equals(productPageType)) || ("נשים".equals(productPageType))) {
-//
-//            } else {
-//                throw new NonFashionItemException();
-//            }
-//            String productID = document.select(".price-box.price-final_price").first().attr(
-//                    "data-product-id");
-//
-//            try {
-//                price = document.select("span#old-price-" + productID).first().attr("data-price-amount");
-//                ItemPriceCurr itemPriceCurr = priceTag(price);
-//                price = itemPriceCurr.price;
-//                salePrice = document.select("span#product-price-" + productID).first().attr("data-price-amount");
-//                ItemPriceCurr itemPriceCurrSale = priceTag(salePrice);
-//                salePrice = itemPriceCurrSale.price;
-//            } catch (NullPointerException e) {
-//                price = document.select("span#product-price-" + productID).first().attr("data-price-amount");
-//                ItemPriceCurr itemPriceCurr = priceTag(price);
-//                price = itemPriceCurr.price;
-//            }
-//
-//            String designer = document.select("div.product-item-brand a").first().text();
-//            String imageAddr = document.select("div.fotorama__stage__shaft img").attr("src");
-//            tempLinks = document.select("img.fotorama__img").eachAttr("src");
-//            String largeImageCode = "b374ff9ecf3b29b1a67d228d0c98e9a1";
-//            String smallImageCode = "18af6b3a2b941abd05c55baf78d1b952";
-//
-//            for (int i = tempLinks.size(); i > 0 ; i--){
-//                if (tempLinks.get(i-1).contains(smallImageCode)){
-//                    String largeThumbnail = tempLinks.get(i-1).replace(smallImageCode,largeImageCode);
-//                    links.add(largeThumbnail);
-//                    break;
-//                }
-//            }
-//
-//            Map<String, ProductType> dict = classificationService.getHebrewDict();
-//            ItemClassificationService.ItemTags itemTags = classificationService.classify(description, dict);
-//            category = itemTags.getCategory();
-//            productType = itemTags.getProductType();
-//
-//            return new UploadItemDTO(imageAddr, productPageLink, description,
-//                    price, salePrice, currency, storeId, designer, imgExtension, productID, links, category, productType);
-//
+        try{
+            LOGGER.info("starting terminalX normal scraping");
+            return terminalxNormalDTO(correctLink,storeId, document);
+        } catch (NullPointerException e) {
+            LOGGER.info("starting terminalX no css scraping");
+            return terminalNoCSS(document, correctLink, storeId);
+        }
     }
 
     private UploadItemDTO terminalxNormalDTO(String productPageLink, long storeId, Document document) {
