@@ -663,6 +663,20 @@ public class ScrapingService {
 
         List<String> links = new ArrayList<>();
         String productID = "";
+//        List<String> breadCrumbsElem = document.select("li.list-item_1oUx a").eachAttr("title");
+//        Boolean isFashionItem = true;
+//        for (String i : breadCrumbsElem) {
+//            System.out.println(i);
+//            if (i.equals("נשים") || i.equals("גברים")){
+//                isFashionItem = true;
+//                break;
+//            }else{
+//                isFashionItem = false;
+//            }
+//        }
+//        if (!isFashionItem){
+//            throw new NonFashionItemException();
+//        }
         int beginIndex = productPageLink.lastIndexOf("/x");
         productID = productPageLink.substring(beginIndex+2,productPageLink.length());
         String price ="";
