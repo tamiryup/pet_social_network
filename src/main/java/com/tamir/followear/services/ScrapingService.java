@@ -524,14 +524,14 @@ public class ScrapingService {
 
         try{
             LOGGER.info("starting terminalX normal scraping");
-            return terminalxNormalDTO(correctLink,storeId, document);
+            return terminalxNormalDTO(document, correctLink, storeId);
         } catch (NullPointerException e) {
             LOGGER.info("starting terminalX no css scraping");
             return terminalNoCSS(document, correctLink, storeId);
         }
     }
 
-    private UploadItemDTO terminalxNormalDTO(String productPageLink, long storeId, Document document) {
+    private UploadItemDTO terminalxNormalDTO(Document document, String productPageLink, long storeId) {
         Category category;
         ProductType productType;
         String price = "";
