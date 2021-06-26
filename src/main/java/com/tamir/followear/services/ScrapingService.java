@@ -521,7 +521,6 @@ public class ScrapingService {
         String correctLink = correctTerminalLink((productPageLink));
         driver.get(productPageLink);
         Document document = Jsoup.parse(driver.getPageSource());
-
         try{
             LOGGER.info("starting terminalX normal scraping");
             return terminalxNormalDTO(correctLink,storeId, document);
@@ -595,7 +594,8 @@ public class ScrapingService {
 
     private UploadItemDTO terminalNoCSS(Document document, String productPageLink, long storeId){
 
-        String description = document.select("h1.name_20R6").first().text();
+        //String description = document.select("h1.name_20R6").first().text();
+        String description = document.select("meta[name='keywords']").attr("content");
         String imageAddr = "";
         Currency currency = Currency.ILS;
         String designer = "";
